@@ -9,10 +9,13 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@gsap/react": "^2.1.2",
     "@supabase/supabase-js": "^2.56.0",
+    "gsap": "^3.13.0",
     "next": "15.4.6",
     "react": "19.1.0",
-    "react-dom": "19.1.0"
+    "react-dom": "19.1.0",
+    "react-responsive": "^10.0.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
