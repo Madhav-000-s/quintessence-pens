@@ -1,7 +1,8 @@
 import { supabase } from "@/supabase-client";
-import jwt from 'jsonwebtoken';
+import jwt from 'jsonwebtoken'
 import { createMaterial, createCoating, createDesign, createEngraving } from "@/app/lib/configuratorFunctions";
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { serialize } from "cookie";
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -26,7 +27,7 @@ export async function POST(request: NextRequest) {
     if(body.design) {
         design = await createDesign(body.design.description, body.design.font, body.design.colour, body.design.hex_code);
     }
-    if(!body.engraving) {
+    if(body.engraving) {
         const engraving_material = await createMaterial(body.engraving.material.name, body.engraving.material.weight);
         engraving = await createEngraving(body.engraving.font, body.engraving.type_name, body.engraving.description, engraving_material!);
     }
@@ -49,7 +50,7 @@ export async function POST(request: NextRequest) {
                 coating_id: coating,
                 cost: material?.cost + design?.cost + clip_design?.cost + engraving?.cost,
             })
-            .select("id, cost");
+            .select("cap_type_id, cost");
         
         if(!error) {
             const tokenCookie = request.cookies.get("pen");
@@ -61,7 +62,7 @@ export async function POST(request: NextRequest) {
                     }
                     const result = await supabase
                         .rpc('update_pen_details', {
-                            new_cap_id: data[0].id,
+                            new_cap_id: data[0].cap_type_id,
                             amount_to_add: data[0].cost,
                             row_id: decoded
                         })
@@ -81,14 +82,15 @@ export async function POST(request: NextRequest) {
                 const result = await supabase
                 .from("Pen")
                 .insert({
-                    cap_type_id: data[0].id,
+                    cap_type_id: data[0].cap_type_id,
                     cost: data[0].cost,
                 })
                 .select("pen_id");
 
                 if(!result.error) {
-                    const encoded = jwt.sign(result.data[0].pen_id, JWT_SECRET!);
-                    return new Response(JSON.stringify("New pen created with cap"), {
+                    const encoded = jwt.sign(result.data[0].pen_id, JWT_SECRET!, {"expiresIn": '96h'});
+                    
+                    return new NextResponse(JSON.stringify("New pen created with cap"), {
                         headers: {
                             "Content-Type": "application/json",
                             "Set-Cookie": `pen=${encoded}`
@@ -96,9 +98,10 @@ export async function POST(request: NextRequest) {
                         status: 201
                     })
                 }
-                return new Response(JSON.stringify("Error creating new pen"), {status: 400});
+                return new Response(JSON.stringify(result.error), {status: 400});
             }
         }
+        return new Response(JSON.stringify(error), {status: 400});
     }
     catch (e) {
         return new Response(JSON.stringify({"error": e}), {

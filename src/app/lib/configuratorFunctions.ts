@@ -16,20 +16,19 @@ export async function createDesign(description: string, font: string, colour:str
         colour, 
         hex_code
     })
-    .select("id, cost");
+    .select("design_id, cost");
 
     if (error) { 
         console.error(error); 
         return null;
     }
 
-    if(data && data.length > 0) { 
-        console.log("inserted data: ", data);
-        return {
-            id: data[0].id,
-            cost: data[0].cost,
-        }
+
+    return {
+        id: data[0].design_id,
+        cost: data[0].cost,
     }
+
 }
 
 export async function createMaterial(name: string, weight: number) {
@@ -49,13 +48,12 @@ export async function createMaterial(name: string, weight: number) {
         return null;
     }
 
-    if(data && data.length > 0) { 
-        console.log("inserted data: ", data);
-        return {
-            id: data[0].id,
-            cost: data[0].cost 
-        }
+   
+    return {
+        id: data[0].id,
+        cost: data[0].cost 
     }
+    
 }
 
 export async function createEngraving(font: string, type_name: string, description: string, material: Material) {
@@ -71,7 +69,7 @@ export async function createEngraving(font: string, type_name: string, descripti
         .select("engraving_id, cost");
     
     if(error) {
-        console.error(error);
+        console.error("error: ", error);
         return null;
     }
     
@@ -81,11 +79,11 @@ export async function createEngraving(font: string, type_name: string, descripti
     };
 }
 
-export async function createCoating(color: string, hex_code: string, type: string) {
+export async function createCoating(colour: string, hex_code: string, type: string) {
     const { data, error } = await supabase
     .from("Coating")
     .insert({
-        color,
+        colour,
         hex_code,
         type
     })
