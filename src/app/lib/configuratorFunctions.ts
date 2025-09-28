@@ -6,6 +6,8 @@ interface Material {
     cost: number;
 }
 
+// CREATE OPERATIONS
+
 export async function createDesign(description: string, font: string, colour:string, hex_code: string) {
     const { data, error } = await supabase
     .from("Design")
@@ -95,4 +97,65 @@ export async function createCoating(colour: string, hex_code: string, type: stri
     }
     
     return data[0].coating_id;
+}
+
+
+// SELECT OPERATIONS
+
+export async function materialData(id: number) {
+    const { data, error } = await supabase
+        .from("Material")
+        .select("*")
+        .eq("id", id);
+    
+    if(error) {
+        console.error(error)
+        return null;
+    }
+
+    return data[0];
+}
+
+export async function designData(id: number) {
+    const { data, error } = await supabase
+        .from("Design")
+        .select("*")
+        .eq("design_id", id);
+    
+    if(error) {
+        console.error(error)
+        return null;
+    }
+
+    return data[0];
+}
+
+export async function coatingData(id: number) {
+    const { data, error } = await supabase
+        .from("Coating")
+        .select("*")
+        .eq("coating_id", id);
+    
+    if(error) {
+        console.error(error)
+        return null;
+    }
+
+    return data[0];
+}
+
+
+export async function engravingData(id: number) {
+    const { data, error } = await supabase
+        .from("Engravings")
+        .select("*")
+        .eq("engraving_id", id);
+    
+    if (error) {
+        console.error(error);
+        return null;
+    }
+
+    const newData = {...data[0], material_id: await materialData(data[0].material_id)};
+    return newData; 
 }
