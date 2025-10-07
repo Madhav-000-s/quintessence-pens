@@ -1,4 +1,5 @@
-import { Calendar, Home, Inbox, Search, Settings } from "lucide-react"
+"use client"
+import { usePathname } from "next/navigation"
 
 import {
   Sidebar,
@@ -10,39 +11,19 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
+import { Panel } from "@/types/navigation"
+import { getItems } from "@/lib/utils"
 
-// Menu items.
-const items = [
-  {
-    title: "Home",
-    url: "#",
-    icon: Home,
-  },
-  {
-    title: "Inbox",
-    url: "#",
-    icon: Inbox,
-  },
-  {
-    title: "Calendar",
-    url: "#",
-    icon: Calendar,
-  },
-  {
-    title: "Search",
-    url: "#",
-    icon: Search,
-  },
-  {
-    title: "Settings",
-    url: "#",
-    icon: Settings,
-  },
-]
+type AppSidebarProps = {
+    panel: Panel
+}
 
-export function SuperAdminSidebar() {
+export function AppSidebar({ panel }: AppSidebarProps) {
+  const pathname = usePathname()
+
+  const items = getItems(panel)
   return (
-    <Sidebar variant="floating" collapsible="icon">
+    <Sidebar variant="inset" collapsible="icon">
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>Application</SidebarGroupLabel>
@@ -50,7 +31,7 @@ export function SuperAdminSidebar() {
             <SidebarMenu>
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
+                  <SidebarMenuButton asChild variant={pathname === item.url ? "primary" : "default"}>
                     <a href={item.url}>
                       <item.icon />
                       <span>{item.title}</span>
