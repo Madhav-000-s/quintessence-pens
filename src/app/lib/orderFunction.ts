@@ -120,8 +120,9 @@ export async function checkInventory(materialWeights: InventoryInput): Promise<I
 
   const { data, error } = await supabase
     .from("Inventory")
-    .select("name, weight")
-    .in("name", requestedMaterials);
+    .select("material_name, weight")
+    .eq("isPen", false)
+    .in("material_name", requestedMaterials);
 
   if (error) {
     console.error("Failed to fetch inventory:", error);
@@ -138,8 +139,8 @@ export async function checkInventory(materialWeights: InventoryInput): Promise<I
   const nameToAvailable: Record<string, number> = {};
   for (const row of data ?? []) {
     // Expecting columns: name (string), weight (grams)
-    if (row && typeof row.name === "string" && typeof row.weight === "number") {
-      nameToAvailable[row.name] = row.weight;
+    if (row && typeof row.material_name === "string" && typeof row.weight === "number") {
+      nameToAvailable[row.material_name] = row.weight;
     }
   }
 
@@ -153,5 +154,79 @@ export async function checkInventory(materialWeights: InventoryInput): Promise<I
   const allAvailable = unavailableMaterials.length === 0;
 
   return { items, unavailableMaterials, allAvailable };
+}
+
+// Fetch all materials and their weights required for a given pen
+export async function getPenMaterialsWeights(penId: number): Promise<Record<string, number>> {
+  if (!Number.isFinite(penId) || penId <= 0) return {};
+
+  // Fetch pen to get component IDs
+  const { data: penData, error: penError } = await supabase
+    .from("Pen")
+    .select("pen_id, cap_type_id, barrel_id, nibtype_id")
+    .eq("pen_id", penId)
+    .limit(1)
+    .maybeSingle();
+
+  if (penError || !penData) {
+    console.error("Failed to fetch pen:", penError);
+    return {};
+  }
+
+  // Fetch component configs in parallel
+  const [capRes, barrelRes, nibRes] = await Promise.all([
+    supabase.from("CapConfig").select("material_id, engraving_id").eq("cap_type_id", penData.cap_type_id).limit(1).maybeSingle(),
+    supabase.from("BarrelConfig").select("material_id, engraving_id").eq("barrel_id", penData.barrel_id).limit(1).maybeSingle(),
+    supabase.from("NibConfig").select("material_id").eq("nibtype_id", penData.nibtype_id).limit(1).maybeSingle(),
+  ]);
+
+  const cap = capRes.data ?? null;
+  const barrel = barrelRes.data ?? null;
+  const nib = nibRes.data ?? null;
+
+  const materialIds = new Set<number>();
+  const engravingIds: number[] = [];
+
+  if (cap?.material_id && Number.isFinite(cap.material_id)) materialIds.add(cap.material_id as number);
+  if (barrel?.material_id && Number.isFinite(barrel.material_id)) materialIds.add(barrel.material_id as number);
+  if (nib?.material_id && Number.isFinite(nib.material_id)) materialIds.add(nib.material_id as number);
+
+  if (cap?.engraving_id && Number.isFinite(cap.engraving_id)) engravingIds.push(cap.engraving_id as number);
+  if (barrel?.engraving_id && Number.isFinite(barrel.engraving_id)) engravingIds.push(barrel.engraving_id as number);
+
+  // Fetch engraving materials if any
+  if (engravingIds.length > 0) {
+    const { data: engravings, error: engrErr } = await supabase
+      .from("Engravings")
+      .select("material_id")
+      .in("engraving_id", engravingIds);
+    if (!engrErr && engravings) {
+      for (const e of engravings) {
+        if (e && Number.isFinite(e.material_id)) materialIds.add(e.material_id as number);
+      }
+    }
+  }
+
+  if (materialIds.size === 0) return {};
+
+  // Fetch material rows and build name->weight map
+  const { data: materials, error: matErr } = await supabase
+    .from("Material")
+    .select("name, weight")
+    .in("id", Array.from(materialIds));
+
+  if (matErr || !materials) {
+    console.error("Failed to fetch materials:", matErr);
+    return {};
+  }
+
+  const result: Record<string, number> = {};
+  for (const m of materials) {
+    if (!m || typeof m.name !== "string" || typeof m.weight !== "number") continue;
+    const key = m.name.toLowerCase();
+    result[key] = (result[key] ?? 0) + m.weight;
+  }
+
+  return result;
 }
 
