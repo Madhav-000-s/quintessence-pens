@@ -1,7 +1,7 @@
 import { supabase } from "@/supabase-client";
 import jwt from 'jsonwebtoken'
 import { createMaterial, createCoating, createDesign, createEngraving,
-    materialData, designData, coatingData, engravingData    
+    materialData, designData, coatingData, engravingData, extractCapDetails    
  } from "@/app/lib/configuratorFunctions";
 import { NextRequest, NextResponse } from "next/server";
 import { serialize } from "cookie";
@@ -187,24 +187,7 @@ export async function GET(request: NextRequest) {
         return new Response(JSON.stringify(result.error), {status: 400});
     }
     
-    const { data, error } = await supabase
-        .from("CapConfig")
-        .select("*")
-        .eq("cap_type_id", result.data[0].cap_type_id);
-
-    if(error) {
-        console.error(error);
-        return new Response(JSON.stringify(error), {status : 400});
-    }
-    const responseData = {
-        cap_type_id: data[0].cap_type_id,
-        description: data[0].description,
-        material: await materialData(data[0].material_id),
-        design: await designData(data[0].design_id),
-        engraving: await engravingData(data[0].engraving_id),
-        clip_design: await designData(data[0].clip_design_id),
-        coating: await coatingData(data[0].coating_id),
-        cost: data[0].cost
-    }
+    const responseData = await extractCapDetails(result.data[0].cap_type_id);
+    
     return Response.json(responseData);
 }
