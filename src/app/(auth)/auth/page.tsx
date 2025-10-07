@@ -1,7 +1,8 @@
+
 "use client"
 
 import { useState } from "react";
-import { supabase } from "../supabase-client";
+import { supabase } from "@/supabase-client";
 
 export default function AuthPage() {
   const [mode, setMode] = useState<"login" | "signup">("login");
