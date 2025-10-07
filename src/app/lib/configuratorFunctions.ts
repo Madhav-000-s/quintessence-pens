@@ -159,3 +159,115 @@ export async function engravingData(id: number) {
     const newData = {...data[0], material_id: await materialData(data[0].material_id)};
     return newData; 
 }
+
+
+// Pen details extraction functions
+export async function extractCapDetails(capId: number) {
+    const { data, error } = await supabase
+        .from("CapConfig")
+        .select("*")
+        .eq("cap_type_id", capId);
+
+    if(error) {
+        console.error(error);
+        return null;
+    }
+    const responseData = {
+        cap_type_id: data[0].cap_type_id,
+        description: data[0].description,
+        material: await materialData(data[0].material_id),
+        design: await designData(data[0].design_id),
+        engraving: await engravingData(data[0].engraving_id),
+        clip_design: await designData(data[0].clip_design_id),
+        coating: await coatingData(data[0].coating_id),
+        cost: data[0].cost
+    }
+    return responseData;
+}
+
+export async function extractBarrelDetails(barrelId: number) {
+    const { data, error } = await supabase
+        .from("BarrelConfig")
+        .select("*")
+        .eq("barrel_id", barrelId);
+
+    if(error) {
+        console.error(error);
+        return null;
+    }
+    const responseData = {
+        barrel_id: data[0].barrel_id,
+        description: data[0].description,
+        shape: data[0].shape,
+        cost: data[0].cost,
+        grip_type: data[0].grip_type,
+        material: await materialData(data[0].material_id),
+        design: await designData(data[0].design_id),
+        engraving: await engravingData(data[0].engraving_id),
+        coating: await coatingData(data[0].coating_id)
+    }
+    return responseData;
+}
+
+export async function extractInkDetails(inkId: number) {
+    const { data, error } = await supabase
+        .from("InkConfig")
+        .select("*")
+        .eq("ink_type_id", inkId);
+
+    if(error) {
+        console.error(error);
+        return null;
+    }
+    const responseData = {
+        ink_type_id: data[0].ink_type_id,
+        type_name: data[0].type_name,
+        description: data[0].description,
+        cost: data[0].cost,
+        colour: data[0].colour_name,
+        hexcode: data[0].hexcode,
+    }
+    return responseData;
+}   
+
+export async function extractNibDetails(nibId: number) {
+    const { data, error } = await supabase
+        .from("NibConfig")
+        .select("*")
+        .eq("nibtype_id", nibId);
+
+    if(error) {
+        console.error(error);
+        return null;
+    }
+    const responseData = {
+        nib_id: data[0].nibtype_id,
+        description: data[0].description,
+        size: data[0].size,
+        cost: data[0].cost,
+        material: await materialData(data[0].material_id),
+        design: await designData(data[0].design_id),
+    }
+    return responseData;
+}
+
+export async function extractPenDetails(penId: number) {
+    const { data, error } = await supabase
+        .from("Pen")
+        .select("*")
+        .eq("pen_id", penId);
+
+    if(error) {
+        console.error(error);
+        return null;
+    }
+    const responseData = {
+        pen_id: data[0].pen_id,
+        pen_type: data[0].pen_type,
+        cap: await extractCapDetails(data[0].cap_type_id),
+        barrel: await extractBarrelDetails(data[0].barrel_id),
+        ink: await extractInkDetails(data[0].ink_type_id),
+        nib: await extractNibDetails(data[0].nibtype_id),
+    }
+    return responseData;
+}
