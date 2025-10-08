@@ -1,0 +1,23 @@
+{
+  "production": {
+    "description": "Time taken for manufacturing and production processes",
+    "standard_time_days": 7
+  },
+  "raw_materials": {
+    "description": "Time taken to order and receive raw materials",
+    "standard_ordering_days": 3
+  },
+  "backlog_delay": {
+    "description": "Additional time due to production backlog",
+    "backlog_days": 2
+  },
+  "shipping": {
+    "description": "Time taken for packaging and shipping",
+    "domestic_shipping_days": 2,
+    "customs_clearance_days": 2
+  },
+  "quality_control": {
+    "description": "Time taken for quality checks and testing",
+    "standard_qc_days": 1
+  }
+}

@@ -1,4 +1,5 @@
 import amountDetails from "../data/amount-details.json";
+import timeDetails from "../data/time-details.json";
 import { supabase } from "@/supabase-client";
 
 type LabourCharges = {
@@ -228,5 +229,40 @@ export async function getPenMaterialsWeights(penId: number): Promise<Record<stri
   }
 
   return result;
+}
+
+// Manufacturing duration calculation function
+export async function calculateManufacturingDuration(
+  currentDate: Date,
+  requiresMaterialPurchase: boolean
+): Promise<Date> {
+  let totalDays = 0;
+
+  // Add production time
+  totalDays += timeDetails.production.standard_time_days;
+
+  // Add raw materials time if purchase is required
+  if (requiresMaterialPurchase) {
+    totalDays += timeDetails.raw_materials.standard_ordering_days;
+  }
+
+  // Add quality control time
+  totalDays += timeDetails.quality_control.standard_qc_days;
+
+  // Check for backlog by counting "In Production" work orders
+  const { data: backlogData, error: backlogError } = await supabase
+    .from("WorkOrder")
+    .select("id", { count: "exact" })
+    .eq("status", "In Production");
+
+  if (!backlogError && backlogData && backlogData.length > 3) {
+    totalDays += timeDetails.backlog_delay.backlog_days;
+  }
+
+  // Calculate the new date by adding total days
+  const newDate = new Date(currentDate);
+  newDate.setDate(currentDate.getDate() + totalDays);
+
+  return newDate;
 }
 

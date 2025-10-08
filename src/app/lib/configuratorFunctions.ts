@@ -264,6 +264,7 @@ export async function extractPenDetails(penId: number) {
     const responseData = {
         pen_id: data[0].pen_id,
         pen_type: data[0].pen_type,
+        cost: data[0].cost,
         cap: await extractCapDetails(data[0].cap_type_id),
         barrel: await extractBarrelDetails(data[0].barrel_id),
         ink: await extractInkDetails(data[0].ink_type_id),
