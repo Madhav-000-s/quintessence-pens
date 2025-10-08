@@ -1,6 +1,7 @@
 import { supabase } from "@/supabase-client";
 import { extractPenDetails } from "@/app/lib/configuratorFunctions";
 import { getAmountDetails } from "@/app/lib/orderFunction";
+import { expandCustomer } from "@/app/lib/customerFunctions";
 
 export async function GET(request: Request) {
     const body = await request.json();
@@ -14,9 +15,18 @@ export async function GET(request: Request) {
     }
 
     const finalData = {
-        ...data[0],
+        id: data[0].id,
+        start_date: data[0].start_date,
+        end_date: data[0].end_date,
+        status: data[0].status,
+        count: data[0].count,
+        unit_cost: data[0].unit_cost,
+        subtotal: data[0].subtotal,
+        tax_amt: data[0].tax_amt,
+        grand_total: data[0].grand_total,
         pen: await extractPenDetails(data[0].pen),
-        cost_division: getAmountDetails()
+        cost_division: getAmountDetails(),
+        customer: await expandCustomer(data[0].customer_id)
     }
 
     return new Response(JSON.stringify(finalData), {status: 200});
