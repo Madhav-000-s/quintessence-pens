@@ -40,7 +40,8 @@ export async function POST(request: Request) {
             subtotal: subtotal,
             tax_amt: taxAmount,
             grand_total: totalWithTax,
-            isBusnies: body.isBusines
+            isBusnies: body.isBusines,
+            material_wts: requiredMaterialsAndWts
         });
 
     if(error || !data) {
