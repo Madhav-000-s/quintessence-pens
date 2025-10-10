@@ -1,7 +1,7 @@
 import { supabase } from "@/supabase-client";
 import jwt from 'jsonwebtoken'
-import { createMaterial, createCoating, createDesign, createEngraving,
-    materialData, designData, coatingData, engravingData, extractCapDetails    
+import { createMaterial, createCoating, createDesign, createEngraving, createClipDesign,
+    materialData, designData, coatingData, engravingData, clipDesignData, extractCapDetails    
  } from "@/app/lib/configuratorFunctions";
 import { NextRequest, NextResponse } from "next/server";
 import { serialize } from "cookie";
@@ -9,7 +9,7 @@ import { serialize } from "cookie";
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
-interface Payload {
+export type Payload = {
     penId: number;
 }
 
@@ -29,17 +29,17 @@ export async function POST(request: NextRequest) {
     let coating = null;
 
     if(body.material) {
-        material = await createMaterial(body.material.name, body.material.weight);
+        material = await createMaterial(body.material.name, 2);
     }
     if(body.design) {
         design = await createDesign(body.design.description, body.design.font, body.design.colour, body.design.hex_code);
     }
     if(body.engraving) {
-        const engraving_material = await createMaterial(body.engraving.material.name, body.engraving.material.weight);
-        engraving = await createEngraving(body.engraving.font, body.engraving.type_name, body.engraving.description, engraving_material!);
+        const engraving_material = await createMaterial(body.engraving.material.name, 2);
+        engraving = await createEngraving(body.engraving.font, body.engraving.type_name, body.engraving.description);
     }
     if(body.clip_design) {
-        clip_design = await createDesign(body.clip_design.description, body.clip_design.font, body.clip_design.colour, body.clip_design.hex_code)
+        clip_design = await createClipDesign(body.clip_design.description, body.clip_design.material, body.clip_design.design, body.clip_design.engraving)
     }
     if(body.coating) {
         coating = await createCoating(body.coating.colour, body.coating.hex_code, body.coating.type);
@@ -145,16 +145,7 @@ export async function GET(request: NextRequest) {
                 console.error(error);
                 return new Response(JSON.stringify(error), {status : 400});
             }
-            const responseData = {
-                cap_type_id: data[0].cap_type_id,
-                description: data[0].description,
-                material: await materialData(data[0].material_id),
-                design: await designData(data[0].design_id),
-                engraving: await engravingData(data[0].engraving_id),
-                clip_design: await designData(data[0].clip_design_id),
-                coating: await coatingData(data[0].coating_id),
-                cost: data[0].cost
-            }
+            const responseData = await extractCapDetails(data[0].cap_type_id);
             return Response.json(responseData);
         }
         catch (e) {

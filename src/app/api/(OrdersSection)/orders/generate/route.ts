@@ -1,13 +1,30 @@
 import { calculatePayable, calculateManufacturingDuration, getPenMaterialsWeights, checkInventory } from "@/app/lib/orderFunction";
 import { supabase } from "@/supabase-client";
+import jwt from 'jsonwebtoken'
+import { NextRequest } from "next/server";
+import { Payload } from "@/app/api/(configurators)/configure_cap/route";
+import { decode } from "punycode";
 
-export async function POST(request: Request) {
+const JWT_SECRET = process.env.JWT_SECRET;
+
+export async function POST(request: NextRequest) {
     const body = await request.json();
 
+    const tokenCookie = request.cookies.get("pen");
+    if(!tokenCookie) {
+        return new Response(JSON.stringify("Cookie not found"), {status: 400});
+    }
+
+    try {
+        const decoded = jwt.verify(tokenCookie.value, JWT_SECRET!) as Payload; 
+        if(!decoded) {
+            return new Response(JSON.stringify("Unable to decode cookie"), {status: 400});
+        }
+    
     const { data: PenData, error: PenError } = await supabase
         .from("Pen")
         .select("cost")
-        .eq("pen_id", body.pen_id);
+        .eq("pen_id", decoded.penId);
 
     if(PenError) {
         console.error(PenError);
@@ -16,7 +33,7 @@ export async function POST(request: Request) {
     
     const { subtotal, taxAmount, totalWithTax } = calculatePayable(PenData[0].cost, body.count, 18);
     
-    const requiredMaterialsAndWts = await getPenMaterialsWeights(body.pen_id);
+    const requiredMaterialsAndWts = await getPenMaterialsWeights(decoded.penId);
     const inventoryCheckResults = await checkInventory(requiredMaterialsAndWts);
 
     // Generate dates
@@ -31,7 +48,7 @@ export async function POST(request: Request) {
         .from("WorkOrder")
         .insert({
             customer_id: body.customer_id,
-            pen: body.pen_id,
+            pen: decoded.penId,
             isPaid: false,
             start_date: startDate,
             end_date: endDate,
@@ -48,6 +65,10 @@ export async function POST(request: Request) {
         console.error(error);
         return new Response(JSON.stringify(error), {status: 400});
     }
-
+    request.cookies.delete("pen");
     return new Response(JSON.stringify("Bill of Material created successfully"), {status: 201});
+    }
+    catch {
+        return new Response(JSON.stringify("Unable to decode"), {status: 400});
+    }
 }
