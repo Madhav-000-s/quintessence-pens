@@ -1,7 +1,6 @@
 import { supabase } from "@/supabase-client";
 import jwt from 'jsonwebtoken'
-import { createMaterial, createCoating, createDesign, createEngraving, createClipDesign,
-    materialData, designData, coatingData, engravingData, clipDesignData, extractCapDetails    
+import { createMaterial, createCoating, createDesign, createEngraving, createClipDesign, extractCapDetails    
  } from "@/app/lib/configuratorFunctions";
 import { NextRequest, NextResponse } from "next/server";
 import { serialize } from "cookie";
@@ -35,7 +34,6 @@ export async function POST(request: NextRequest) {
         design = await createDesign(body.design.description, body.design.font, body.design.colour, body.design.hex_code);
     }
     if(body.engraving) {
-        const engraving_material = await createMaterial(body.engraving.material.name, 2);
         engraving = await createEngraving(body.engraving.font, body.engraving.type_name, body.engraving.description);
     }
     if(body.clip_design) {
