@@ -1,13 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useConfiguratorStore } from "@/lib/store/configurator";
 import { validateEngravingText } from "@/lib/configurator-utils";
 import { cn } from "@/lib/utils";
-import type { EngravingLocation, EngravingFont } from "@/types/configurator";
+import type { EngravingLocation } from "@/types/configurator";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { AlertCircle, Check } from "lucide-react";
+import { AlertCircle, Check, Loader2 } from "lucide-react";
+import { fetchEngravings } from "@/lib/supabase/configurator-api";
+import { adaptEngravingsToOptions, type EngravingOption } from "@/lib/adapters/configurator-adapters";
 
 const locations: Array<{ value: EngravingLocation; label: string }> = [
   { value: "none", label: "No Engraving" },
@@ -16,18 +18,32 @@ const locations: Array<{ value: EngravingLocation; label: string }> = [
   { value: "clip", label: "Clip" },
 ];
 
-const fonts: Array<{ value: EngravingFont; label: string; preview: string }> = [
-  { value: "script", label: "Script", preview: "Script Preview" },
-  { value: "rounded", label: "Rounded", preview: "Rounded Preview" },
-  { value: "grotesque", label: "Grotesque", preview: "Grotesque Preview" },
-  { value: "serif", label: "Serif", preview: "Serif Preview" },
-  { value: "monospace", label: "Monospace", preview: "Monospace Preview" },
-];
-
 export function EngravingEditor() {
   const config = useConfiguratorStore((state) => state.config);
   const updateConfig = useConfiguratorStore((state) => state.updateConfig);
   const [textError, setTextError] = useState<string | null>(null);
+  const [engravingOptions, setEngravingOptions] = useState<EngravingOption[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [selectedEngravingId, setSelectedEngravingId] = useState<number | null>(null);
+
+  useEffect(() => {
+    const loadEngravingOptions = async () => {
+      setIsLoading(true);
+      try {
+        const dbEngravings = await fetchEngravings();
+        const adaptedEngravings = adaptEngravingsToOptions(dbEngravings);
+        setEngravingOptions(adaptedEngravings);
+      } catch (error) {
+        console.error("Failed to load engraving options:", error);
+        // Fallback will be used automatically by adapter
+        setEngravingOptions(adaptEngravingsToOptions([]));
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadEngravingOptions();
+  }, []);
 
   const handleTextChange = (field: "text" | "line2" | "line3", value: string) => {
     const validation = validateEngravingText(value);
@@ -49,12 +65,24 @@ export function EngravingEditor() {
       ...config.engraving,
       location,
     });
+
+    // Set engravingId when enabling engraving
+    if (location !== "none" && engravingOptions.length > 0 && !selectedEngravingId) {
+      const firstOption = engravingOptions[0];
+      setSelectedEngravingId(firstOption.engravingId);
+      updateConfig("engravingId", firstOption.engravingId);
+    } else if (location === "none") {
+      updateConfig("engravingId", undefined);
+      setSelectedEngravingId(null);
+    }
   };
 
-  const handleFontChange = (font: EngravingFont) => {
+  const handleEngravingTypeChange = (option: EngravingOption) => {
+    setSelectedEngravingId(option.engravingId);
+    updateConfig("engravingId", option.engravingId);
     updateConfig("engraving", {
       ...config.engraving,
-      font,
+      font: option.font,
     });
   };
 
@@ -92,28 +120,48 @@ export function EngravingEditor() {
 
       {isEngravingEnabled && (
         <>
-          {/* Font Selection */}
+          {/* Engraving Type/Style Selection */}
           <div className="space-y-3">
-            <Label>Font Style</Label>
-            <div className="grid grid-cols-3 gap-2">
-              {fonts.map((font) => (
-                <button
-                  key={font.value}
-                  onClick={() => handleFontChange(font.value)}
-                  className={cn(
-                    "rounded-lg border-2 p-3 text-center transition-all hover:border-primary/50",
-                    config.engraving.font === font.value
-                      ? "border-primary bg-primary/5"
-                      : "border-border"
-                  )}
-                >
-                  <div className="text-sm font-medium">{font.label}</div>
-                  {config.engraving.font === font.value && (
-                    <Check className="mx-auto mt-1 h-4 w-4 text-primary" />
-                  )}
-                </button>
-              ))}
-            </div>
+            <Label>Engraving Style</Label>
+            {isLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {engravingOptions.map((option) => (
+                  <button
+                    key={option.engravingId}
+                    onClick={() => handleEngravingTypeChange(option)}
+                    className={cn(
+                      "w-full rounded-lg border-2 p-3 text-left transition-all hover:border-primary/50",
+                      selectedEngravingId === option.engravingId
+                        ? "border-primary bg-primary/5"
+                        : "border-border"
+                    )}
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium">{option.typeName}</span>
+                          {option.cost > 0 && (
+                            <span className="text-xs text-muted-foreground">
+                              +${option.cost}
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          {option.description} • {option.font} font
+                        </div>
+                      </div>
+                      {selectedEngravingId === option.engravingId && (
+                        <Check className="h-5 w-5 text-primary" />
+                      )}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Text Input */}

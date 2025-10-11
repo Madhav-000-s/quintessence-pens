@@ -1,19 +1,13 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useConfiguratorStore } from "@/lib/store/configurator";
 import { getTrimProperties } from "@/lib/configurator-utils";
 import { cn } from "@/lib/utils";
-import type { TrimFinish, ClipStyle } from "@/types/configurator";
-import { Check } from "lucide-react";
-
-const trimFinishes: Array<{ value: TrimFinish; label: string }> = [
-  { value: "rhodium", label: "Rhodium" },
-  { value: "yellow-gold", label: "Yellow Gold" },
-  { value: "rose-gold", label: "Rose Gold" },
-  { value: "platinum", label: "Platinum" },
-  { value: "black-chrome", label: "Black Chrome" },
-  { value: "brushed-steel", label: "Brushed Steel" },
-];
+import type { ClipStyle } from "@/types/configurator";
+import { Check, Loader2 } from "lucide-react";
+import { fetchDesigns } from "@/lib/supabase/configurator-api";
+import { adaptDesignsToTrimFinishes, type TrimOption } from "@/lib/adapters/configurator-adapters";
 
 const clipStyles: Array<{ value: ClipStyle; label: string; description: string }> = [
   { value: "classic", label: "Classic", description: "Traditional elegance" },
@@ -25,6 +19,36 @@ const clipStyles: Array<{ value: ClipStyle; label: string; description: string }
 export function TrimSelector() {
   const config = useConfiguratorStore((state) => state.config);
   const updateConfig = useConfiguratorStore((state) => state.updateConfig);
+  const [trimOptions, setTrimOptions] = useState<TrimOption[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const loadTrimOptions = async () => {
+      setIsLoading(true);
+      try {
+        const dbDesigns = await fetchDesigns();
+        const adaptedTrims = adaptDesignsToTrimFinishes(dbDesigns);
+        // If no data from DB, use the fallback hardcoded data
+        setTrimOptions(adaptedTrims);
+      } catch (error) {
+        console.error("Failed to load trim options:", error);
+        // Fallback will be used automatically by adapter
+        setTrimOptions(adaptDesignsToTrimFinishes([]));
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadTrimOptions();
+  }, []);
+
+  const handleTrimSelect = (trim: TrimOption) => {
+    updateConfig("trimFinish", trim.value);
+    // Store designId if available for pricing
+    if (trim.designId) {
+      updateConfig("designId", trim.designId);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -38,41 +62,51 @@ export function TrimSelector() {
       {/* Trim Finish */}
       <div className="space-y-3">
         <h4 className="text-sm font-medium">Trim Finish</h4>
-        <div className="grid grid-cols-3 gap-2">
-          {trimFinishes.map((finish) => {
-            const properties = getTrimProperties(finish.value);
-            return (
-              <button
-                key={finish.value}
-                onClick={() => updateConfig("trimFinish", finish.value)}
-                className={cn(
-                  "group relative overflow-hidden rounded-lg border-2 transition-all hover:scale-105",
-                  config.trimFinish === finish.value
-                    ? "border-primary ring-2 ring-primary ring-offset-2"
-                    : "border-transparent hover:border-primary/50"
-                )}
-              >
-                <div className="aspect-square p-3">
-                  <div
-                    className="h-full w-full rounded-md shadow-inner"
-                    style={{
-                      backgroundColor: properties.color,
-                      boxShadow: `inset 0 2px 4px rgba(0,0,0,${properties.roughness})`,
-                    }}
-                  />
-                </div>
-                {config.trimFinish === finish.value && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/20">
-                    <Check className="h-6 w-6 text-white drop-shadow-lg" />
+        {isLoading ? (
+          <div className="flex items-center justify-center py-8">
+            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+          </div>
+        ) : (
+          <div className="grid grid-cols-3 gap-2">
+            {trimOptions.map((finish) => {
+              const properties = getTrimProperties(finish.value);
+              return (
+                <button
+                  key={finish.value}
+                  onClick={() => handleTrimSelect(finish)}
+                  className={cn(
+                    "group relative overflow-hidden rounded-lg border-2 transition-all hover:scale-105",
+                    config.trimFinish === finish.value
+                      ? "border-primary ring-2 ring-primary ring-offset-2"
+                      : "border-transparent hover:border-primary/50"
+                  )}
+                  title={finish.cost > 0 ? `+$${finish.cost}` : undefined}
+                >
+                  <div className="aspect-square p-3">
+                    <div
+                      className="h-full w-full rounded-md shadow-inner"
+                      style={{
+                        backgroundColor: properties.color,
+                        boxShadow: `inset 0 2px 4px rgba(0,0,0,${properties.roughness})`,
+                      }}
+                    />
                   </div>
-                )}
-                <div className="border-t bg-card p-2 text-center">
-                  <div className="text-xs font-medium">{finish.label}</div>
-                </div>
-              </button>
-            );
-          })}
-        </div>
+                  {config.trimFinish === finish.value && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                      <Check className="h-6 w-6 text-white drop-shadow-lg" />
+                    </div>
+                  )}
+                  <div className="border-t bg-card p-2 text-center">
+                    <div className="text-xs font-medium">{finish.label}</div>
+                    {finish.cost > 0 && (
+                      <div className="text-[10px] text-muted-foreground">+${finish.cost}</div>
+                    )}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* Clip Style */}

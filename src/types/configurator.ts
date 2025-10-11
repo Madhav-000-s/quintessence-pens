@@ -105,6 +105,14 @@ export interface PenConfiguration {
   // Preferences
   handPreference: "left" | "right";
   fillingMechanism: "cartridge-converter" | "piston" | "vacuum";
+
+  // Database IDs (for pricing and tracking)
+  materialId?: number;
+  designId?: number;
+  coatingId?: number;
+  engravingId?: number;
+  capConfigId?: number;
+  barrelConfigId?: number;
 }
 
 // Pricing
@@ -114,6 +122,8 @@ export interface PricingBreakdown {
   nibMaterialCost: number;
   engravingCost: number;
   trimCost: number;
+  designCost: number;
+  coatingCost: number;
   total: number;
 }
 

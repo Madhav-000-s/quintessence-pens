@@ -6,6 +6,17 @@ import type {
   PricingBreakdown,
   PenModel,
 } from "@/types/configurator";
+import {
+  fetchMaterials,
+  fetchDesigns,
+  fetchCoatings,
+  fetchEngravings,
+  type DBMaterial,
+  type DBDesign,
+  type DBCoating,
+  type DBEngraving
+} from "@/lib/supabase/configurator-api";
+import { calculateConfigCost } from "@/lib/adapters/configurator-adapters";
 
 interface ConfiguratorState {
   // Current configuration
@@ -79,13 +90,66 @@ const MODEL_BASE_PRICES: Record<PenModel, number> = {
   hera: 999,      // Elegant entry
 };
 
-// Pricing logic
-const calculatePricingBreakdown = (
+// Cache for database data
+let dbMaterials: DBMaterial[] = [];
+let dbDesigns: DBDesign[] = [];
+let dbCoatings: DBCoating[] = [];
+let dbEngravings: DBEngraving[] = [];
+let dbDataLoaded = false;
+
+// Load database data for pricing calculations
+const loadDatabaseData = async () => {
+  if (dbDataLoaded) return;
+
+  try {
+    [dbMaterials, dbDesigns, dbCoatings, dbEngravings] = await Promise.all([
+      fetchMaterials(),
+      fetchDesigns(),
+      fetchCoatings(),
+      fetchEngravings(),
+    ]);
+    dbDataLoaded = true;
+  } catch (error) {
+    console.error("Failed to load database data for pricing:", error);
+  }
+};
+
+// Initialize database data (non-blocking)
+loadDatabaseData();
+
+// Pricing logic - uses database data when available, falls back to hardcoded prices
+const calculatePricingBreakdown = async (
   config: PenConfiguration
-): PricingBreakdown => {
+): Promise<PricingBreakdown> => {
   const basePrice = MODEL_BASE_PRICES[config.model] || 999;
 
-  // Body material costs
+  // Try to use database data if available
+  if (dbDataLoaded && (config.materialId || config.designId || config.engravingId)) {
+    const dbCosts = calculateConfigCost(
+      config.materialId || null,
+      config.designId || null,
+      config.coatingId || null,
+      config.engravingId || null,
+      dbMaterials,
+      dbDesigns,
+      dbCoatings,
+      dbEngravings
+    );
+
+    return {
+      basePrice,
+      bodyMaterialCost: dbCosts.materialCost,
+      nibMaterialCost: getNibMaterialCost(config.nibMaterial),
+      engravingCost: config.engraving.location !== "none" ? dbCosts.engravingCost : 0,
+      trimCost: 0, // Trim cost from design
+      designCost: dbCosts.designCost,
+      coatingCost: dbCosts.coatingCost,
+      total: basePrice + dbCosts.materialCost + getNibMaterialCost(config.nibMaterial) +
+        (config.engraving.location !== "none" ? dbCosts.engravingCost : 0) + dbCosts.designCost + dbCosts.coatingCost,
+    };
+  }
+
+  // Fallback to hardcoded prices
   const bodyMaterialCosts: Record<string, number> = {
     resin: 0,
     metal: 150,
@@ -94,16 +158,6 @@ const calculatePricingBreakdown = (
     lacquer: 250,
   };
 
-  // Nib material costs
-  const nibMaterialCosts: Record<string, number> = {
-    steel: 0,
-    "gold-14k": 200,
-    "gold-18k": 350,
-    "gold-21k": 500,
-    platinum: 600,
-  };
-
-  // Trim costs
   const trimCosts: Record<string, number> = {
     rhodium: 0,
     "brushed-steel": 0,
@@ -113,11 +167,9 @@ const calculatePricingBreakdown = (
     "black-chrome": 50,
   };
 
-  // Engraving cost
   const engravingCost = config.engraving.location !== "none" ? 50 : 0;
-
   const bodyMaterialCost = bodyMaterialCosts[config.bodyMaterial] || 0;
-  const nibMaterialCost = nibMaterialCosts[config.nibMaterial] || 0;
+  const nibMaterialCost = getNibMaterialCost(config.nibMaterial);
   const trimCost = trimCosts[config.trimFinish] || 0;
 
   const total =
@@ -129,36 +181,81 @@ const calculatePricingBreakdown = (
     nibMaterialCost,
     engravingCost,
     trimCost,
+    designCost: 0,
+    coatingCost: 0,
     total,
   };
 };
 
+// Helper for nib material costs (still hardcoded as NibConfig is empty)
+function getNibMaterialCost(nibMaterial: string): number {
+  const nibMaterialCosts: Record<string, number> = {
+    steel: 0,
+    "gold-14k": 200,
+    "gold-18k": 350,
+    "gold-21k": 500,
+    platinum: 600,
+  };
+  return nibMaterialCosts[nibMaterial] || 0;
+}
+
+// Initial pricing calculation (synchronous fallback)
+const initialConfig = createDefaultConfig("zeus");
+let initialPricing: PricingBreakdown = {
+  basePrice: MODEL_BASE_PRICES["zeus"],
+  bodyMaterialCost: 0,
+  nibMaterialCost: 0,
+  engravingCost: 0,
+  trimCost: 0,
+  designCost: 0,
+  coatingCost: 0,
+  total: MODEL_BASE_PRICES["zeus"],
+};
+
+// Update initial pricing asynchronously
+calculatePricingBreakdown(initialConfig).then((pricing) => {
+  initialPricing = pricing;
+  // Update store if it's already been created
+  if (typeof window !== 'undefined') {
+    try {
+      useConfiguratorStore.getState().calculatePricing();
+    } catch (e) {
+      // Store not yet initialized
+    }
+  }
+});
+
 export const useConfiguratorStore = create<ConfiguratorState>()(
   persist(
     (set, get) => ({
-      config: createDefaultConfig("zeus"),
+      config: initialConfig,
       currentModel: "zeus",
       currentSection: "body",
       isAnimating: false,
       isPricingDrawerOpen: false,
-      pricing: calculatePricingBreakdown(createDefaultConfig("zeus")),
+      pricing: initialPricing,
 
       updateConfig: (key, value) => {
         set((state) => {
           const newConfig = { ...state.config, [key]: value };
+          // Update config immediately, pricing will be updated asynchronously
+          calculatePricingBreakdown(newConfig).then((pricing) => {
+            set({ pricing });
+          });
           return {
             config: newConfig,
-            pricing: calculatePricingBreakdown(newConfig),
           };
         });
       },
 
       setModel: (model) => {
         const newConfig = createDefaultConfig(model);
+        calculatePricingBreakdown(newConfig).then((pricing) => {
+          set({ pricing });
+        });
         set({
           currentModel: model,
           config: newConfig,
-          pricing: calculatePricingBreakdown(newConfig),
         });
       },
 
@@ -167,10 +264,12 @@ export const useConfiguratorStore = create<ConfiguratorState>()(
         import("@/lib/pen-presets").then(({ PEN_PRESETS }) => {
           const preset = PEN_PRESETS.find((p) => p.id === presetId);
           if (preset) {
+            calculatePricingBreakdown(preset.config).then((pricing) => {
+              set({ pricing });
+            });
             set({
               currentModel: preset.model,
               config: preset.config,
-              pricing: calculatePricingBreakdown(preset.config),
             });
           }
         });
@@ -195,15 +294,19 @@ export const useConfiguratorStore = create<ConfiguratorState>()(
       resetConfig: () => {
         const { currentModel } = get();
         const newConfig = createDefaultConfig(currentModel);
+        calculatePricingBreakdown(newConfig).then((pricing) => {
+          set({ pricing });
+        });
         set({
           config: newConfig,
-          pricing: calculatePricingBreakdown(newConfig),
         });
       },
 
       calculatePricing: () => {
         const { config } = get();
-        set({ pricing: calculatePricingBreakdown(config) });
+        calculatePricingBreakdown(config).then((pricing) => {
+          set({ pricing });
+        });
       },
 
       exportConfig: () => {
@@ -220,10 +323,12 @@ export const useConfiguratorStore = create<ConfiguratorState>()(
         try {
           const data = JSON.parse(configString);
           if (data.config) {
+            calculatePricingBreakdown(data.config).then((pricing) => {
+              set({ pricing });
+            });
             set({
               currentModel: data.config.model,
               config: data.config,
-              pricing: calculatePricingBreakdown(data.config),
             });
           }
         } catch (error) {
