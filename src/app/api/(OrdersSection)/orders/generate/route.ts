@@ -3,7 +3,6 @@ import { supabase } from "@/supabase-client";
 import jwt from 'jsonwebtoken'
 import { NextRequest } from "next/server";
 import { Payload } from "@/app/api/(configurators)/configure_cap/route";
-import { decode } from "punycode";
 
 const JWT_SECRET = process.env.JWT_SECRET;
 

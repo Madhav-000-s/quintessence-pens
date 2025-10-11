@@ -1,8 +1,6 @@
 import { supabase } from "@/supabase-client";
 import jwt from 'jsonwebtoken'
-import { createMaterial, createCoating, createDesign,
-     createEngraving, createClipDesign, extractCapDetails    
- } from "@/app/lib/configuratorFunctions";
+import { createMaterial, createCoating, createDesign, createEngraving} from "@/app/lib/configuratorFunctions";
 import { NextRequest, NextResponse } from "next/server";
 import { serialize } from "cookie";
 // import { decode } from "node:querystring";
@@ -55,7 +53,7 @@ export async function POST(request: NextRequest) {
         .select("barrel_id, cost");
 
     if(BarrelError) {
-        return new Response(JSON.stringify("not able to ccreate barrel"));
+        return new Response(JSON.stringify(BarrelData));
     }
 
     const tokenCookie = request.cookies.get("pen");
