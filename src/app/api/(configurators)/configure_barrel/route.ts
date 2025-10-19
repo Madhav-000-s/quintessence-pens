@@ -1,6 +1,6 @@
 import { supabase } from "@/supabase-client";
 import jwt from 'jsonwebtoken'
-import { createMaterial, createCoating, createDesign, createEngraving} from "@/app/lib/configuratorFunctions";
+import { createMaterial, createCoating, createDesign, createEngraving, extractBarrelDetails} from "@/app/lib/configuratorFunctions";
 import { NextRequest, NextResponse } from "next/server";
 import { serialize } from "cookie";
 // import { decode } from "node:querystring";
@@ -102,4 +102,43 @@ export async function POST(request: NextRequest) {
             }
             return new Response(JSON.stringify(result.error), {status: 400});
     }
+}
+
+
+export async function GET(request: NextRequest) {
+    const body = await request.json();
+    
+    const tokenCookie = request.cookies.get("pen");
+    if(tokenCookie && !body.pen_id) {
+        
+        const decoded = jwt.verify(tokenCookie.value, JWT_SECRET!) as Payload; 
+            if(!decoded) {
+                return new Response(JSON.stringify("Unable to decode cookie"), {status: 400});
+            }
+            const { data, error } = await supabase
+                .from("Pen")
+                .select("barrel_id")
+                .eq("pen_id", decoded.penId);
+            
+            if(error) {
+                console.error(error);
+                return new Response(JSON.stringify(error), {status: 400});
+            }
+
+            const responseData = await extractBarrelDetails(data[0].barrel_id)
+            return new Response(JSON.stringify(responseData), {status: 200});
+    }
+    const { data, error } = await supabase
+        .from("Pen")
+        .select("barrel_id")
+        .eq("pen_id", body.pen_id);
+    
+    if(error) {
+        console.error(error);
+        return new Response(JSON.stringify(error), {status: 400});
+    }
+
+    const responseData = await extractBarrelDetails(data[0].barrel_id)
+    return new Response(JSON.stringify(responseData), {status: 200});
+
 }

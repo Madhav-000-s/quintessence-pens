@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
         return new Response(JSON.stringify(error), {status: 400});
     }
     request.cookies.delete("pen");
-    return new Response(JSON.stringify("Bill of Material created successfully"), {status: 201});
+    return new Response(JSON.stringify({message: "Work order created successfully.", pen_id: decoded.penId}), {status: 201});
     }
     catch {
         return new Response(JSON.stringify("Unable to decode"), {status: 400});

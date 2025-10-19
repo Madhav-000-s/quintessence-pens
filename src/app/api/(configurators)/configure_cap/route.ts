@@ -4,7 +4,6 @@ import { createMaterial, createCoating, createDesign, createEngraving, createCli
  } from "@/app/lib/configuratorFunctions";
 import { NextRequest, NextResponse } from "next/server";
 import { serialize } from "cookie";
-// import { decode } from "node:querystring";
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -124,25 +123,16 @@ export async function GET(request: NextRequest) {
             if(!decoded) {
                 return new Response(JSON.stringify("Unable to decode cookie"), {status: 400});
             }
-            const result = await supabase
+            const { data, error} = await supabase
                 .from("Pen")
                 .select("cap_type_id")
                 .eq("pen_id", decoded.penId);
             
-            if(result.error) {
-                console.error(result.error);
-                return new Response(JSON.stringify(result.error), {status: 400});
-            }
-
-            const { data, error } = await supabase
-                .from("CapConfig")
-                .select("*")
-                .eq("cap_type_id", result.data[0].cap_type_id);
-
             if(error) {
                 console.error(error);
-                return new Response(JSON.stringify(error), {status : 400});
+                return new Response(JSON.stringify(error), {status: 400});
             }
+
             const responseData = await extractCapDetails(data[0].cap_type_id);
             return Response.json(responseData);
         }
@@ -150,20 +140,6 @@ export async function GET(request: NextRequest) {
             console.error(e);
             return Response.json("Error decoding");
         }
-    }
-    
-    if( body.pen_id === -1 ) {
-        request.cookies.delete("pen");
-        return Response.json({
-            cap_type_id: null,
-            description: null,
-            material: null,
-            design: null,
-            engraving: null,
-            clip_design: null,
-            coating: null,
-            cost: null
-        })
     }
 
     const result = await supabase

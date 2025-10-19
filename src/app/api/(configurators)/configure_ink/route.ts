@@ -2,6 +2,7 @@ import { supabase } from "@/supabase-client";
 import jwt from 'jsonwebtoken'
 import { NextRequest, NextResponse } from "next/server";
 import { serialize } from "cookie";
+import { extractInkDetails } from "@/app/lib/configuratorFunctions";
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -41,7 +42,7 @@ export async function POST(request:NextRequest) {
         }
         const {data: penData, error: penError} = await supabase
             .rpc('update_ink_details', {
-                new_barrel_id: InkData[0].ink_type_id,
+                new_ink_id: InkData[0].ink_type_id,
                 amount_to_add: InkData[0].cost,
                 row_id: decoded.penId
             })
@@ -80,4 +81,43 @@ export async function POST(request:NextRequest) {
         }
         return new Response(JSON.stringify(result.error), {status: 400});
     }
+}
+
+
+export async function GET(request: NextRequest) {
+    const body = await request.json();
+    
+    const tokenCookie = request.cookies.get("pen");
+    if(tokenCookie && !body.pen_id) {
+        
+        const decoded = jwt.verify(tokenCookie.value, JWT_SECRET!) as Payload; 
+            if(!decoded) {
+                return new Response(JSON.stringify("Unable to decode cookie"), {status: 400});
+            }
+            const { data, error } = await supabase
+                .from("Pen")
+                .select("ink_type_id")
+                .eq("pen_id", decoded.penId);
+            
+            if(error) {
+                console.error(error);
+                return new Response(JSON.stringify(error), {status: 400});
+            }
+
+            const responseData = await extractInkDetails(data[0].ink_type_id)
+            return new Response(JSON.stringify(responseData), {status: 200});
+    }
+    const { data, error } = await supabase
+        .from("Pen")
+        .select("ink_type_id")
+        .eq("pen_id", body.pen_id);
+    
+    if(error) {
+        console.error(error);
+        return new Response(JSON.stringify(error), {status: 400});
+    }
+
+    const responseData = await extractInkDetails(data[0].ink_type_id)
+    return new Response(JSON.stringify(responseData), {status: 200});
+
 }
