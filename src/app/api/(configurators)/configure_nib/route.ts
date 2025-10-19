@@ -54,7 +54,7 @@ export async function POST(request:NextRequest) {
         }
         const {data: penData, error: penError} = await supabase
             .rpc('update_nib_details', {
-                new_nibtype_id: NibData[0].nibtype_id,
+                new_nib_id: NibData[0].nibtype_id,
                 amount_to_add: NibData[0].cost,
                 row_id: decoded.penId
             })
@@ -97,45 +97,46 @@ export async function POST(request:NextRequest) {
 
 
 export async function GET(request: NextRequest) {
-    const body = await request.json();
+    const { searchParams } = new URL(request.url);
+    const pen_Id = searchParams.get("pen_id");
         
-        const tokenCookie = request.cookies.get("pen");
-        if(tokenCookie && !body.pen_id) {
-            try {
-                const decoded = jwt.verify(tokenCookie.value, JWT_SECRET!) as Payload; 
-                if(!decoded) {
-                    return new Response(JSON.stringify("Unable to decode cookie"), {status: 400});
-                }
-                const { data, error} = await supabase
-                    .from("Pen")
-                    .select("nibtype_id")
-                    .eq("pen_id", decoded.penId);
-                
-                if(error) {
-                    console.error(error);
-                    return new Response(JSON.stringify(error), {status: 400});
-                }
-    
-                const responseData = await extractNibDetails(data[0].nibtype_id);
-                return Response.json(responseData);
+    const tokenCookie = request.cookies.get("pen");
+    if(tokenCookie && !pen_Id) {
+        try {
+            const decoded = jwt.verify(tokenCookie.value, JWT_SECRET!) as Payload; 
+            if(!decoded) {
+                return new Response(JSON.stringify("Unable to decode cookie"), {status: 400});
             }
-            catch (e) {
-                console.error(e);
-                return Response.json("Error decoding");
+            const { data, error} = await supabase
+                .from("Pen")
+                .select("nibtype_id")
+                .eq("pen_id", decoded.penId);
+            
+            if(error) {
+                console.error(error);
+                return new Response(JSON.stringify(error), {status: 400});
             }
+
+            const responseData = await extractNibDetails(data[0].nibtype_id);
+            return Response.json(responseData);
         }
+        catch (e) {
+            console.error(e);
+            return Response.json("Error decoding");
+        }
+    }
+
+    const result = await supabase
+        .from("Pen")
+        .select("nibtype_id")
+        .eq("pen_id", pen_Id);
     
-        const result = await supabase
-            .from("Pen")
-            .select("nibtype_id")
-            .eq("pen_id", body.pen_id);
-        
-        if(result.error) {
-            console.error(result.error);
-            return new Response(JSON.stringify(result.error), {status: 400});
-        }
-        
-        const responseData = await extractNibDetails(result.data[0].nibtype_id);
-        
-        return Response.json(responseData);
+    if(result.error) {
+        console.error(result.error);
+        return new Response(JSON.stringify(result.error), {status: 400});
+    }
+    
+    const responseData = await extractNibDetails(result.data[0].nibtype_id);
+    
+    return Response.json(responseData);
 }

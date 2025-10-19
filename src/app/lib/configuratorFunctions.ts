@@ -43,7 +43,8 @@ export async function createDesign(description: string, font: string, colour:str
 
 
 export async function createMaterial(name: string, weight: number) {
-    const cost_per_unit = prices[name as keyof typeof prices];
+    const cost_per_unit = prices[(name.toLowerCase()) as keyof typeof prices];
+    console.log("cost per unit", cost_per_unit);
     const cost = cost_per_unit * weight;
     const { data, error } = await supabase
     .from("Material")
@@ -226,7 +227,7 @@ export async function extractCapDetails(capId: number) {
         material: await materialData(data[0].material_id),
         design: await designData(data[0].design_id),
         engraving: await engravingData(data[0].engraving_id),
-        clip_design: await designData(data[0].clip_design),
+        clip_design: await clipDesignData(data[0].clip_design),
         coating: await coatingData(data[0].coating_id),
         cost: data[0].cost
     }

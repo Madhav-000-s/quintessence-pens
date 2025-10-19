@@ -24,14 +24,14 @@ export async function POST(request:NextRequest) {
         .insert({
             description: body.description,
             type_name: body.type_name,
-            colour_name: body.colour,
+            color_name: body.colour,
             hexcode: body.hex_code,
             cost: 1000
         }) 
         .select("ink_type_id, cost");
     
     if(InkError){
-        return new Response(JSON.stringify(InkData));
+        return new Response(JSON.stringify(InkError));
     }
 
     const tokenCookie = request.cookies.get("pen");
@@ -58,7 +58,7 @@ export async function POST(request:NextRequest) {
         const result = await supabase
         .from("Pen")
         .insert({
-            cap_type_id: InkData[0].ink_type_id,
+            ink_type_id: InkData[0].ink_type_id,
             cost: InkData[0].cost,
         })
         .select("pen_id");
@@ -85,10 +85,11 @@ export async function POST(request:NextRequest) {
 
 
 export async function GET(request: NextRequest) {
-    const body = await request.json();
+    const { searchParams } = new URL(request.url);
+    const pen_Id = searchParams.get("pen_id");
     
     const tokenCookie = request.cookies.get("pen");
-    if(tokenCookie && !body.pen_id) {
+    if(tokenCookie && !pen_Id) {
         
         const decoded = jwt.verify(tokenCookie.value, JWT_SECRET!) as Payload; 
             if(!decoded) {
@@ -105,12 +106,12 @@ export async function GET(request: NextRequest) {
             }
 
             const responseData = await extractInkDetails(data[0].ink_type_id)
-            return new Response(JSON.stringify(responseData), {status: 200});
+            return new Response(JSON.stringify(responseData), {status: 200, headers: {"Content-Type": "application/json"}});
     }
     const { data, error } = await supabase
         .from("Pen")
         .select("ink_type_id")
-        .eq("pen_id", body.pen_id);
+        .eq("pen_id", pen_Id);
     
     if(error) {
         console.error(error);
@@ -118,6 +119,6 @@ export async function GET(request: NextRequest) {
     }
 
     const responseData = await extractInkDetails(data[0].ink_type_id)
-    return new Response(JSON.stringify(responseData), {status: 200});
+    return new Response(JSON.stringify(responseData), {status: 200, headers: {"Content-Type": "application/json"}});
 
 }

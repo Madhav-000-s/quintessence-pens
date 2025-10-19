@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken'
 import { createMaterial, createCoating, createDesign, createEngraving, extractBarrelDetails} from "@/app/lib/configuratorFunctions";
 import { NextRequest, NextResponse } from "next/server";
 import { serialize } from "cookie";
+import { json } from "stream/consumers";
 // import { decode } from "node:querystring";
 
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -46,14 +47,14 @@ export async function POST(request: NextRequest) {
             shape: body.sahpe,
             design_id: design?.id,
             material_id: material?.id,
-            engraving: engraving?.id,
+            engraving_id: engraving?.id,
             coating_id: coating,
             cost: material?.cost + engraving?.cost + design?.cost 
         })
         .select("barrel_id, cost");
 
     if(BarrelError) {
-        return new Response(JSON.stringify(BarrelData));
+        return new Response(JSON.stringify(BarrelError));
     }
 
     const tokenCookie = request.cookies.get("pen");
@@ -106,10 +107,11 @@ export async function POST(request: NextRequest) {
 
 
 export async function GET(request: NextRequest) {
-    const body = await request.json();
+    const { searchParams } = new URL(request.url);
+    const pen_Id = searchParams.get("pen_id");
     
     const tokenCookie = request.cookies.get("pen");
-    if(tokenCookie && !body.pen_id) {
+    if(tokenCookie && !pen_Id) {
         
         const decoded = jwt.verify(tokenCookie.value, JWT_SECRET!) as Payload; 
             if(!decoded) {
@@ -126,12 +128,12 @@ export async function GET(request: NextRequest) {
             }
 
             const responseData = await extractBarrelDetails(data[0].barrel_id)
-            return new Response(JSON.stringify(responseData), {status: 200});
+            return  Response.json(responseData)
     }
     const { data, error } = await supabase
         .from("Pen")
         .select("barrel_id")
-        .eq("pen_id", body.pen_id);
+        .eq("pen_id", pen_Id);
     
     if(error) {
         console.error(error);
@@ -139,6 +141,6 @@ export async function GET(request: NextRequest) {
     }
 
     const responseData = await extractBarrelDetails(data[0].barrel_id)
-    return new Response(JSON.stringify(responseData), {status: 200});
+    return Response.json(responseData)
 
 }

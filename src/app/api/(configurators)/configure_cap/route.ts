@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
                 material_id: material?.id,
                 design_id: design?.id,
                 engraving_id: engraving?.id,
-                clip_design_id: clip_design?.id,
+                clip_design: clip_design?.id,
                 coating_id: coating,
                 cost: material?.cost + design?.cost + clip_design?.cost + engraving?.cost,
             })
@@ -114,38 +114,41 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
-    const body = await request.json();
+    const { searchParams } = new URL(request.url);
+    const pen_Id = searchParams.get("pen_id");
     
-    const tokenCookie = request.cookies.get("pen");
-    if(tokenCookie && !body.pen_id) {
-        try {
-            const decoded = jwt.verify(tokenCookie.value, JWT_SECRET!) as Payload; 
-            if(!decoded) {
-                return new Response(JSON.stringify("Unable to decode cookie"), {status: 400});
-            }
-            const { data, error} = await supabase
-                .from("Pen")
-                .select("cap_type_id")
-                .eq("pen_id", decoded.penId);
-            
-            if(error) {
-                console.error(error);
-                return new Response(JSON.stringify(error), {status: 400});
-            }
-
-            const responseData = await extractCapDetails(data[0].cap_type_id);
-            return Response.json(responseData);
+    try{
+        const tokenCookie = request.cookies.get("pen");
+        if(tokenCookie && !pen_Id) {
+        
+        const decoded = jwt.verify(tokenCookie.value, JWT_SECRET!) as Payload; 
+        if(!decoded) {
+            return new Response(JSON.stringify("Unable to decode cookie"), {status: 400});
         }
-        catch (e) {
-            console.error(e);
-            return Response.json("Error decoding");
+        const { data, error} = await supabase
+            .from("Pen")
+            .select("cap_type_id")
+            .eq("pen_id", decoded.penId);
+        
+        if(error) {
+            console.error(error);
+            return new Response(JSON.stringify(error), {status: 400});
+        }
+
+        const responseData = await extractCapDetails(data[0].cap_type_id);
+        return Response.json(responseData);
+    
         }
     }
+    catch(error) {
+        return new Response(JSON.stringify(error), {status:400})
+    }
+    
 
     const result = await supabase
         .from("Pen")
         .select("cap_type_id")
-        .eq("pen_id", body.pen_id);
+        .eq("pen_id", pen_Id);
     
     if(result.error) {
         console.error(result.error);
