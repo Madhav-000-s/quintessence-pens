@@ -141,7 +141,7 @@ export async function checkInventory(materialWeights: InventoryInput): Promise<I
   for (const row of data ?? []) {
     // Expecting columns: name (string), weight (grams)
     if (row && typeof row.material_name === "string" && typeof row.weight === "number") {
-      nameToAvailable[row.material_name] = row.weight;
+      nameToAvailable[row.material_name.toLowerCase()] = row.weight;
     }
   }
 
@@ -164,7 +164,7 @@ export async function getPenMaterialsWeights(penId: number): Promise<Record<stri
   // Fetch pen to get component IDs
   const { data: penData, error: penError } = await supabase
     .from("Pen")
-    .select("pen_id, cap_type_id, barrel_id, nibtype_id")
+    .select("pen_id, cap_type:cap_type_id (cap_type_id, clip_design), barrel_id, nibtype_id")
     .eq("pen_id", penId)
     .limit(1)
     .maybeSingle();
@@ -173,40 +173,29 @@ export async function getPenMaterialsWeights(penId: number): Promise<Record<stri
     console.error("Failed to fetch pen:", penError);
     return {};
   }
+  console.log("clips", penData.cap_type);
+  // Normalize cap_type which may be returned as an array or a single object
+  const capType = Array.isArray(penData.cap_type) ? penData.cap_type[0] : penData.cap_type;
 
   // Fetch component configs in parallel
-  const [capRes, barrelRes, nibRes] = await Promise.all([
-    supabase.from("CapConfig").select("material_id, engraving_id").eq("cap_type_id", penData.cap_type_id).limit(1).maybeSingle(),
-    supabase.from("BarrelConfig").select("material_id, engraving_id").eq("barrel_id", penData.barrel_id).limit(1).maybeSingle(),
+  const [capRes, barrelRes, nibRes, clipRes] = await Promise.all([
+    supabase.from("CapConfig").select("material_id").eq("cap_type_id", capType?.cap_type_id).limit(1).maybeSingle(),
+    supabase.from("BarrelConfig").select("material_id").eq("barrel_id", penData.barrel_id).limit(1).maybeSingle(),
     supabase.from("NibConfig").select("material_id").eq("nibtype_id", penData.nibtype_id).limit(1).maybeSingle(),
+    supabase.from("ClipDesign").select("material").eq("id", capType?.clip_design).limit(1).maybeSingle(),
   ]);
 
   const cap = capRes.data ?? null;
   const barrel = barrelRes.data ?? null;
   const nib = nibRes.data ?? null;
+  const clip = clipRes.data ?? null;
 
   const materialIds = new Set<number>();
-  const engravingIds: number[] = [];
 
   if (cap?.material_id && Number.isFinite(cap.material_id)) materialIds.add(cap.material_id as number);
   if (barrel?.material_id && Number.isFinite(barrel.material_id)) materialIds.add(barrel.material_id as number);
   if (nib?.material_id && Number.isFinite(nib.material_id)) materialIds.add(nib.material_id as number);
-
-  if (cap?.engraving_id && Number.isFinite(cap.engraving_id)) engravingIds.push(cap.engraving_id as number);
-  if (barrel?.engraving_id && Number.isFinite(barrel.engraving_id)) engravingIds.push(barrel.engraving_id as number);
-
-  // Fetch engraving materials if any
-  if (engravingIds.length > 0) {
-    const { data: engravings, error: engrErr } = await supabase
-      .from("Engravings")
-      .select("material_id")
-      .in("engraving_id", engravingIds);
-    if (!engrErr && engravings) {
-      for (const e of engravings) {
-        if (e && Number.isFinite(e.material_id)) materialIds.add(e.material_id as number);
-      }
-    }
-  }
+  if (clip?.material && Number.isFinite(clip.material)) materialIds.add(clip.material as number);
 
   if (materialIds.size === 0) return {};
 

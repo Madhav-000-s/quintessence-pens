@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
         console.error(PenError);
         return new Response(JSON.stringify(PenError), {status: 400});
     }
-    
+    console.log("1st");
     const { subtotal, taxAmount, totalWithTax } = calculatePayable(PenData[0].cost, body.count, 18);
     
     const requiredMaterialsAndWts = await getPenMaterialsWeights(decoded.penId);
@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
     // Format dates as YYYY-MM-DD for Supabase date fields
     const startDate = today.toISOString().split('T')[0]; // Today's date
     const endDate = completionDay.toISOString().split('T')[0]; // One week from today
-    
+    console.log("2nd");
     const { data, error } = await supabase
         .from("WorkOrder")
         .insert({
@@ -60,12 +60,13 @@ export async function POST(request: NextRequest) {
             material_wts: requiredMaterialsAndWts
         });
 
-    if(error || !data) {
+    if(error) {
+        console.log("3rd");
         console.error(error);
         return new Response(JSON.stringify(error), {status: 400});
     }
     request.cookies.delete("pen");
-    return new Response(JSON.stringify({message: "Work order created successfully.", pen_id: decoded.penId}), {status: 201});
+    return new Response(JSON.stringify({message: "Work order created successfully.", pen_id: decoded.penId}), {status: 201, headers: {"Content-Type": "application/json"}});
     }
     catch {
         return new Response(JSON.stringify("Unable to decode"), {status: 400});

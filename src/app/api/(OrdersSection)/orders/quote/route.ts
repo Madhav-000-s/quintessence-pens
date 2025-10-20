@@ -26,7 +26,8 @@ export async function GET(request: Request) {
         grand_total: data[0].grand_total,
         pen: await extractPenDetails(data[0].pen),
         cost_division: getAmountDetails(),
-        customer: await expandCustomer(data[0].customer_id)
+        customer: await expandCustomer(data[0].customer_id),
+        isPaid: data[0].isPaid
     }
 
     return new Response(JSON.stringify(finalData), {status: 200});

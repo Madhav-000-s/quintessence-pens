@@ -1,7 +1,7 @@
 import { supabase } from "@/supabase-client";
 import { NextRequest } from "next/server";
 
-export async function POST(request: NextRequest) {
+export async function PATCH(request: NextRequest) {
     const body = await request.json();
     const { data, error } = await supabase
         .from("WorkOrder")
