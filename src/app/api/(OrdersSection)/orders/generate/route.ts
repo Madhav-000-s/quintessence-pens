@@ -1,7 +1,7 @@
 import { calculatePayable, calculateManufacturingDuration, getPenMaterialsWeights, checkInventory } from "@/app/lib/orderFunction";
 import { supabase } from "@/supabase-client";
 import jwt from 'jsonwebtoken'
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { Payload } from "@/app/api/(configurators)/configure_cap/route";
 
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -65,8 +65,18 @@ export async function POST(request: NextRequest) {
         console.error(error);
         return new Response(JSON.stringify(error), {status: 400});
     }
-    request.cookies.delete("pen");
-    return new Response(JSON.stringify({message: "Work order created successfully.", pen_id: decoded.penId}), {status: 201, headers: {"Content-Type": "application/json"}});
+    const cookieOptions = {
+        name: 'pen',
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        path: '/',
+    }
+    const response = NextResponse.json(
+        { message: "Work order created successfully.", pen_id: decoded.penId },
+        { status: 201 }
+    );
+    response.cookies.delete(cookieOptions);
+    return response;
     }
     catch {
         return new Response(JSON.stringify("Unable to decode"), {status: 400});

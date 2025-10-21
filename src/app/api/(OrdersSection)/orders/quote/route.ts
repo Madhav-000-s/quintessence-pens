@@ -4,11 +4,12 @@ import { getAmountDetails } from "@/app/lib/orderFunction";
 import { expandCustomer } from "@/app/lib/customerFunctions";
 
 export async function GET(request: Request) {
-    const body = await request.json();
+    const { searchParams } = new URL(request.url);
+    const pen_id = searchParams.get("pen_id");
     const { data, error } = await supabase
     .from("WorkOrder")
     .select("*")
-    .eq("pen", body.pen_id);
+    .eq("pen", pen_id);
 
     if(error) {
         return new Response(JSON.stringify(error), {status: 400});
@@ -30,5 +31,5 @@ export async function GET(request: Request) {
         isPaid: data[0].isPaid
     }
 
-    return new Response(JSON.stringify(finalData), {status: 200});
+    return new Response(JSON.stringify(finalData), {status: 200, headers: {"Content-Type": "application/json"}});
 }
