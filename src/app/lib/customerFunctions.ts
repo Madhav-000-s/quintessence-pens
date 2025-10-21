@@ -16,8 +16,8 @@ export async function extractAddress(customerId: number) {
 
 export async function expandCustomer(customerId: number) {
     const { data, error } = await supabase
-        .from("Customer")
-        .select("id, first_name, last_name, email, phone, credit") // exclude 'user' column
+        .from("Customers")
+        .select("id, first_name, last_name, email, phone, credit_amount") // exclude 'user' column
         .eq("id", customerId)
     
     if(error) {
