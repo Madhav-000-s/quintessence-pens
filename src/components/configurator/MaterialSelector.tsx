@@ -58,58 +58,97 @@ export function MaterialSelector() {
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
         </div>
       ) : (
-        <div className="space-y-2">
-          {materials.map((material) => (
-            <button
-              key={material.value}
-              onClick={() => handleMaterialSelect(material)}
-              className={cn(
-                "group relative w-full rounded-lg border-2 p-4 text-left transition-all hover:border-primary/50 hover:shadow-md",
-                config.bodyMaterial === material.value
-                  ? "border-primary bg-primary/5"
-                  : "border-border"
-              )}
-            >
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium">{material.label}</span>
-                    {material.cost > 0 && (
-                      <span className="text-xs text-muted-foreground">
-                        +${material.cost}
-                      </span>
-                    )}
+        <div className="space-y-3">
+          {materials.map((material) => {
+            const isSelected = config.bodyMaterial === material.value;
+            return (
+              <button
+                key={material.value}
+                onClick={() => handleMaterialSelect(material)}
+                className="card-luxury"
+                style={{
+                  width: '100%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '1rem',
+                  padding: '1rem',
+                  border: isSelected ? '2px solid var(--luxury-gold)' : '1.5px solid var(--luxury-gray-200)',
+                  borderRadius: '0.5rem',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s',
+                  background: isSelected ? 'var(--luxury-gray-50)' : '#ffffff',
+                  position: 'relative',
+                  boxShadow: isSelected ? '0 0 20px rgba(212, 175, 55, 0.25)' : 'none'
+                }}
+              >
+                <div style={{ flex: 1, textAlign: 'left' }}>
+                  <div style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'var(--luxury-black)', marginBottom: '0.25rem' }}>
+                    {material.label}
                   </div>
-                  <div className="text-sm text-muted-foreground">
+                  <div style={{ fontSize: '0.8125rem', color: 'var(--luxury-gray-600)' }}>
                     {material.description}
                   </div>
                 </div>
-                {config.bodyMaterial === material.value && (
-                  <Check className="h-5 w-5 text-primary" />
+                {material.cost > 0 && (
+                  <div style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--luxury-gold)', marginLeft: 'auto' }}>
+                    +${material.cost}
+                  </div>
                 )}
-              </div>
-            </button>
-          ))}
+                {isSelected && (
+                  <div style={{
+                    position: 'absolute',
+                    top: '1rem',
+                    right: '1rem',
+                    width: '20px',
+                    height: '20px',
+                    background: 'linear-gradient(135deg, var(--luxury-black), var(--luxury-navy))',
+                    border: '1px solid var(--luxury-gold)',
+                    color: 'var(--luxury-gold)',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '0.75rem',
+                    fontWeight: 700
+                  }}>
+                    ✓
+                  </div>
+                )}
+              </button>
+            );
+          })}
         </div>
       )}
 
       <div className="pt-4">
         <h3 className="mb-3 font-medium">Surface Finish</h3>
         <div className="flex gap-2">
-          {finishes.map((finish) => (
-            <button
-              key={finish.value}
-              onClick={() => updateConfig("bodyFinish", finish.value)}
-              className={cn(
-                "flex-1 rounded-lg border-2 px-4 py-3 text-center text-sm font-medium transition-all hover:border-primary/50",
-                config.bodyFinish === finish.value
-                  ? "border-primary bg-primary text-primary-foreground"
-                  : "border-border hover:bg-accent"
-              )}
-            >
-              {finish.label}
-            </button>
-          ))}
+          {finishes.map((finish) => {
+            const isSelected = config.bodyFinish === finish.value;
+            return (
+              <button
+                key={finish.value}
+                onClick={() => updateConfig("bodyFinish", finish.value)}
+                style={{
+                  flex: 1,
+                  borderRadius: '0.5rem',
+                  border: isSelected ? '2px solid var(--luxury-gold)' : '2px solid var(--luxury-gray-200)',
+                  padding: '0.75rem 1rem',
+                  textAlign: 'center',
+                  fontSize: '0.875rem',
+                  fontWeight: 500,
+                  transition: 'all 0.3s',
+                  background: isSelected ? 'var(--luxury-gold)' : 'transparent',
+                  color: isSelected ? 'var(--luxury-black)' : 'var(--luxury-gray-700)',
+                  cursor: 'pointer'
+                }}
+                onMouseEnter={(e) => !isSelected && (e.currentTarget.style.borderColor = 'var(--luxury-gold-muted)')}
+                onMouseLeave={(e) => !isSelected && (e.currentTarget.style.borderColor = 'var(--luxury-gray-200)')}
+              >
+                {finish.label}
+              </button>
+            );
+          })}
         </div>
       </div>
     </div>

@@ -140,26 +140,24 @@ export function ConfigPanel() {
   }, [activeSection, resetConfig, togglePricingDrawer]);
 
   return (
-    <div className="flex h-full flex-col bg-background">
+    <div className="flex h-full flex-col bg-white">
       {/* Header */}
-      <div className="border-b bg-gradient-to-b from-card/50 to-card p-6 space-y-4 backdrop-blur-sm">
-        <div className="space-y-2">
-          <div className="flex items-center gap-2">
-            <h2 className="text-2xl font-bold tracking-tight">{modelMetadata.name}</h2>
-            <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary shadow-sm">
-              {modelMetadata.tagline}
-            </span>
-          </div>
-          <p className="text-sm text-muted-foreground leading-relaxed mt-1">
-            {modelMetadata.description}
-          </p>
-        </div>
+      <div className="border-b p-6 pb-4">
+        <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '2rem', fontWeight: 700, color: 'var(--luxury-black)', marginBottom: '0.5rem' }}>
+          {modelMetadata.name}
+        </h1>
+        <span className="badge-luxury">
+          {modelMetadata.tagline}
+        </span>
+        <p style={{ color: 'var(--luxury-gray-600)', fontSize: '0.875rem', lineHeight: 1.6, marginTop: '1rem' }}>
+          {modelMetadata.description}
+        </p>
         <ProgressIndicator />
       </div>
 
       {/* Section Tabs */}
-      <div className="border-b bg-card/30 backdrop-blur-sm">
-        <div className="flex gap-1 p-2">
+      <div className="border-b">
+        <div className="grid grid-cols-5">
           {sections.map((section) => {
             const Icon = section.icon;
             const isActive = activeSection === section.id;
@@ -167,26 +165,25 @@ export function ConfigPanel() {
               <button
                 key={section.id}
                 onClick={() => setActiveSection(section.id)}
-                className={cn(
-                  "group relative flex flex-1 flex-col items-center gap-1.5 rounded-lg px-3 py-2.5",
-                  "transition-all duration-200 ease-out",
-                  "hover:bg-accent/50",
-                  isActive
-                    ? "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90"
-                    : "text-muted-foreground hover:text-foreground"
-                )}
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: '0.375rem',
+                  padding: '0.75rem 0.5rem',
+                  background: isActive ? 'linear-gradient(to bottom, var(--luxury-black), var(--luxury-navy))' : 'transparent',
+                  border: 'none',
+                  borderBottom: isActive ? '3px solid var(--luxury-gold)' : '3px solid transparent',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s'
+                }}
+                onMouseEnter={(e) => !isActive && (e.currentTarget.style.background = 'var(--luxury-gray-100)')}
+                onMouseLeave={(e) => !isActive && (e.currentTarget.style.background = 'transparent')}
               >
-                <Icon className={cn(
-                  "h-4 w-4 transition-transform duration-200",
-                  isActive && "scale-110"
-                )} />
-                <span className={cn(
-                  "text-xs font-medium transition-all",
-                  isActive && "font-semibold"
-                )}>{section.label}</span>
-                {isActive && (
-                  <div className="absolute bottom-0 left-1/2 h-0.5 w-8 -translate-x-1/2 rounded-full bg-primary-foreground" />
-                )}
+                <Icon style={{ width: '20px', height: '20px', stroke: isActive ? 'var(--luxury-gold)' : 'var(--luxury-gray-500)', transition: 'stroke 0.3s' }} />
+                <span style={{ fontSize: '0.8125rem', fontWeight: isActive ? 600 : 500, color: isActive ? 'var(--luxury-gold)' : 'var(--luxury-gray-500)', transition: 'color 0.3s' }}>
+                  {section.label}
+                </span>
               </button>
             );
           })}
@@ -205,54 +202,102 @@ export function ConfigPanel() {
       </div>
 
       {/* Action Buttons */}
-      <div className="flex gap-2 border-t bg-card/50 backdrop-blur-sm p-4">
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={resetConfig}
-                className="shrink-0 hover:bg-destructive/10 hover:border-destructive/50 hover:text-destructive transition-colors"
-              >
-                <RotateCcw className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Reset to defaults (Ctrl+R)</TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+      <div className="grid grid-cols-3 gap-3 border-t p-4">
+        <button
+          onClick={resetConfig}
+          style={{
+            height: '44px',
+            border: '1.5px solid var(--luxury-gray-300)',
+            borderRadius: '0.5rem',
+            background: 'transparent',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '0.5rem',
+            cursor: 'pointer',
+            transition: 'all 0.3s',
+            fontSize: '0.8125rem',
+            fontWeight: 500,
+            color: 'var(--luxury-gray-700)'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.borderColor = 'var(--luxury-gold)';
+            e.currentTarget.style.color = 'var(--luxury-gold)';
+            e.currentTarget.style.background = 'var(--luxury-gray-100)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.borderColor = 'var(--luxury-gray-300)';
+            e.currentTarget.style.color = 'var(--luxury-gray-700)';
+            e.currentTarget.style.background = 'transparent';
+          }}
+        >
+          <RotateCcw style={{ width: '18px', height: '18px' }} />
+          <span>Reset</span>
+        </button>
 
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={handleShare}
-                className="shrink-0 hover:bg-primary/10 hover:border-primary/50 hover:text-primary transition-colors"
-              >
-                <Share2 className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Share configuration (Ctrl+S)</TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <button
+          onClick={handleShare}
+          style={{
+            height: '44px',
+            border: '1.5px solid var(--luxury-gray-300)',
+            borderRadius: '0.5rem',
+            background: 'transparent',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '0.5rem',
+            cursor: 'pointer',
+            transition: 'all 0.3s',
+            fontSize: '0.8125rem',
+            fontWeight: 500,
+            color: 'var(--luxury-gray-700)'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.borderColor = 'var(--luxury-gold)';
+            e.currentTarget.style.color = 'var(--luxury-gold)';
+            e.currentTarget.style.background = 'var(--luxury-gray-100)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.borderColor = 'var(--luxury-gray-300)';
+            e.currentTarget.style.color = 'var(--luxury-gray-700)';
+            e.currentTarget.style.background = 'transparent';
+          }}
+        >
+          <Share2 style={{ width: '18px', height: '18px' }} />
+          <span>Share</span>
+        </button>
 
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={handleExport}
-                className="shrink-0 hover:bg-primary/10 hover:border-primary/50 hover:text-primary transition-colors"
-              >
-                <Download className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Download configuration (Ctrl+D)</TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <button
+          onClick={handleExport}
+          style={{
+            height: '44px',
+            border: '1.5px solid var(--luxury-gray-300)',
+            borderRadius: '0.5rem',
+            background: 'transparent',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '0.5rem',
+            cursor: 'pointer',
+            transition: 'all 0.3s',
+            fontSize: '0.8125rem',
+            fontWeight: 500,
+            color: 'var(--luxury-gray-700)'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.borderColor = 'var(--luxury-gold)';
+            e.currentTarget.style.color = 'var(--luxury-gold)';
+            e.currentTarget.style.background = 'var(--luxury-gray-100)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.borderColor = 'var(--luxury-gray-300)';
+            e.currentTarget.style.color = 'var(--luxury-gray-700)';
+            e.currentTarget.style.background = 'transparent';
+          }}
+        >
+          <Download style={{ width: '18px', height: '18px' }} />
+          <span>Download</span>
+        </button>
       </div>
 
       {/* Add to Cart Button */}

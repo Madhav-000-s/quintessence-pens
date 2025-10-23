@@ -110,7 +110,7 @@ export function AddToCartButton() {
   const totalPrice = unitPrice * quantity;
 
   return (
-    <div className="border-t bg-card p-4 space-y-4">
+    <div style={{ borderTop: '1px solid var(--luxury-gray-200)', padding: '1rem', background: '#ffffff' }}>
       {/* Quantity Selector */}
       <QuantitySelector
         value={quantity}
@@ -119,56 +119,145 @@ export function AddToCartButton() {
         max={50}
       />
 
-      <Separator />
-
       {/* Price Summary */}
       {quantity > 1 && (
-        <div className="space-y-1 rounded-lg bg-muted/50 p-3">
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">Price per pen:</span>
-            <span className="font-medium tabular-nums">{formatPrice(unitPrice)}</span>
+        <div style={{
+          marginTop: '1rem',
+          padding: '0.75rem',
+          borderRadius: '0.5rem',
+          background: 'var(--luxury-gray-50)',
+          border: '1px solid var(--luxury-gray-200)'
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem', marginBottom: '0.25rem' }}>
+            <span style={{ color: 'var(--luxury-gray-600)' }}>Price per pen:</span>
+            <span style={{ fontWeight: 500 }}>{formatPrice(unitPrice)}</span>
           </div>
-          <div className="flex items-center justify-between text-sm font-bold">
-            <span>Total for {quantity} pens:</span>
-            <span className="text-lg text-primary tabular-nums">{formatPrice(totalPrice)}</span>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem', fontWeight: 700 }}>
+            <span style={{ color: 'var(--luxury-black)' }}>Total for {quantity} pens:</span>
+            <span style={{ fontSize: '1.125rem', color: 'var(--luxury-gold)' }}>{formatPrice(totalPrice)}</span>
           </div>
         </div>
       )}
 
       {/* Add to Cart Button */}
-      <Button
+      <button
         onClick={handleAddToCart}
         disabled={isSaving || showSuccess}
-        size="lg"
-        className="w-full gap-2"
-        variant={showSuccess ? "default" : "default"}
+        style={{
+          width: '100%',
+          height: '52px',
+          marginTop: '1rem',
+          background: showSuccess
+            ? 'linear-gradient(135deg, #16a34a 0%, #15803d 100%)'
+            : 'linear-gradient(135deg, var(--luxury-black) 0%, var(--luxury-navy) 100%)',
+          border: showSuccess ? '1px solid #16a34a' : '1px solid var(--luxury-gold)',
+          color: showSuccess ? '#ffffff' : 'var(--luxury-gold)',
+          borderRadius: '0.5rem',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '0 1.5rem',
+          fontFamily: 'var(--font-body)',
+          fontSize: '0.9375rem',
+          fontWeight: 600,
+          cursor: isSaving || showSuccess ? 'not-allowed' : 'pointer',
+          boxShadow: '0 0 20px rgba(212, 175, 55, 0.25)',
+          transition: 'all 0.3s',
+          opacity: isSaving || showSuccess ? 0.7 : 1
+        }}
+        onMouseEnter={(e) => {
+          if (!isSaving && !showSuccess) {
+            e.currentTarget.style.background = 'linear-gradient(135deg, var(--luxury-gold) 0%, var(--luxury-gold-light) 100%)';
+            e.currentTarget.style.color = 'var(--luxury-black)';
+            e.currentTarget.style.boxShadow = '0 0 30px rgba(212, 175, 55, 0.40)';
+            e.currentTarget.style.transform = 'translateY(-2px)';
+          }
+        }}
+        onMouseLeave={(e) => {
+          if (!isSaving && !showSuccess) {
+            e.currentTarget.style.background = 'linear-gradient(135deg, var(--luxury-black) 0%, var(--luxury-navy) 100%)';
+            e.currentTarget.style.color = 'var(--luxury-gold)';
+            e.currentTarget.style.boxShadow = '0 0 20px rgba(212, 175, 55, 0.25)';
+            e.currentTarget.style.transform = 'translateY(0)';
+          }
+        }}
       >
-        {getButtonContent()}
-      </Button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          {showSuccess ? (
+            <CheckCircle2 style={{ width: '20px', height: '20px' }} />
+          ) : isSaving ? (
+            <Loader2 style={{ width: '20px', height: '20px' }} className="animate-spin" />
+          ) : (
+            <ShoppingCart style={{ width: '20px', height: '20px' }} />
+          )}
+          <span>
+            {showSuccess
+              ? "Added to Cart!"
+              : isSaving && saveProgress
+                ? PROGRESS_STEPS[saveProgress]
+                : isSaving
+                  ? "Processing..."
+                  : quantity === 1 ? "Add to Cart" : `Add ${quantity} to Cart`}
+          </span>
+        </div>
+        {!showSuccess && !isSaving && (
+          <span style={{ fontWeight: 700 }}>{formatPrice(totalPrice)}</span>
+        )}
+      </button>
 
       {/* Validation Error */}
       {validationError && (
-        <div className="flex items-center gap-2 rounded-md bg-destructive/10 p-3 text-sm text-destructive">
-          <AlertCircle className="h-4 w-4 shrink-0" />
+        <div style={{
+          marginTop: '1rem',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.5rem',
+          padding: '0.75rem',
+          borderRadius: '0.5rem',
+          background: 'rgba(239, 68, 68, 0.1)',
+          border: '1px solid rgba(239, 68, 68, 0.3)',
+          fontSize: '0.875rem',
+          color: '#dc2626'
+        }}>
+          <AlertCircle style={{ width: '16px', height: '16px', flexShrink: 0 }} />
           <span>{validationError}</span>
         </div>
       )}
 
       {/* Save Error */}
       {saveError && !isSaving && (
-        <div className="flex items-center gap-2 rounded-md bg-destructive/10 p-3 text-sm text-destructive">
-          <AlertCircle className="h-4 w-4 shrink-0" />
+        <div style={{
+          marginTop: '1rem',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.5rem',
+          padding: '0.75rem',
+          borderRadius: '0.5rem',
+          background: 'rgba(239, 68, 68, 0.1)',
+          border: '1px solid rgba(239, 68, 68, 0.3)',
+          fontSize: '0.875rem',
+          color: '#dc2626'
+        }}>
+          <AlertCircle style={{ width: '16px', height: '16px', flexShrink: 0 }} />
           <span>{saveError}</span>
         </div>
       )}
 
       {/* Progress Indicator */}
       {isSaving && saveProgress && (
-        <div className="space-y-1">
-          <div className="h-1 w-full overflow-hidden rounded-full bg-secondary">
+        <div style={{ marginTop: '0.75rem' }}>
+          <div style={{
+            width: '100%',
+            height: '4px',
+            background: 'var(--luxury-gray-200)',
+            borderRadius: '9999px',
+            overflow: 'hidden'
+          }}>
             <div
-              className="h-full bg-primary transition-all duration-500"
               style={{
+                height: '100%',
+                background: 'linear-gradient(90deg, var(--luxury-gold) 0%, var(--luxury-gold-light) 100%)',
+                transition: 'all 0.5s',
                 width: `${
                   saveProgress === "cap"
                     ? 16
@@ -183,7 +272,7 @@ export function AddToCartButton() {
                     : saveProgress === "cart"
                     ? 100
                     : 0
-                }%`,
+                }%`
               }}
             />
           </div>

@@ -54,11 +54,11 @@ function ConfiguratorContent() {
 
   return (
     <div className="flex h-screen w-full flex-col overflow-hidden lg:flex-row">
-      {/* 3D Viewer - Top on mobile, Left on desktop */}
-      <div className="relative h-1/2 flex-1 lg:h-full">
+      {/* 3D Viewer - 60% on desktop */}
+      <div className="viewer-luxury-bg relative h-1/2 flex-1 lg:h-full">
         <Suspense
           fallback={
-            <div className="flex h-full w-full items-center justify-center bg-neutral-100">
+            <div className="flex h-full w-full items-center justify-center">
               <Skeleton className="h-96 w-96" />
             </div>
           }
@@ -67,18 +67,15 @@ function ConfiguratorContent() {
         </Suspense>
 
         {/* Logo/Brand */}
-        <div className="pointer-events-none absolute left-4 top-4 lg:left-6 lg:top-6">
-          <h1 className="text-xl font-bold text-foreground drop-shadow-sm lg:text-2xl">
+        <div className="pointer-events-none absolute left-6 top-6 lg:left-8 lg:top-8">
+          <h1 className="text-luxury-heading text-2xl font-bold" style={{ fontFamily: 'var(--font-serif)', color: 'var(--luxury-gold)', opacity: 0.9 }}>
             Quintessence
           </h1>
-          <p className="text-xs text-muted-foreground lg:text-sm">
-            Pen Configurator
-          </p>
         </div>
       </div>
 
-      {/* Configuration Panel - Bottom on mobile, Right on desktop */}
-      <div className="h-1/2 w-full overflow-y-auto border-t bg-background shadow-2xl lg:h-full lg:max-w-md lg:border-l lg:border-t-0 xl:max-w-lg">
+      {/* Configuration Panel - 40% on desktop */}
+      <div className="h-1/2 w-full overflow-y-auto bg-white shadow-2xl lg:h-full lg:w-[40%] lg:max-w-[640px]">
         <ConfigPanel />
       </div>
 

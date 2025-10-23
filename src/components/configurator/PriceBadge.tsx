@@ -36,65 +36,123 @@ export function PriceBadge() {
       {/* Desktop: Bottom left */}
       <button
         onClick={togglePricingDrawer}
-        className={cn(
-          "group fixed bottom-6 left-6 z-50 hidden lg:flex",
-          "items-center gap-3 rounded-full border bg-card/95 px-5 py-3",
-          "shadow-lg backdrop-blur-sm transition-all duration-300",
-          "hover:shadow-xl hover:scale-105",
-          isPricingDrawerOpen && "bg-primary text-primary-foreground",
-          priceChanged && "ring-2 ring-primary ring-offset-2"
-        )}
+        style={{
+          position: 'fixed',
+          bottom: '2rem',
+          left: '2rem',
+          zIndex: 1000,
+          display: 'none',
+          height: '64px',
+          padding: '1rem 1.5rem',
+          background: 'linear-gradient(135deg, var(--luxury-black) 0%, var(--luxury-navy) 100%)',
+          backdropFilter: 'blur(12px)',
+          WebkitBackdropFilter: 'blur(12px)',
+          border: '1px solid var(--luxury-gold)',
+          borderRadius: '1rem',
+          alignItems: 'center',
+          gap: '1rem',
+          boxShadow: '0 12px 48px rgba(212, 175, 55, 0.25)',
+          cursor: 'pointer',
+          transition: 'all 0.3s'
+        }}
+        className="lg:flex"
+        onMouseEnter={(e) => {
+          e.currentTarget.style.transform = 'scale(1.02)';
+          e.currentTarget.style.boxShadow = '0 16px 60px rgba(212, 175, 55, 0.40)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.transform = 'scale(1)';
+          e.currentTarget.style.boxShadow = '0 12px 48px rgba(212, 175, 55, 0.25)';
+        }}
         aria-label="View pricing details"
       >
-        <div className="flex items-center gap-2">
-          <TrendingUp className="h-4 w-4" />
-          <div className="text-left">
-            <p className="text-xs font-medium opacity-80">
-              {quantity > 1 ? `Total (${quantity} pens)` : "Total"}
-            </p>
-            <p className="text-lg font-bold tabular-nums">
-              {formatPrice(totalPrice)}
-            </p>
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <div style={{
+            fontSize: '0.6875rem',
+            fontWeight: 600,
+            color: 'var(--luxury-gray-500)',
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em'
+          }}>
+            {quantity > 1 ? `Total (${quantity} pens)` : "Total"}
+          </div>
+          <div style={{
+            fontSize: '1.5rem',
+            fontWeight: 700,
+            color: 'var(--luxury-gold)'
+          }}>
+            {formatPrice(totalPrice)}
           </div>
         </div>
         <ChevronUp
-          className={cn(
-            "h-4 w-4 transition-transform duration-300",
-            isPricingDrawerOpen && "rotate-180"
-          )}
+          style={{
+            width: '20px',
+            height: '20px',
+            stroke: 'var(--luxury-gold)',
+            transition: 'transform 0.3s',
+            transform: isPricingDrawerOpen ? 'rotate(180deg)' : 'rotate(0deg)'
+          }}
         />
       </button>
 
       {/* Mobile: Bottom center */}
       <button
         onClick={togglePricingDrawer}
-        className={cn(
-          "group fixed bottom-6 left-1/2 z-50 flex lg:hidden",
-          "-translate-x-1/2 transform",
-          "items-center gap-3 rounded-full border bg-card/95 px-6 py-3",
-          "shadow-lg backdrop-blur-sm transition-all duration-300",
-          "hover:shadow-xl",
-          isPricingDrawerOpen && "bg-primary text-primary-foreground",
-          priceChanged && "ring-2 ring-primary ring-offset-2"
-        )}
+        style={{
+          position: 'fixed',
+          bottom: '2rem',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          zIndex: 1000,
+          display: 'flex',
+          height: '64px',
+          padding: '1rem 1.5rem',
+          background: 'linear-gradient(135deg, var(--luxury-black) 0%, var(--luxury-navy) 100%)',
+          backdropFilter: 'blur(12px)',
+          WebkitBackdropFilter: 'blur(12px)',
+          border: '1px solid var(--luxury-gold)',
+          borderRadius: '1rem',
+          alignItems: 'center',
+          gap: '1rem',
+          boxShadow: '0 12px 48px rgba(212, 175, 55, 0.25)',
+          cursor: 'pointer',
+          transition: 'all 0.3s'
+        }}
+        className="lg:hidden"
+        onMouseEnter={(e) => {
+          e.currentTarget.style.boxShadow = '0 16px 60px rgba(212, 175, 55, 0.40)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.boxShadow = '0 12px 48px rgba(212, 175, 55, 0.25)';
+        }}
         aria-label="View pricing details"
       >
-        <div className="flex items-center gap-2">
-          <TrendingUp className="h-4 w-4" />
-          <div className="text-left">
-            <p className="text-xs font-medium opacity-80">
-              {quantity > 1 ? `Total (${quantity} pens)` : "Total"}
-            </p>
-            <p className="text-lg font-bold tabular-nums">
-              {formatPrice(totalPrice)}
-            </p>
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <div style={{
+            fontSize: '0.6875rem',
+            fontWeight: 600,
+            color: 'var(--luxury-gray-500)',
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em'
+          }}>
+            {quantity > 1 ? `Total (${quantity} pens)` : "Total"}
+          </div>
+          <div style={{
+            fontSize: '1.5rem',
+            fontWeight: 700,
+            color: 'var(--luxury-gold)'
+          }}>
+            {formatPrice(totalPrice)}
           </div>
         </div>
         <ChevronUp
-          className={cn(
-            "h-4 w-4 transition-transform duration-300",
-            isPricingDrawerOpen && "rotate-180"
-          )}
+          style={{
+            width: '20px',
+            height: '20px',
+            stroke: 'var(--luxury-gold)',
+            transition: 'transform 0.3s',
+            transform: isPricingDrawerOpen ? 'rotate(180deg)' : 'rotate(0deg)'
+          }}
         />
       </button>
     </>
