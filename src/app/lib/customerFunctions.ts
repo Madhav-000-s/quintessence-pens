@@ -5,7 +5,7 @@ export async function extractAddress(customerId: number) {
     const { data, error } = await supabase
         .from("Address")
         .select("*")
-        .eq("customer_id", customerId)
+        .eq("customer", customerId)
     
     if(error) {
         console.error(error);
