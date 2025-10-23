@@ -65,11 +65,11 @@ export function MaterialSelector() {
               <button
                 key={material.value}
                 onClick={() => handleMaterialSelect(material)}
-                className="card-luxury"
                 style={{
                   width: '100%',
                   display: 'flex',
-                  alignItems: 'center',
+                  alignItems: 'flex-start',
+                  justifyContent: 'space-between',
                   gap: '1rem',
                   padding: '1rem',
                   border: isSelected ? '2px solid var(--luxury-gold)' : '1.5px solid var(--luxury-gray-200)',
@@ -77,11 +77,25 @@ export function MaterialSelector() {
                   cursor: 'pointer',
                   transition: 'all 0.3s',
                   background: isSelected ? 'var(--luxury-gray-50)' : '#ffffff',
-                  position: 'relative',
-                  boxShadow: isSelected ? '0 0 20px rgba(212, 175, 55, 0.25)' : 'none'
+                  boxShadow: isSelected ? '0 0 20px rgba(212, 175, 55, 0.25)' : '0 2px 4px rgba(10, 10, 15, 0.05)',
+                  textAlign: 'left'
+                }}
+                onMouseEnter={(e) => {
+                  if (!isSelected) {
+                    e.currentTarget.style.borderColor = 'var(--luxury-gold-muted)';
+                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(212, 175, 55, 0.15)';
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!isSelected) {
+                    e.currentTarget.style.borderColor = 'var(--luxury-gray-200)';
+                    e.currentTarget.style.boxShadow = '0 2px 4px rgba(10, 10, 15, 0.05)';
+                    e.currentTarget.style.transform = 'translateY(0)';
+                  }
                 }}
               >
-                <div style={{ flex: 1, textAlign: 'left' }}>
+                <div style={{ flex: 1 }}>
                   <div style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'var(--luxury-black)', marginBottom: '0.25rem' }}>
                     {material.label}
                   </div>
@@ -89,31 +103,15 @@ export function MaterialSelector() {
                     {material.description}
                   </div>
                 </div>
-                {material.cost > 0 && (
-                  <div style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--luxury-gold)', marginLeft: 'auto' }}>
-                    +${material.cost}
-                  </div>
-                )}
-                {isSelected && (
-                  <div style={{
-                    position: 'absolute',
-                    top: '1rem',
-                    right: '1rem',
-                    width: '20px',
-                    height: '20px',
-                    background: 'linear-gradient(135deg, var(--luxury-black), var(--luxury-navy))',
-                    border: '1px solid var(--luxury-gold)',
-                    color: 'var(--luxury-gold)',
-                    borderRadius: '50%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '0.75rem',
-                    fontWeight: 700
-                  }}>
-                    ✓
-                  </div>
-                )}
+                <div style={{
+                  fontSize: '0.8125rem',
+                  fontWeight: 700,
+                  color: 'var(--luxury-gold)',
+                  flexShrink: 0,
+                  paddingTop: '0.125rem'
+                }}>
+                  {material.cost === 0 ? 'Included' : `+$${material.cost}`}
+                </div>
               </button>
             );
           })}
@@ -132,18 +130,29 @@ export function MaterialSelector() {
                 style={{
                   flex: 1,
                   borderRadius: '0.5rem',
-                  border: isSelected ? '2px solid var(--luxury-gold)' : '2px solid var(--luxury-gray-200)',
+                  border: isSelected ? '2px solid var(--luxury-gold)' : '1.5px solid var(--luxury-gray-200)',
                   padding: '0.75rem 1rem',
                   textAlign: 'center',
                   fontSize: '0.875rem',
-                  fontWeight: 500,
+                  fontWeight: isSelected ? 600 : 500,
                   transition: 'all 0.3s',
-                  background: isSelected ? 'var(--luxury-gold)' : 'transparent',
+                  background: isSelected ? 'var(--luxury-gold)' : '#ffffff',
                   color: isSelected ? 'var(--luxury-black)' : 'var(--luxury-gray-700)',
-                  cursor: 'pointer'
+                  cursor: 'pointer',
+                  boxShadow: isSelected ? '0 2px 8px rgba(212, 175, 55, 0.25)' : 'none'
                 }}
-                onMouseEnter={(e) => !isSelected && (e.currentTarget.style.borderColor = 'var(--luxury-gold-muted)')}
-                onMouseLeave={(e) => !isSelected && (e.currentTarget.style.borderColor = 'var(--luxury-gray-200)')}
+                onMouseEnter={(e) => {
+                  if (!isSelected) {
+                    e.currentTarget.style.borderColor = 'var(--luxury-gold)';
+                    e.currentTarget.style.background = 'var(--luxury-gray-50)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!isSelected) {
+                    e.currentTarget.style.borderColor = 'var(--luxury-gray-200)';
+                    e.currentTarget.style.background = '#ffffff';
+                  }
+                }}
               >
                 {finish.label}
               </button>

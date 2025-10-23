@@ -70,36 +70,72 @@ export function TrimSelector() {
           <div className="grid grid-cols-3 gap-2">
             {trimOptions.map((finish) => {
               const properties = getTrimProperties(finish.value);
+              const isSelected = config.trimFinish === finish.value;
               return (
                 <button
                   key={finish.value}
                   onClick={() => handleTrimSelect(finish)}
-                  className={cn(
-                    "group relative overflow-hidden rounded-lg border-2 transition-all hover:scale-105",
-                    config.trimFinish === finish.value
-                      ? "border-primary ring-2 ring-primary ring-offset-2"
-                      : "border-transparent hover:border-primary/50"
-                  )}
+                  style={{
+                    position: 'relative',
+                    overflow: 'hidden',
+                    borderRadius: '0.5rem',
+                    border: isSelected ? '2px solid var(--luxury-gold)' : '1.5px solid var(--luxury-gray-200)',
+                    transition: 'all 0.3s',
+                    background: '#ffffff',
+                    cursor: 'pointer',
+                    boxShadow: isSelected ? '0 0 20px rgba(212, 175, 55, 0.25)' : 'none'
+                  }}
                   title={finish.cost > 0 ? `+$${finish.cost}` : undefined}
+                  onMouseEnter={(e) => {
+                    if (!isSelected) {
+                      e.currentTarget.style.borderColor = 'var(--luxury-gold-muted)';
+                      e.currentTarget.style.transform = 'scale(1.05)';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isSelected) {
+                      e.currentTarget.style.borderColor = 'var(--luxury-gray-200)';
+                      e.currentTarget.style.transform = 'scale(1)';
+                    }
+                  }}
                 >
-                  <div className="aspect-square p-3">
+                  <div style={{ aspectRatio: '1', padding: '0.75rem' }}>
                     <div
-                      className="h-full w-full rounded-md shadow-inner"
                       style={{
+                        height: '100%',
+                        width: '100%',
+                        borderRadius: '0.375rem',
                         backgroundColor: properties.color,
                         boxShadow: `inset 0 2px 4px rgba(0,0,0,${properties.roughness})`,
                       }}
                     />
                   </div>
-                  {config.trimFinish === finish.value && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/20">
-                      <Check className="h-6 w-6 text-white drop-shadow-lg" />
+                  {isSelected && (
+                    <div style={{
+                      position: 'absolute',
+                      inset: 0,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      background: 'rgba(0, 0, 0, 0.2)'
+                    }}>
+                      <Check style={{
+                        width: '24px',
+                        height: '24px',
+                        stroke: '#ffffff',
+                        filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5))'
+                      }} />
                     </div>
                   )}
-                  <div className="border-t bg-card p-2 text-center">
-                    <div className="text-xs font-medium">{finish.label}</div>
+                  <div style={{
+                    borderTop: '1px solid var(--luxury-gray-200)',
+                    background: 'var(--card)',
+                    padding: '0.5rem',
+                    textAlign: 'center'
+                  }}>
+                    <div style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--luxury-black)' }}>{finish.label}</div>
                     {finish.cost > 0 && (
-                      <div className="text-[10px] text-muted-foreground">+${finish.cost}</div>
+                      <div style={{ fontSize: '0.625rem', color: 'var(--luxury-gold)', fontWeight: 600 }}>+${finish.cost}</div>
                     )}
                   </div>
                 </button>
@@ -113,30 +149,49 @@ export function TrimSelector() {
       <div className="space-y-3">
         <h4 className="text-sm font-medium">Clip Style</h4>
         <div className="grid grid-cols-2 gap-2">
-          {clipStyles.map((style) => (
-            <button
-              key={style.value}
-              onClick={() => updateConfig("clipStyle", style.value)}
-              className={cn(
-                "rounded-lg border-2 p-3 text-left transition-all hover:border-primary/50",
-                config.clipStyle === style.value
-                  ? "border-primary bg-primary/5"
-                  : "border-border"
-              )}
-            >
-              <div className="flex items-start justify-between">
-                <div>
-                  <div className="font-medium">{style.label}</div>
-                  <div className="text-xs text-muted-foreground">
-                    {style.description}
+          {clipStyles.map((style) => {
+            const isSelected = config.clipStyle === style.value;
+            return (
+              <button
+                key={style.value}
+                onClick={() => updateConfig("clipStyle", style.value)}
+                style={{
+                  borderRadius: '0.5rem',
+                  border: isSelected ? '2px solid var(--luxury-gold)' : '1.5px solid var(--luxury-gray-200)',
+                  padding: '0.75rem',
+                  textAlign: 'left',
+                  transition: 'all 0.3s',
+                  background: isSelected ? 'var(--luxury-gray-50)' : '#ffffff',
+                  cursor: 'pointer',
+                  boxShadow: isSelected ? '0 0 20px rgba(212, 175, 55, 0.25)' : '0 2px 4px rgba(10, 10, 15, 0.05)'
+                }}
+                onMouseEnter={(e) => {
+                  if (!isSelected) {
+                    e.currentTarget.style.borderColor = 'var(--luxury-gold-muted)';
+                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(212, 175, 55, 0.15)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!isSelected) {
+                    e.currentTarget.style.borderColor = 'var(--luxury-gray-200)';
+                    e.currentTarget.style.boxShadow = '0 2px 4px rgba(10, 10, 15, 0.05)';
+                  }
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+                  <div>
+                    <div style={{ fontWeight: 600, color: 'var(--luxury-black)' }}>{style.label}</div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--luxury-gray-600)', marginTop: '0.25rem' }}>
+                      {style.description}
+                    </div>
                   </div>
+                  {isSelected && (
+                    <Check style={{ width: '16px', height: '16px', stroke: 'var(--luxury-gold)', flexShrink: 0 }} />
+                  )}
                 </div>
-                {config.clipStyle === style.value && (
-                  <Check className="h-4 w-4 text-primary" />
-                )}
-              </div>
-            </button>
-          ))}
+              </button>
+            );
+          })}
         </div>
       </div>
     </div>
