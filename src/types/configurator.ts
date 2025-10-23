@@ -113,6 +113,10 @@ export interface PenConfiguration {
   engravingId?: number;
   capConfigId?: number;
   barrelConfigId?: number;
+  nibConfigId?: number;
+  inkConfigId?: number;
+  penId?: number;
+  customerId?: number;
 }
 
 // Pricing
@@ -189,3 +193,6 @@ export interface ConfigurationExport {
   config: PenConfiguration;
   pricing: PricingBreakdown;
 }
+
+// Save Progress
+export type SaveStep = "cap" | "barrel" | "nib" | "ink" | "pen" | "cart" | null;

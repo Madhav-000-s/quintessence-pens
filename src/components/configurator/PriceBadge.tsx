@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 
 export function PriceBadge() {
   const pricing = useConfiguratorStore((state) => state.pricing);
+  const quantity = useConfiguratorStore((state) => state.quantity);
   const isPricingDrawerOpen = useConfiguratorStore(
     (state) => state.isPricingDrawerOpen
   );
@@ -17,15 +18,18 @@ export function PriceBadge() {
   const [priceChanged, setPriceChanged] = useState(false);
   const [prevPrice, setPrevPrice] = useState(pricing.total);
 
+  const totalPrice = pricing.total * quantity;
+
   // Detect price changes and trigger animation
   useEffect(() => {
-    if (pricing.total !== prevPrice) {
+    const currentTotal = pricing.total * quantity;
+    if (currentTotal !== prevPrice) {
       setPriceChanged(true);
-      setPrevPrice(pricing.total);
+      setPrevPrice(currentTotal);
       const timer = setTimeout(() => setPriceChanged(false), 600);
       return () => clearTimeout(timer);
     }
-  }, [pricing.total, prevPrice]);
+  }, [pricing.total, quantity, prevPrice]);
 
   return (
     <>
@@ -45,9 +49,11 @@ export function PriceBadge() {
         <div className="flex items-center gap-2">
           <TrendingUp className="h-4 w-4" />
           <div className="text-left">
-            <p className="text-xs font-medium opacity-80">Total</p>
+            <p className="text-xs font-medium opacity-80">
+              {quantity > 1 ? `Total (${quantity} pens)` : "Total"}
+            </p>
             <p className="text-lg font-bold tabular-nums">
-              {formatPrice(pricing.total)}
+              {formatPrice(totalPrice)}
             </p>
           </div>
         </div>
@@ -76,9 +82,11 @@ export function PriceBadge() {
         <div className="flex items-center gap-2">
           <TrendingUp className="h-4 w-4" />
           <div className="text-left">
-            <p className="text-xs font-medium opacity-80">Total</p>
+            <p className="text-xs font-medium opacity-80">
+              {quantity > 1 ? `Total (${quantity} pens)` : "Total"}
+            </p>
             <p className="text-lg font-bold tabular-nums">
-              {formatPrice(pricing.total)}
+              {formatPrice(totalPrice)}
             </p>
           </div>
         </div>

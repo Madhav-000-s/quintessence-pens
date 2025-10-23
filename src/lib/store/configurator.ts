@@ -5,6 +5,7 @@ import type {
   ConfigSection,
   PricingBreakdown,
   PenModel,
+  SaveStep,
 } from "@/types/configurator";
 import {
   fetchMaterials,
@@ -17,6 +18,9 @@ import {
   type DBEngraving
 } from "@/lib/supabase/configurator-api";
 import { calculateConfigCost } from "@/lib/adapters/configurator-adapters";
+import { submitCompleteConfiguration } from "@/lib/services/configuration-service";
+import { addToCart as addToCartService } from "@/lib/services/cart-service";
+import { getCurrentCustomerId } from "@/lib/services/user-service";
 
 interface ConfiguratorState {
   // Current configuration
@@ -31,6 +35,14 @@ interface ConfiguratorState {
   // Pricing
   pricing: PricingBreakdown;
 
+  // Quantity
+  quantity: number;
+
+  // Save state
+  isSaving: boolean;
+  saveError: string | null;
+  saveProgress: SaveStep;
+
   // Actions
   updateConfig: <K extends keyof PenConfiguration>(
     key: K,
@@ -42,10 +54,12 @@ interface ConfiguratorState {
   setIsAnimating: (isAnimating: boolean) => void;
   setPricingDrawerOpen: (isOpen: boolean) => void;
   togglePricingDrawer: () => void;
+  setQuantity: (quantity: number) => void;
   resetConfig: () => void;
   calculatePricing: () => void;
   exportConfig: () => string;
   importConfig: (configString: string) => void;
+  saveConfiguration: () => Promise<{ penId: number; cost: number } | null>;
 }
 
 // Default configuration factory
@@ -234,6 +248,10 @@ export const useConfiguratorStore = create<ConfiguratorState>()(
       isAnimating: false,
       isPricingDrawerOpen: false,
       pricing: initialPricing,
+      quantity: 1,
+      isSaving: false,
+      saveError: null,
+      saveProgress: null,
 
       updateConfig: (key, value) => {
         set((state) => {
@@ -256,6 +274,7 @@ export const useConfiguratorStore = create<ConfiguratorState>()(
         set({
           currentModel: model,
           config: newConfig,
+          quantity: 1, // Reset quantity when changing model
         });
       },
 
@@ -291,6 +310,12 @@ export const useConfiguratorStore = create<ConfiguratorState>()(
         set((state) => ({ isPricingDrawerOpen: !state.isPricingDrawerOpen }));
       },
 
+      setQuantity: (quantity) => {
+        // Clamp quantity between 1 and 50
+        const clampedQuantity = Math.max(1, Math.min(50, quantity));
+        set({ quantity: clampedQuantity });
+      },
+
       resetConfig: () => {
         const { currentModel } = get();
         const newConfig = createDefaultConfig(currentModel);
@@ -299,6 +324,7 @@ export const useConfiguratorStore = create<ConfiguratorState>()(
         });
         set({
           config: newConfig,
+          quantity: 1, // Reset quantity when resetting config
         });
       },
 
@@ -333,6 +359,50 @@ export const useConfiguratorStore = create<ConfiguratorState>()(
           }
         } catch (error) {
           console.error("Failed to import configuration:", error);
+        }
+      },
+
+      saveConfiguration: async () => {
+        set({ isSaving: true, saveError: null, saveProgress: null });
+
+        try {
+          const { config, quantity } = get();
+
+          // Get customer ID (with dummy fallback)
+          const customerId = await getCurrentCustomerId();
+
+          // Submit configuration with progress tracking
+          const result = await submitCompleteConfiguration(config, (step) => {
+            set({ saveProgress: step as SaveStep });
+          });
+
+          // Add to cart with selected quantity
+          set({ saveProgress: "cart" });
+          const totalPrice = result.cost * quantity;
+          await addToCartService(result.penId, customerId, quantity, totalPrice);
+
+          // Update config with saved IDs
+          set({
+            config: {
+              ...config,
+              penId: result.penId,
+              customerId,
+            },
+            isSaving: false,
+            saveProgress: null,
+            saveError: null,
+          });
+
+          return result;
+        } catch (error) {
+          console.error("Error saving configuration:", error);
+          const errorMessage = error instanceof Error ? error.message : "Failed to save configuration";
+          set({
+            isSaving: false,
+            saveError: errorMessage,
+            saveProgress: null,
+          });
+          return null;
         }
       },
     }),

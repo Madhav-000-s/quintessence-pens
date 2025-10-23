@@ -10,6 +10,7 @@ import { useEffect, useRef } from "react";
 
 export function PricingSummary() {
   const pricing = useConfiguratorStore((state) => state.pricing);
+  const quantity = useConfiguratorStore((state) => state.quantity);
   const isPricingDrawerOpen = useConfiguratorStore(
     (state) => state.isPricingDrawerOpen
   );
@@ -23,6 +24,8 @@ export function PricingSummary() {
     { label: "Body Material", amount: pricing.bodyMaterialCost },
     { label: "Nib Upgrade", amount: pricing.nibMaterialCost },
     { label: "Trim Finish", amount: pricing.trimCost },
+    { label: "Design & Pattern", amount: pricing.designCost },
+    { label: "Coating & Finish", amount: pricing.coatingCost },
     { label: "Engraving", amount: pricing.engravingCost },
   ].filter((item) => item.amount > 0);
 
@@ -132,25 +135,45 @@ export function PricingSummary() {
 
           <Separator />
 
-          {/* Total */}
-          <div className="flex items-center justify-between rounded-lg bg-primary/10 p-4">
-            <span className="text-lg font-bold">Total</span>
-            <span className="text-3xl font-bold tabular-nums text-primary">
+          {/* Subtotal (per pen) */}
+          <div className="flex items-center justify-between rounded-lg bg-muted/50 p-4">
+            <span className="font-medium">Subtotal (per pen)</span>
+            <span className="text-xl font-bold tabular-nums">
               {formatPrice(pricing.total)}
             </span>
           </div>
 
-          {/* Actions */}
-          <div className="space-y-3 pt-2">
-            <Button className="w-full" size="lg">
-              <ShoppingCart className="mr-2 h-5 w-5" />
-              Add to Cart
-            </Button>
-
-            <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
-              <Check className="h-3 w-3" />
-              <span>Handcrafted to order • 4-6 weeks delivery</span>
+          {/* Quantity Info */}
+          {quantity > 1 && (
+            <div className="space-y-2 rounded-lg bg-primary/5 p-4 animate-in fade-in slide-in-from-top-2">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">Quantity:</span>
+                <span className="font-bold">{quantity} pens</span>
+              </div>
+              <Separator />
+              <div className="flex items-center justify-between">
+                <span className="text-lg font-bold">Grand Total</span>
+                <span className="text-3xl font-bold tabular-nums text-primary">
+                  {formatPrice(pricing.total * quantity)}
+                </span>
+              </div>
             </div>
+          )}
+
+          {/* Total (single pen) */}
+          {quantity === 1 && (
+            <div className="flex items-center justify-between rounded-lg bg-primary/10 p-4">
+              <span className="text-lg font-bold">Total</span>
+              <span className="text-3xl font-bold tabular-nums text-primary">
+                {formatPrice(pricing.total)}
+              </span>
+            </div>
+          )}
+
+          {/* Info */}
+          <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground pt-2">
+            <Check className="h-3 w-3" />
+            <span>Handcrafted to order • 4-6 weeks delivery</span>
           </div>
         </div>
       </div>

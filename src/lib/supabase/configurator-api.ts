@@ -353,3 +353,210 @@ export async function fetchAllConfigData() {
     clipDesigns,
   };
 }
+
+// Fetch CapConfigs with full nested data (for presets)
+export async function fetchCapConfigsWithDetails() {
+  const cacheKey = "capConfigsWithDetails";
+  const cached = getCached<any[]>(cacheKey);
+  if (cached) return cached;
+
+  try {
+    // Note: Supabase doesn't support nested joins in select
+    // We need to fetch the config and then fetch related data
+    const { data: capConfigs, error } = await supabase
+      .from("CapConfig")
+      .select("*")
+      .order("cap_type_id")
+      .limit(20); // Limit for performance
+
+    if (error) throw error;
+
+    if (!capConfigs || capConfigs.length === 0) return [];
+
+    // Fetch related data for each config
+    const enrichedConfigs = await Promise.all(
+      capConfigs.map(async (config) => {
+        const [material, design, engraving, coating, clipDesign] = await Promise.all([
+          config.material_id ? supabase.from("Material").select("*").eq("id", config.material_id).single() : null,
+          config.design_id ? supabase.from("Design").select("*").eq("design_id", config.design_id).single() : null,
+          config.engraving_id ? supabase.from("Engravings").select("*").eq("engraving_id", config.engraving_id).single() : null,
+          config.coating_id ? supabase.from("Coating").select("*").eq("coating_id", config.coating_id).single() : null,
+          config.clip_design ? supabase.from("ClipDesign").select("*").eq("id", config.clip_design).single() : null,
+        ]);
+
+        return {
+          ...config,
+          material: material?.data || null,
+          design: design?.data || null,
+          engraving: engraving?.data || null,
+          coating: coating?.data || null,
+          clip_design: clipDesign?.data || null,
+        };
+      })
+    );
+
+    setCache(cacheKey, enrichedConfigs);
+    return enrichedConfigs;
+  } catch (error) {
+    console.error("Error fetching cap configs with details:", error);
+    return [];
+  }
+}
+
+// Fetch BarrelConfigs with full nested data
+export async function fetchBarrelConfigsWithDetails() {
+  const cacheKey = "barrelConfigsWithDetails";
+  const cached = getCached<any[]>(cacheKey);
+  if (cached) return cached;
+
+  try {
+    const { data: barrelConfigs, error } = await supabase
+      .from("BarrelConfig")
+      .select("*")
+      .order("barrel_id")
+      .limit(20);
+
+    if (error) throw error;
+    if (!barrelConfigs || barrelConfigs.length === 0) return [];
+
+    const enrichedConfigs = await Promise.all(
+      barrelConfigs.map(async (config) => {
+        const [material, design, engraving, coating] = await Promise.all([
+          config.material_id ? supabase.from("Material").select("*").eq("id", config.material_id).single() : null,
+          config.design_id ? supabase.from("Design").select("*").eq("design_id", config.design_id).single() : null,
+          config.engraving_id ? supabase.from("Engravings").select("*").eq("engraving_id", config.engraving_id).single() : null,
+          config.coating_id ? supabase.from("Coating").select("*").eq("coating_id", config.coating_id).single() : null,
+        ]);
+
+        return {
+          ...config,
+          material: material?.data || null,
+          design: design?.data || null,
+          engraving: engraving?.data || null,
+          coating: coating?.data || null,
+        };
+      })
+    );
+
+    setCache(cacheKey, enrichedConfigs);
+    return enrichedConfigs;
+  } catch (error) {
+    console.error("Error fetching barrel configs with details:", error);
+    return [];
+  }
+}
+
+// Fetch NibConfigs with full nested data
+export async function fetchNibConfigsWithDetails() {
+  const cacheKey = "nibConfigsWithDetails";
+  const cached = getCached<any[]>(cacheKey);
+  if (cached) return cached;
+
+  try {
+    const { data: nibConfigs, error } = await supabase
+      .from("NibConfig")
+      .select("*")
+      .order("nibtype_id")
+      .limit(20);
+
+    if (error) throw error;
+    if (!nibConfigs || nibConfigs.length === 0) return [];
+
+    const enrichedConfigs = await Promise.all(
+      nibConfigs.map(async (config) => {
+        const [material, design] = await Promise.all([
+          config.material_id ? supabase.from("Material").select("*").eq("id", config.material_id).single() : null,
+          config.design_id ? supabase.from("Design").select("*").eq("design_id", config.design_id).single() : null,
+        ]);
+
+        return {
+          ...config,
+          material: material?.data || null,
+          design: design?.data || null,
+        };
+      })
+    );
+
+    setCache(cacheKey, enrichedConfigs);
+    return enrichedConfigs;
+  } catch (error) {
+    console.error("Error fetching nib configs with details:", error);
+    return [];
+  }
+}
+
+// Fetch InkConfigs with details
+export async function fetchInkConfigsWithDetails() {
+  // InkConfigs don't have nested relations, so just return regular fetch
+  return fetchInkConfigs();
+}
+
+// Fetch a complete Pen configuration by ID
+export async function fetchPenById(penId: number) {
+  try {
+    const { data: pen, error } = await supabase
+      .from("Pen")
+      .select("*")
+      .eq("pen_id", penId)
+      .single();
+
+    if (error) throw error;
+    if (!pen) return null;
+
+    // Fetch all related configurations
+    const [capConfig, barrelConfig, nibConfig, inkConfig] = await Promise.all([
+      pen.cap_type_id ? fetchCapConfigById(pen.cap_type_id) : null,
+      pen.barrel_id ? fetchBarrelConfigById(pen.barrel_id) : null,
+      pen.nibtype_id ? fetchNibConfigById(pen.nibtype_id) : null,
+      pen.ink_type_id ? fetchInkConfigById(pen.ink_type_id) : null,
+    ]);
+
+    return {
+      ...pen,
+      cap_config: capConfig,
+      barrel_config: barrelConfig,
+      nib_config: nibConfig,
+      ink_config: inkConfig,
+    };
+  } catch (error) {
+    console.error("Error fetching pen by ID:", error);
+    return null;
+  }
+}
+
+// Helper functions to fetch individual configs by ID
+async function fetchCapConfigById(id: number) {
+  const { data } = await supabase
+    .from("CapConfig")
+    .select("*")
+    .eq("cap_type_id", id)
+    .single();
+  return data;
+}
+
+async function fetchBarrelConfigById(id: number) {
+  const { data } = await supabase
+    .from("BarrelConfig")
+    .select("*")
+    .eq("barrel_id", id)
+    .single();
+  return data;
+}
+
+async function fetchNibConfigById(id: number) {
+  const { data } = await supabase
+    .from("NibConfig")
+    .select("*")
+    .eq("nibtype_id", id)
+    .single();
+  return data;
+}
+
+async function fetchInkConfigById(id: number) {
+  const { data } = await supabase
+    .from("InkConfig")
+    .select("*")
+    .eq("ink_type_id", id)
+    .single();
+  return data;
+}

@@ -85,16 +85,16 @@ export function KeyboardShortcuts() {
                     {category.category}
                   </h4>
                   <div className="space-y-2">
-                    {category.items.map((item, index) => (
+                    {category.items.map((item) => (
                       <div
-                        key={index}
+                        key={item.description}
                         className="flex items-center justify-between text-sm"
                       >
                         <span>{item.description}</span>
                         <div className="flex gap-1">
-                          {item.keys.map((key, keyIndex) => (
+                          {item.keys.map((key) => (
                             <kbd
-                              key={keyIndex}
+                              key={key}
                               className="inline-flex min-w-[2rem] items-center justify-center rounded border border-muted bg-muted/50 px-2 py-1 font-mono text-xs font-semibold"
                             >
                               {key}

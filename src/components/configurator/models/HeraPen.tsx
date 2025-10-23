@@ -149,8 +149,8 @@ export function HeraPen({
           </mesh>
 
           {/* Guilloche pattern rings */}
-          {[0, 0.08, -0.08].map((offset, i) => (
-            <mesh key={i} position={[0, offset, 0]}>
+          {[0, 0.08, -0.08].map((offset) => (
+            <mesh key={`guilloche-ring-${offset}`} position={[0, offset, 0]}>
               <torusGeometry args={[capBottomRadius * 1.01, 0.008, 8, 64]} />
               <meshPhysicalMaterial
                 color={trimMaterial.color}
@@ -201,8 +201,8 @@ export function HeraPen({
 
         {/* Cap threads (where it screws onto barrel) */}
         <group position={[0, -capLength / 2, 0]}>
-          {[0, 0.05, 0.1, 0.15].map((offset, i) => (
-            <mesh key={i} position={[0, -offset, 0]} rotation={[0, i * 0.3, 0]}>
+          {[0, 0.05, 0.1, 0.15].map((offset) => (
+            <mesh key={`cap-thread-${offset}`} position={[0, -offset, 0]} rotation={[0, offset * 2, 0]}>
               <torusGeometry args={[capBottomRadius * 0.95, 0.015, 6, 48]} />
               <meshStandardMaterial
                 color={bodyMaterial.color}
@@ -260,8 +260,8 @@ export function HeraPen({
           </mesh>
 
           {/* Knob grip rings */}
-          {[-0.1, 0, 0.1].map((offset, i) => (
-            <mesh key={i} position={[0, offset, 0]}>
+          {[-0.1, 0, 0.1].map((offset) => (
+            <mesh key={`knob-ring-${offset}`} position={[0, offset, 0]}>
               <torusGeometry args={[barrelBottomRadius * 1.05, 0.012, 8, 64]} />
               <meshPhysicalMaterial
                 color={trimMaterial.color}
@@ -298,8 +298,8 @@ export function HeraPen({
         </mesh>
 
         {/* Grip threads/rings for texture */}
-        {[0.5, 0.35, 0.2, 0.05, -0.1, -0.25, -0.4].map((offset, i) => (
-          <mesh key={i} position={[0, offset, 0]}>
+        {[0.5, 0.35, 0.2, 0.05, -0.1, -0.25, -0.4].map((offset) => (
+          <mesh key={`grip-ring-${offset}`} position={[0, offset, 0]}>
             <torusGeometry
               args={[
                 gripTopRadius - (0.5 - offset) * 0.05,
@@ -318,8 +318,8 @@ export function HeraPen({
 
         {/* Section threads (where grip unscrews from barrel) */}
         <group position={[0, 0.7, 0]}>
-          {[0, 0.04, 0.08].map((offset, i) => (
-            <mesh key={i} position={[0, offset, 0]} rotation={[0, i * 0.4, 0]}>
+          {[0, 0.04, 0.08].map((offset) => (
+            <mesh key={`section-thread-${offset}`} position={[0, offset, 0]} rotation={[0, offset * 5, 0]}>
               <torusGeometry args={[gripTopRadius * 0.97, 0.012, 6, 48]} />
               <meshStandardMaterial
                 color={bodyMaterial.color}
@@ -353,8 +353,8 @@ export function HeraPen({
         </mesh>
 
         {/* Feed channels */}
-        {[-0.08, 0, 0.08].map((offset, i) => (
-          <mesh key={i} position={[offset, -0.5, 0.08]}>
+        {[-0.08, 0, 0.08].map((offset) => (
+          <mesh key={`feed-channel-${offset}`} position={[offset, -0.5, 0.08]}>
             <boxGeometry args={[0.02, 0.8, 0.02]} />
             <meshBasicMaterial color="#000000" />
           </mesh>

@@ -71,7 +71,7 @@ export function adaptMaterialsToOptions(
   }
 
   return materials.map((material) => ({
-    value: (material.name || "unknown").toLowerCase().replace(/\s+/g, "-"),
+    value: `${(material.name || "unknown").toLowerCase().replace(/\s+/g, "-")}-${material.id}`,
     label: material.name || "Unknown Material",
     description: `Premium ${material.name} material`,
     cost: material.cost || 0,

@@ -140,17 +140,17 @@ export function ConfigPanel() {
   }, [activeSection, resetConfig, togglePricingDrawer]);
 
   return (
-    <div className="flex h-full flex-col">
+    <div className="flex h-full flex-col bg-background">
       {/* Header */}
-      <div className="border-b bg-card p-6 space-y-4">
-        <div>
+      <div className="border-b bg-gradient-to-b from-card/50 to-card p-6 space-y-4 backdrop-blur-sm">
+        <div className="space-y-2">
           <div className="flex items-center gap-2">
-            <h2 className="text-2xl font-bold">{modelMetadata.name}</h2>
-            <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
+            <h2 className="text-2xl font-bold tracking-tight">{modelMetadata.name}</h2>
+            <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary shadow-sm">
               {modelMetadata.tagline}
             </span>
           </div>
-          <p className="text-sm text-muted-foreground mt-1">
+          <p className="text-sm text-muted-foreground leading-relaxed mt-1">
             {modelMetadata.description}
           </p>
         </div>
@@ -158,22 +158,35 @@ export function ConfigPanel() {
       </div>
 
       {/* Section Tabs */}
-      <div className="border-b bg-card">
+      <div className="border-b bg-card/30 backdrop-blur-sm">
         <div className="flex gap-1 p-2">
           {sections.map((section) => {
             const Icon = section.icon;
+            const isActive = activeSection === section.id;
             return (
               <button
                 key={section.id}
                 onClick={() => setActiveSection(section.id)}
                 className={cn(
-                  "flex flex-1 flex-col items-center gap-1 rounded-lg px-3 py-2 transition-all hover:bg-accent",
-                  activeSection === section.id &&
-                    "bg-primary text-primary-foreground hover:bg-primary/90"
+                  "group relative flex flex-1 flex-col items-center gap-1.5 rounded-lg px-3 py-2.5",
+                  "transition-all duration-200 ease-out",
+                  "hover:bg-accent/50",
+                  isActive
+                    ? "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90"
+                    : "text-muted-foreground hover:text-foreground"
                 )}
               >
-                <Icon className="h-4 w-4" />
-                <span className="text-xs font-medium">{section.label}</span>
+                <Icon className={cn(
+                  "h-4 w-4 transition-transform duration-200",
+                  isActive && "scale-110"
+                )} />
+                <span className={cn(
+                  "text-xs font-medium transition-all",
+                  isActive && "font-semibold"
+                )}>{section.label}</span>
+                {isActive && (
+                  <div className="absolute bottom-0 left-1/2 h-0.5 w-8 -translate-x-1/2 rounded-full bg-primary-foreground" />
+                )}
               </button>
             );
           })}
@@ -181,16 +194,18 @@ export function ConfigPanel() {
       </div>
 
       {/* Content Area */}
-      <div className="flex-1 overflow-y-auto p-6">
-        {activeSection === "material" && <MaterialSelector />}
-        {activeSection === "color" && <ColorPicker />}
-        {activeSection === "nib" && <NibConfigurator />}
-        {activeSection === "trim" && <TrimSelector />}
-        {activeSection === "engraving" && <EngravingEditor />}
+      <div className="flex-1 overflow-y-auto p-6 bg-gradient-to-b from-background/50 to-background">
+        <div className="animate-in fade-in slide-in-from-bottom-3 duration-300">
+          {activeSection === "material" && <MaterialSelector />}
+          {activeSection === "color" && <ColorPicker />}
+          {activeSection === "nib" && <NibConfigurator />}
+          {activeSection === "trim" && <TrimSelector />}
+          {activeSection === "engraving" && <EngravingEditor />}
+        </div>
       </div>
 
       {/* Action Buttons */}
-      <div className="flex gap-2 border-t p-4">
+      <div className="flex gap-2 border-t bg-card/50 backdrop-blur-sm p-4">
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -198,12 +213,12 @@ export function ConfigPanel() {
                 variant="outline"
                 size="icon"
                 onClick={resetConfig}
-                className="shrink-0"
+                className="shrink-0 hover:bg-destructive/10 hover:border-destructive/50 hover:text-destructive transition-colors"
               >
                 <RotateCcw className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Reset to defaults</TooltipContent>
+            <TooltipContent>Reset to defaults (Ctrl+R)</TooltipContent>
           </Tooltip>
         </TooltipProvider>
 
@@ -214,12 +229,12 @@ export function ConfigPanel() {
                 variant="outline"
                 size="icon"
                 onClick={handleShare}
-                className="shrink-0"
+                className="shrink-0 hover:bg-primary/10 hover:border-primary/50 hover:text-primary transition-colors"
               >
                 <Share2 className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Share configuration</TooltipContent>
+            <TooltipContent>Share configuration (Ctrl+S)</TooltipContent>
           </Tooltip>
         </TooltipProvider>
 
@@ -230,12 +245,12 @@ export function ConfigPanel() {
                 variant="outline"
                 size="icon"
                 onClick={handleExport}
-                className="shrink-0"
+                className="shrink-0 hover:bg-primary/10 hover:border-primary/50 hover:text-primary transition-colors"
               >
                 <Download className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Download configuration</TooltipContent>
+            <TooltipContent>Download configuration (Ctrl+D)</TooltipContent>
           </Tooltip>
         </TooltipProvider>
       </div>
