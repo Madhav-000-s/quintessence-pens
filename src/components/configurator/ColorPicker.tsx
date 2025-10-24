@@ -76,7 +76,7 @@ export function ColorPicker() {
                           aspectRatio: '1',
                           overflow: 'hidden',
                           borderRadius: '0.5rem',
-                          border: isSelected ? '2px solid var(--luxury-gold)' : '1.5px solid var(--luxury-gray-200)',
+                          border: isSelected ? '2px solid var(--luxury-gold)' : '1px solid rgba(212, 175, 55, 0.3)',
                           transition: 'all 0.3s',
                           cursor: 'pointer',
                           boxShadow: isSelected ? '0 0 20px rgba(212, 175, 55, 0.25)' : 'none'
@@ -84,13 +84,13 @@ export function ColorPicker() {
                         title={`${color.name}${color.cost > 0 ? ` (+$${color.cost})` : ""}`}
                         onMouseEnter={(e) => {
                           if (!isSelected) {
-                            e.currentTarget.style.borderColor = 'var(--luxury-gold-muted)';
+                            e.currentTarget.style.borderColor = 'var(--luxury-gold)';
                             e.currentTarget.style.transform = 'scale(1.05)';
                           }
                         }}
                         onMouseLeave={(e) => {
                           if (!isSelected) {
-                            e.currentTarget.style.borderColor = 'var(--luxury-gray-200)';
+                            e.currentTarget.style.borderColor = 'rgba(212, 175, 55, 0.3)';
                             e.currentTarget.style.transform = 'scale(1)';
                           }
                         }}

@@ -12,7 +12,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import type { PenModel } from "@/types/configurator";
 
 // Valid pen models
-const VALID_MODELS: PenModel[] = ["zeus", "poseidon", "hera"];
+const VALID_MODELS: PenModel[] = ["zeus", "poseidon", "hera", "athena"];
 
 function ConfiguratorContent() {
   const params = useParams();

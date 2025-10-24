@@ -110,43 +110,24 @@ export function AddToCartButton() {
   const totalPrice = unitPrice * quantity;
 
   return (
-    <div style={{ borderTop: '1px solid var(--luxury-gray-200)', padding: '1rem', background: '#ffffff' }}>
-      {/* Quantity Selector */}
-      <QuantitySelector
-        value={quantity}
-        onChange={setQuantity}
-        min={1}
-        max={50}
-      />
+    <div style={{ borderTop: '1px solid var(--luxury-gold)', padding: '0.75rem', background: '#ffffff' }}>
+      {/* Quantity Selector and Add to Cart Button in Same Row */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+        {/* Quantity Selector */}
+        <QuantitySelector
+          value={quantity}
+          onChange={setQuantity}
+          min={1}
+          max={50}
+        />
 
-      {/* Price Summary */}
-      {quantity > 1 && (
-        <div style={{
-          marginTop: '1rem',
-          padding: '0.75rem',
-          borderRadius: '0.5rem',
-          background: 'var(--luxury-gray-50)',
-          border: '1px solid var(--luxury-gray-200)'
-        }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem', marginBottom: '0.25rem' }}>
-            <span style={{ color: 'var(--luxury-gray-600)' }}>Price per pen:</span>
-            <span style={{ fontWeight: 500 }}>{formatPrice(unitPrice)}</span>
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem', fontWeight: 700 }}>
-            <span style={{ color: 'var(--luxury-black)' }}>Total for {quantity} pens:</span>
-            <span style={{ fontSize: '1.125rem', color: 'var(--luxury-gold)' }}>{formatPrice(totalPrice)}</span>
-          </div>
-        </div>
-      )}
-
-      {/* Add to Cart Button */}
-      <button
+        {/* Add to Cart Button */}
+        <button
         onClick={handleAddToCart}
         disabled={isSaving || showSuccess}
         style={{
-          width: '100%',
-          height: '52px',
-          marginTop: '1rem',
+          flex: 1,
+          height: '48px',
           background: showSuccess
             ? 'linear-gradient(135deg, #16a34a 0%, #15803d 100%)'
             : 'linear-gradient(135deg, var(--luxury-black) 0%, var(--luxury-navy) 100%)',
@@ -156,9 +137,9 @@ export function AddToCartButton() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          padding: '0 1.5rem',
+          padding: '0 1.25rem',
           fontFamily: 'var(--font-body)',
-          fontSize: '0.9375rem',
+          fontSize: '0.875rem',
           fontWeight: 600,
           cursor: isSaving || showSuccess ? 'not-allowed' : 'pointer',
           boxShadow: '0 0 20px rgba(212, 175, 55, 0.25)',
@@ -204,22 +185,23 @@ export function AddToCartButton() {
           <span style={{ fontWeight: 700 }}>{formatPrice(totalPrice)}</span>
         )}
       </button>
+      </div>
 
       {/* Validation Error */}
       {validationError && (
         <div style={{
-          marginTop: '1rem',
+          marginTop: '0.625rem',
           display: 'flex',
           alignItems: 'center',
           gap: '0.5rem',
-          padding: '0.75rem',
-          borderRadius: '0.5rem',
+          padding: '0.5rem 0.625rem',
+          borderRadius: '0.375rem',
           background: 'rgba(239, 68, 68, 0.1)',
           border: '1px solid rgba(239, 68, 68, 0.3)',
-          fontSize: '0.875rem',
+          fontSize: '0.8125rem',
           color: '#dc2626'
         }}>
-          <AlertCircle style={{ width: '16px', height: '16px', flexShrink: 0 }} />
+          <AlertCircle style={{ width: '14px', height: '14px', flexShrink: 0 }} />
           <span>{validationError}</span>
         </div>
       )}
@@ -227,29 +209,29 @@ export function AddToCartButton() {
       {/* Save Error */}
       {saveError && !isSaving && (
         <div style={{
-          marginTop: '1rem',
+          marginTop: '0.625rem',
           display: 'flex',
           alignItems: 'center',
           gap: '0.5rem',
-          padding: '0.75rem',
-          borderRadius: '0.5rem',
+          padding: '0.5rem 0.625rem',
+          borderRadius: '0.375rem',
           background: 'rgba(239, 68, 68, 0.1)',
           border: '1px solid rgba(239, 68, 68, 0.3)',
-          fontSize: '0.875rem',
+          fontSize: '0.8125rem',
           color: '#dc2626'
         }}>
-          <AlertCircle style={{ width: '16px', height: '16px', flexShrink: 0 }} />
+          <AlertCircle style={{ width: '14px', height: '14px', flexShrink: 0 }} />
           <span>{saveError}</span>
         </div>
       )}
 
       {/* Progress Indicator */}
       {isSaving && saveProgress && (
-        <div style={{ marginTop: '0.75rem' }}>
+        <div style={{ marginTop: '0.5rem' }}>
           <div style={{
             width: '100%',
-            height: '4px',
-            background: 'var(--luxury-gray-200)',
+            height: '3px',
+            background: 'rgba(212, 175, 55, 0.2)',
             borderRadius: '9999px',
             overflow: 'hidden'
           }}>

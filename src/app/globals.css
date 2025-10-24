@@ -449,8 +449,8 @@
 
 /* Quantity Selector Luxury */
 .quantity-luxury {
-  background: var(--luxury-gray-50);
-  border: 1px solid var(--luxury-gray-200);
+  background: transparent;
+  border: none;
   border-radius: var(--radius-lg);
 }
 

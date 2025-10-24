@@ -79,7 +79,7 @@ export function TrimSelector() {
                     position: 'relative',
                     overflow: 'hidden',
                     borderRadius: '0.5rem',
-                    border: isSelected ? '2px solid var(--luxury-gold)' : '1.5px solid var(--luxury-gray-200)',
+                    border: isSelected ? '2px solid var(--luxury-gold)' : '1px solid rgba(212, 175, 55, 0.3)',
                     transition: 'all 0.3s',
                     background: '#ffffff',
                     cursor: 'pointer',
@@ -88,13 +88,13 @@ export function TrimSelector() {
                   title={finish.cost > 0 ? `+$${finish.cost}` : undefined}
                   onMouseEnter={(e) => {
                     if (!isSelected) {
-                      e.currentTarget.style.borderColor = 'var(--luxury-gold-muted)';
+                      e.currentTarget.style.borderColor = 'var(--luxury-gold)';
                       e.currentTarget.style.transform = 'scale(1.05)';
                     }
                   }}
                   onMouseLeave={(e) => {
                     if (!isSelected) {
-                      e.currentTarget.style.borderColor = 'var(--luxury-gray-200)';
+                      e.currentTarget.style.borderColor = 'rgba(212, 175, 55, 0.3)';
                       e.currentTarget.style.transform = 'scale(1)';
                     }
                   }}
@@ -128,7 +128,7 @@ export function TrimSelector() {
                     </div>
                   )}
                   <div style={{
-                    borderTop: '1px solid var(--luxury-gray-200)',
+                    borderTop: '1px solid rgba(212, 175, 55, 0.2)',
                     background: 'var(--card)',
                     padding: '0.5rem',
                     textAlign: 'center'
@@ -157,24 +157,24 @@ export function TrimSelector() {
                 onClick={() => updateConfig("clipStyle", style.value)}
                 style={{
                   borderRadius: '0.5rem',
-                  border: isSelected ? '2px solid var(--luxury-gold)' : '1.5px solid var(--luxury-gray-200)',
+                  border: isSelected ? '2px solid var(--luxury-gold)' : '1px solid rgba(212, 175, 55, 0.3)',
                   padding: '0.75rem',
                   textAlign: 'left',
                   transition: 'all 0.3s',
-                  background: isSelected ? 'var(--luxury-gray-50)' : '#ffffff',
+                  background: '#ffffff',
                   cursor: 'pointer',
-                  boxShadow: isSelected ? '0 0 20px rgba(212, 175, 55, 0.25)' : '0 2px 4px rgba(10, 10, 15, 0.05)'
+                  boxShadow: isSelected ? '0 0 20px rgba(212, 175, 55, 0.25)' : 'none'
                 }}
                 onMouseEnter={(e) => {
                   if (!isSelected) {
-                    e.currentTarget.style.borderColor = 'var(--luxury-gold-muted)';
-                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(212, 175, 55, 0.15)';
+                    e.currentTarget.style.borderColor = 'var(--luxury-gold)';
+                    e.currentTarget.style.boxShadow = '0 0 15px rgba(212, 175, 55, 0.2)';
                   }
                 }}
                 onMouseLeave={(e) => {
                   if (!isSelected) {
-                    e.currentTarget.style.borderColor = 'var(--luxury-gray-200)';
-                    e.currentTarget.style.boxShadow = '0 2px 4px rgba(10, 10, 15, 0.05)';
+                    e.currentTarget.style.borderColor = 'rgba(212, 175, 55, 0.3)';
+                    e.currentTarget.style.boxShadow = 'none';
                   }
                 }}
               >

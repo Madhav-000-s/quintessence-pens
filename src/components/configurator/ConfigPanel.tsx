@@ -191,7 +191,7 @@ export function ConfigPanel() {
       </div>
 
       {/* Content Area */}
-      <div className="flex-1 overflow-y-auto p-6 bg-gradient-to-b from-background/50 to-background">
+      <div className="flex-1 overflow-y-auto p-6 bg-white">
         <div className="animate-in fade-in slide-in-from-bottom-3 duration-300">
           {activeSection === "material" && <MaterialSelector />}
           {activeSection === "color" && <ColorPicker />}
@@ -206,8 +206,8 @@ export function ConfigPanel() {
         <button
           onClick={resetConfig}
           style={{
-            height: '44px',
-            border: '1.5px solid var(--luxury-gray-300)',
+            height: '40px',
+            border: '1px solid var(--luxury-gold)',
             borderRadius: '0.5rem',
             background: 'transparent',
             display: 'flex',
@@ -218,28 +218,30 @@ export function ConfigPanel() {
             transition: 'all 0.3s',
             fontSize: '0.8125rem',
             fontWeight: 500,
-            color: 'var(--luxury-gray-700)'
+            color: 'var(--luxury-black)'
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.borderColor = 'var(--luxury-gold)';
-            e.currentTarget.style.color = 'var(--luxury-gold)';
-            e.currentTarget.style.background = 'var(--luxury-gray-100)';
+            e.currentTarget.style.color = 'var(--luxury-black)';
+            e.currentTarget.style.background = 'var(--luxury-gold)';
+            e.currentTarget.style.boxShadow = '0 0 10px rgba(212, 175, 55, 0.3)';
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.borderColor = 'var(--luxury-gray-300)';
-            e.currentTarget.style.color = 'var(--luxury-gray-700)';
+            e.currentTarget.style.borderColor = 'var(--luxury-gold)';
+            e.currentTarget.style.color = 'var(--luxury-black)';
             e.currentTarget.style.background = 'transparent';
+            e.currentTarget.style.boxShadow = 'none';
           }}
         >
-          <RotateCcw style={{ width: '18px', height: '18px' }} />
+          <RotateCcw style={{ width: '16px', height: '16px' }} />
           <span>Reset</span>
         </button>
 
         <button
           onClick={handleShare}
           style={{
-            height: '44px',
-            border: '1.5px solid var(--luxury-gray-300)',
+            height: '40px',
+            border: '1px solid var(--luxury-gold)',
             borderRadius: '0.5rem',
             background: 'transparent',
             display: 'flex',
@@ -250,28 +252,30 @@ export function ConfigPanel() {
             transition: 'all 0.3s',
             fontSize: '0.8125rem',
             fontWeight: 500,
-            color: 'var(--luxury-gray-700)'
+            color: 'var(--luxury-black)'
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.borderColor = 'var(--luxury-gold)';
-            e.currentTarget.style.color = 'var(--luxury-gold)';
-            e.currentTarget.style.background = 'var(--luxury-gray-100)';
+            e.currentTarget.style.color = 'var(--luxury-black)';
+            e.currentTarget.style.background = 'var(--luxury-gold)';
+            e.currentTarget.style.boxShadow = '0 0 10px rgba(212, 175, 55, 0.3)';
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.borderColor = 'var(--luxury-gray-300)';
-            e.currentTarget.style.color = 'var(--luxury-gray-700)';
+            e.currentTarget.style.borderColor = 'var(--luxury-gold)';
+            e.currentTarget.style.color = 'var(--luxury-black)';
             e.currentTarget.style.background = 'transparent';
+            e.currentTarget.style.boxShadow = 'none';
           }}
         >
-          <Share2 style={{ width: '18px', height: '18px' }} />
+          <Share2 style={{ width: '16px', height: '16px' }} />
           <span>Share</span>
         </button>
 
         <button
           onClick={handleExport}
           style={{
-            height: '44px',
-            border: '1.5px solid var(--luxury-gray-300)',
+            height: '40px',
+            border: '1px solid var(--luxury-gold)',
             borderRadius: '0.5rem',
             background: 'transparent',
             display: 'flex',
@@ -282,20 +286,22 @@ export function ConfigPanel() {
             transition: 'all 0.3s',
             fontSize: '0.8125rem',
             fontWeight: 500,
-            color: 'var(--luxury-gray-700)'
+            color: 'var(--luxury-black)'
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.borderColor = 'var(--luxury-gold)';
-            e.currentTarget.style.color = 'var(--luxury-gold)';
-            e.currentTarget.style.background = 'var(--luxury-gray-100)';
+            e.currentTarget.style.color = 'var(--luxury-black)';
+            e.currentTarget.style.background = 'var(--luxury-gold)';
+            e.currentTarget.style.boxShadow = '0 0 10px rgba(212, 175, 55, 0.3)';
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.borderColor = 'var(--luxury-gray-300)';
-            e.currentTarget.style.color = 'var(--luxury-gray-700)';
+            e.currentTarget.style.borderColor = 'var(--luxury-gold)';
+            e.currentTarget.style.color = 'var(--luxury-black)';
             e.currentTarget.style.background = 'transparent';
+            e.currentTarget.style.boxShadow = 'none';
           }}
         >
-          <Download style={{ width: '18px', height: '18px' }} />
+          <Download style={{ width: '16px', height: '16px' }} />
           <span>Download</span>
         </button>
       </div>

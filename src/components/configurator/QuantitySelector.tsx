@@ -58,31 +58,16 @@ export function QuantitySelector({
   const isAtMax = value >= max;
 
   return (
-    <div className={cn("quantity-luxury space-y-2", className)}>
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Package style={{ width: '20px', height: '20px', stroke: 'var(--luxury-gray-700)' }} />
-          <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--luxury-black)' }}>
-            Quantity
-          </span>
-        </div>
-        {max > 10 && (
-          <span style={{ fontSize: '0.75rem', color: 'var(--luxury-gray-500)' }}>
-            Max: {max}
-          </span>
-        )}
-      </div>
-
+    <div className={cn(className)}>
       <div style={{
         display: 'flex',
         alignItems: 'center',
-        border: '1.5px solid var(--luxury-gray-300)',
+        border: '1px solid var(--luxury-gold)',
         borderRadius: '0.5rem',
         background: '#ffffff',
-        height: '40px',
+        height: '48px',
         width: '120px',
-        overflow: 'hidden',
-        marginTop: '0.5rem'
+        overflow: 'hidden'
       }}>
         {/* Decrement Button */}
         <button
@@ -90,7 +75,7 @@ export function QuantitySelector({
           disabled={isAtMin}
           style={{
             width: '40px',
-            height: '38px',
+            height: '46px',
             border: 'none',
             background: 'transparent',
             cursor: isAtMin ? 'not-allowed' : 'pointer',
@@ -110,7 +95,7 @@ export function QuantitySelector({
         <div style={{
           flex: 1,
           textAlign: 'center',
-          fontSize: '1rem',
+          fontSize: '0.9375rem',
           fontWeight: 600,
           color: 'var(--luxury-black)'
         }}>
@@ -123,7 +108,7 @@ export function QuantitySelector({
           disabled={isAtMax}
           style={{
             width: '40px',
-            height: '38px',
+            height: '46px',
             border: 'none',
             background: 'transparent',
             cursor: isAtMax ? 'not-allowed' : 'pointer',
@@ -139,23 +124,6 @@ export function QuantitySelector({
           <Plus style={{ width: '16px', height: '16px' }} />
         </button>
       </div>
-
-      {/* Bulk Order Info */}
-      {value >= 5 && (
-        <div className="animate-in fade-in slide-in-from-top-1 duration-300">
-          <div style={{
-            borderRadius: '0.25rem',
-            background: 'linear-gradient(to bottom, rgba(240, 217, 125, 0.1), rgba(212, 175, 55, 0.1))',
-            border: '1px solid rgba(212, 175, 55, 0.3)',
-            padding: '0.5rem 0.75rem',
-            fontSize: '0.75rem',
-            color: 'var(--luxury-gold-dark)'
-          }}>
-            <span style={{ fontWeight: 600 }}>Bulk Order:</span> Consider contacting
-            us for custom pricing on orders of 10+
-          </div>
-        </div>
-      )}
     </div>
   );
 }

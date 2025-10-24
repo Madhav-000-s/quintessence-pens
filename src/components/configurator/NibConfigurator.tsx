@@ -75,26 +75,26 @@ export function NibConfigurator() {
                       style={{
                         flex: 1,
                         borderRadius: '0.5rem',
-                        border: isSelected ? '2px solid var(--luxury-gold)' : '1.5px solid var(--luxury-gray-200)',
+                        border: isSelected ? '2px solid var(--luxury-gold)' : '1px solid rgba(212, 175, 55, 0.3)',
                         padding: '0.5rem 0.75rem',
                         textAlign: 'center',
                         fontSize: '0.875rem',
                         fontWeight: isSelected ? 600 : 500,
                         transition: 'all 0.3s',
                         background: isSelected ? 'var(--luxury-gold)' : '#ffffff',
-                        color: isSelected ? 'var(--luxury-black)' : 'var(--luxury-gray-700)',
+                        color: 'var(--luxury-black)',
                         cursor: 'pointer',
                         boxShadow: isSelected ? '0 2px 8px rgba(212, 175, 55, 0.25)' : 'none'
                       }}
                       onMouseEnter={(e) => {
                         if (!isSelected) {
                           e.currentTarget.style.borderColor = 'var(--luxury-gold)';
-                          e.currentTarget.style.background = 'var(--luxury-gray-50)';
+                          e.currentTarget.style.background = 'rgba(212, 175, 55, 0.1)';
                         }
                       }}
                       onMouseLeave={(e) => {
                         if (!isSelected) {
-                          e.currentTarget.style.borderColor = 'var(--luxury-gray-200)';
+                          e.currentTarget.style.borderColor = 'rgba(212, 175, 55, 0.3)';
                           e.currentTarget.style.background = '#ffffff';
                         }
                       }}
@@ -125,24 +125,24 @@ export function NibConfigurator() {
                 style={{
                   width: '100%',
                   borderRadius: '0.5rem',
-                  border: isSelected ? '2px solid var(--luxury-gold)' : '1.5px solid var(--luxury-gray-200)',
+                  border: isSelected ? '2px solid var(--luxury-gold)' : '1px solid rgba(212, 175, 55, 0.3)',
                   padding: '0.75rem',
                   textAlign: 'left',
                   transition: 'all 0.3s',
-                  background: isSelected ? 'var(--luxury-gray-50)' : '#ffffff',
+                  background: '#ffffff',
                   cursor: 'pointer',
-                  boxShadow: isSelected ? '0 0 20px rgba(212, 175, 55, 0.25)' : '0 2px 4px rgba(10, 10, 15, 0.05)'
+                  boxShadow: isSelected ? '0 0 20px rgba(212, 175, 55, 0.25)' : 'none'
                 }}
                 onMouseEnter={(e) => {
                   if (!isSelected) {
-                    e.currentTarget.style.borderColor = 'var(--luxury-gold-muted)';
-                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(212, 175, 55, 0.15)';
+                    e.currentTarget.style.borderColor = 'var(--luxury-gold)';
+                    e.currentTarget.style.boxShadow = '0 0 15px rgba(212, 175, 55, 0.2)';
                   }
                 }}
                 onMouseLeave={(e) => {
                   if (!isSelected) {
-                    e.currentTarget.style.borderColor = 'var(--luxury-gray-200)';
-                    e.currentTarget.style.boxShadow = '0 2px 4px rgba(10, 10, 15, 0.05)';
+                    e.currentTarget.style.borderColor = 'rgba(212, 175, 55, 0.3)';
+                    e.currentTarget.style.boxShadow = 'none';
                   }
                 }}
               >
@@ -164,7 +164,7 @@ export function NibConfigurator() {
                           </span>
                         )}
                       </div>
-                      <div style={{ fontSize: '0.75rem', color: 'var(--luxury-gray-600)', marginTop: '0.25rem' }}>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--luxury-black)', opacity: 0.6, marginTop: '0.25rem' }}>
                         {nibMaterialDescriptions[material.value]}
                       </div>
                     </div>
@@ -191,26 +191,26 @@ export function NibConfigurator() {
                 onClick={() => updateConfig("nibStyle", style.value)}
                 style={{
                   borderRadius: '0.5rem',
-                  border: isSelected ? '2px solid var(--luxury-gold)' : '1.5px solid var(--luxury-gray-200)',
+                  border: isSelected ? '2px solid var(--luxury-gold)' : '1px solid rgba(212, 175, 55, 0.3)',
                   padding: '0.75rem 1rem',
                   textAlign: 'center',
                   fontSize: '0.875rem',
                   fontWeight: isSelected ? 600 : 500,
                   transition: 'all 0.3s',
                   background: isSelected ? 'var(--luxury-gold)' : '#ffffff',
-                  color: isSelected ? 'var(--luxury-black)' : 'var(--luxury-gray-700)',
+                  color: 'var(--luxury-black)',
                   cursor: 'pointer',
                   boxShadow: isSelected ? '0 2px 8px rgba(212, 175, 55, 0.25)' : 'none'
                 }}
                 onMouseEnter={(e) => {
                   if (!isSelected) {
                     e.currentTarget.style.borderColor = 'var(--luxury-gold)';
-                    e.currentTarget.style.background = 'var(--luxury-gray-50)';
+                    e.currentTarget.style.background = 'rgba(212, 175, 55, 0.1)';
                   }
                 }}
                 onMouseLeave={(e) => {
                   if (!isSelected) {
-                    e.currentTarget.style.borderColor = 'var(--luxury-gray-200)';
+                    e.currentTarget.style.borderColor = 'rgba(212, 175, 55, 0.3)';
                     e.currentTarget.style.background = '#ffffff';
                   }
                 }}
