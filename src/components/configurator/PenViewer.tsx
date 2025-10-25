@@ -173,9 +173,7 @@ function LoadingFallback() {
       </div>
     </div>
   );
-}
-
-export function PenViewer() {
+}export function PenViewer() {
   return (
     <div className="relative h-full w-full bg-black">
       <Canvas
@@ -203,3 +201,22 @@ export function PenViewer() {
     </div>
   );
 }
+
+export const LandingPagePenViewer = () => (
+      <Canvas
+        shadows
+        gl={{
+          antialias: true,
+          toneMapping: THREE.ACESFilmicToneMapping,
+          toneMappingExposure: 0.95,
+          outputColorSpace: THREE.SRGBColorSpace,
+          alpha: false,
+        }}
+        dpr={[1, 2]}
+      >
+        <Suspense fallback={null}>
+          <Scene />
+        </Suspense>
+      </Canvas>
+)
+

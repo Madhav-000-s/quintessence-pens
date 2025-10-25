@@ -5,6 +5,7 @@ type HeadingProps = {
   size?: "xl" | "lg" | "md" | "sm" | "xs";
   children: React.ReactNode;
   className?: string;
+  style?: React.CSSProperties
   uppercase?: boolean;
 };
 
@@ -14,6 +15,7 @@ export function Heading({
   children,
   size = "lg",
   uppercase = false,
+  ...props
 }: HeadingProps) {
   return (
     <Comp
@@ -27,6 +29,7 @@ export function Heading({
         size === "xs" && "text-lg md:text-xl",
         className
       )}
+    {...props}
     >
       {children}
     </Comp>
