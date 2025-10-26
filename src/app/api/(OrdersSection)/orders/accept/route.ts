@@ -5,7 +5,7 @@ export async function PATCH(request: Request) {
     const { orderId } = body;
     const { data, error } = await supabase
         .from("WorkOrder")
-        .update({ isAccepted: true})
+        .update({ isAccepted: true, status: "order accepted"})
         .eq("id", orderId)
         
     if(error) {

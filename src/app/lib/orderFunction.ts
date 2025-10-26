@@ -111,7 +111,7 @@ export type InventoryAvailabilityResult = {
   allAvailable: boolean;
 };
 
-export async function checkInventory(materialWeights: InventoryInput): Promise<InventoryAvailabilityResult> {
+export async function checkInventory(materialWeights: InventoryInput, count?: number): Promise<InventoryAvailabilityResult> {
   const requestedEntries = Object.entries(materialWeights).filter(([, v]) => typeof v === "number" && Number.isFinite(v) && v > 0);
   if (requestedEntries.length === 0) {
     return { items: [], unavailableMaterials: [], allAvailable: true };
@@ -147,7 +147,7 @@ export async function checkInventory(materialWeights: InventoryInput): Promise<I
 
   const items: InventoryAvailabilityItem[] = requestedEntries.map(([material, requestedGrams]) => {
     const availableGrams = typeof nameToAvailable[material] === "number" ? nameToAvailable[material] : 0;
-    const isAvailable = availableGrams >= requestedGrams;
+    const isAvailable = availableGrams >= requestedGrams * (count || 1);
     return { material, requestedGrams, availableGrams, isAvailable };
   });
 
