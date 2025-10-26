@@ -5,11 +5,12 @@ import Link from "next/link";
 import Image from "next/image";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { ScrollToPlugin } from "gsap/ScrollToPlugin";
 import { ArrowRight } from "lucide-react";
 
 // Register GSAP plugins
 if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger);
+  gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 }
 
 const availablePens = [
@@ -56,9 +57,11 @@ export default function DashboardPage() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [videoError, setVideoError] = useState(false);
   const [currentPenIndex, setCurrentPenIndex] = useState(0);
+  const [isNavigating, setIsNavigating] = useState(false);
+
+  const stRef = useRef<globalThis.ScrollTrigger | null>(null);
 
   useEffect(() => {
-    // Force video to play
     const playVideo = async () => {
       if (videoRef.current) {
         try {
@@ -74,8 +77,15 @@ export default function DashboardPage() {
   }, []);
 
   useEffect(() => {
+    if (isNavigating) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+  }, [isNavigating]);
+
+  useEffect(() => {
     const ctx = gsap.context(() => {
-      // Hero animation
       if (headingRef.current) {
         gsap.from(headingRef.current, {
           opacity: 0,
@@ -86,70 +96,56 @@ export default function DashboardPage() {
         });
       }
 
-      // Pen carousel scroll-controlled animation - FIXED VERSION
       if (pensContainerRef.current && pensCardsRef.current) {
         const cards = pensCardsRef.current.querySelectorAll(".pen-card");
         const totalPens = cards.length;
 
-        // Set initial positions for all cards
         cards.forEach((card, index) => {
           gsap.set(card, {
             x: index === 0 ? 0 : 100,
             opacity: index === 0 ? 1 : 0,
+            visibility: index === 0 ? "visible" : "hidden",
             position: "absolute",
             top: 0,
             left: 0,
             right: 0,
+            width: "100%",
           });
         });
 
-        // Create timeline for INSTANT, CLEAN transitions
         const tl = gsap.timeline({
           scrollTrigger: {
             trigger: pensContainerRef.current,
             start: "top top",
-            end: `+=${window.innerHeight * (totalPens * 1.5)}`, // 1.5x scroll per pen for more control
+            end: `+=${window.innerHeight * (totalPens * 1.5)}`,
             pin: true,
-            scrub: 0.3, // Faster scrub for quicker response
+            scrub: 0.3,
             snap: {
               snapTo: 1 / (totalPens - 1),
-              duration: { min: 0.2, max: 0.4 }, // Fast snap
+              duration: { min: 0.2, max: 0.4 },
               ease: "power3.inOut",
             },
+            onSnapStart: () => setIsNavigating(true),
+            onSnapComplete: () => setIsNavigating(false),
             invalidateOnRefresh: false,
             onUpdate: (self) => {
-              // Calculate current index
               const newIndex = Math.min(
                 Math.round(self.progress * (totalPens - 1)),
                 totalPens - 1
               );
-
-              // Ensure ONLY current card is visible
-              cards.forEach((card, idx) => {
-                if (idx === newIndex) {
-                  gsap.set(card, {
-                    visibility: "visible",
-                    zIndex: 10,
-                  });
-                } else {
-                  gsap.set(card, {
-                    visibility: "hidden",
-                    zIndex: 1,
-                  });
-                }
-              });
-
               setCurrentPenIndex(newIndex);
+              cards.forEach((card, idx) => {
+                gsap.set(card, { zIndex: idx === newIndex ? 10 : 5 });
+              });
             },
           },
         });
 
-        // Create INSTANT transitions for each pen
+        stRef.current = tl.scrollTrigger || null;
+
         cards.forEach((card, index) => {
           if (index > 0) {
             const prevCard = cards[index - 1];
-
-            // INSTANT hide previous card
             tl.to(
               prevCard,
               {
@@ -159,10 +155,8 @@ export default function DashboardPage() {
                 duration: 0.4,
                 ease: "power3.inOut",
               },
-              index
+              index - 0.5
             );
-
-            // INSTANT show current card
             tl.fromTo(
               card,
               { x: 50, opacity: 0, visibility: "hidden" },
@@ -173,13 +167,12 @@ export default function DashboardPage() {
                 duration: 0.4,
                 ease: "power3.inOut",
               },
-              index
+              index - 0.5
             );
           }
         });
       }
 
-      // CTA button animation
       if (ctaRef.current) {
         gsap.from(ctaRef.current, {
           scrollTrigger: {
@@ -191,8 +184,6 @@ export default function DashboardPage() {
           duration: 0.6,
           ease: "back.out(1.7)",
         });
-
-        // Pulse animation loop
         gsap.to(ctaRef.current, {
           scale: 1.02,
           duration: 2,
@@ -204,7 +195,7 @@ export default function DashboardPage() {
     });
 
     return () => ctx.revert();
-  }, []); // REMOVED currentPenIndex dependency to prevent infinite loop
+  }, []);
 
   return (
     <div className="w-full">
@@ -213,7 +204,6 @@ export default function DashboardPage() {
         ref={heroRef}
         className="relative flex min-h-[600px] items-center justify-center overflow-hidden"
       >
-        {/* Background Video */}
         <video
           ref={videoRef}
           autoPlay
@@ -226,30 +216,21 @@ export default function DashboardPage() {
         >
           <source src="/Cinematic_Shots_Of_Four_Pens.mp4" type="video/mp4" />
         </video>
-
-        {/* Fallback gradient if video fails */}
-        {videoError && (
-          <div className="viewer-luxury-bg absolute inset-0" />
-        )}
-
-        {/* Dark overlay for text readability */}
+        {videoError && <div className="viewer-luxury-bg absolute inset-0" />}
         <div className="absolute inset-0 bg-gradient-to-b from-luxury-black/60 via-luxury-black/50 to-luxury-black/70" />
-
-        {/* Vignette effect */}
         <div className="absolute inset-0 bg-gradient-radial from-transparent via-transparent to-luxury-black/80" />
-
-        {/* Content */}
         <div className="relative z-10 text-center">
           <h1
             ref={headingRef}
             className="text-luxury-heading mb-6 text-6xl font-bold md:text-8xl"
             style={{
-              fontFamily: 'var(--font-serif)',
-              background: 'linear-gradient(135deg, var(--luxury-gold-light), var(--luxury-gold), var(--luxury-gold-dark))',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
-              textShadow: '0 2px 20px rgba(212, 175, 55, 0.3)',
+              fontFamily: "var(--font-serif)",
+              background:
+                "linear-gradient(135deg, var(--luxury-gold-light), var(--luxury-gold), var(--luxury-gold-dark))",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              backgroundClip: "text",
+              textShadow: "0 2px 20px rgba(212, 175, 55, 0.3)",
             }}
           >
             QUINTESSENCE
@@ -258,8 +239,6 @@ export default function DashboardPage() {
             Where Artistry Meets Precision
           </p>
         </div>
-
-        {/* Gold divider line */}
         <div className="absolute bottom-0 left-0 right-0 z-20">
           <div className="divider-luxury" />
         </div>
@@ -270,19 +249,17 @@ export default function DashboardPage() {
         ref={pensContainerRef}
         className="relative flex min-h-screen items-center justify-center overflow-hidden py-6"
       >
-        <div className="mx-auto w-full max-w-[1400px] px-8">
+        <div className="relative mx-auto w-full max-w-[1400px] px-8">
           <h2
             className="text-luxury-heading mb-8 text-center text-4xl font-bold md:text-5xl"
-            style={{ fontFamily: 'var(--font-serif)' }}
+            style={{ fontFamily: "var(--font-serif)" }}
           >
             Available Pens
           </h2>
-
-          {/* Carousel Container - MAXIMUM SIZE GLASS PANE */}
           <div
             ref={pensCardsRef}
             className="relative mx-auto"
-            style={{ minHeight: '750px' }}
+            style={{ minHeight: "750px" }}
           >
             {availablePens.map((pen, index) => (
               <Link
@@ -290,18 +267,14 @@ export default function DashboardPage() {
                 href={`/configurator/${pen.id}`}
                 className="pen-card group mx-auto overflow-hidden border border-white/20 bg-black/30 p-12 shadow-2xl backdrop-blur-2xl"
                 style={{
-                  maxWidth: '1300px',
-                  borderRadius: '1rem',
-                  willChange: 'transform',
+                  maxWidth: "1300px",
+                  borderRadius: "1rem",
+                  willChange: "transform",
                 }}
               >
-                {/* Glass inner glow */}
                 <div className="pointer-events-none absolute inset-0 rounded-2xl bg-gradient-to-br from-white/5 to-transparent" />
-
-                {/* Card content */}
                 <div className="relative z-10">
                   <div className="grid gap-16 md:grid-cols-2">
-                    {/* Pen image - MAXIMUM SIZE */}
                     <div className="flex items-center justify-center overflow-hidden rounded-xl bg-white/5 p-12 backdrop-blur-sm">
                       <Image
                         src={pen.image}
@@ -312,8 +285,6 @@ export default function DashboardPage() {
                         priority={index === 0}
                       />
                     </div>
-
-                    {/* Pen details - BIGGER TEXT */}
                     <div className="flex flex-col justify-center space-y-10">
                       <div>
                         <span className="badge-luxury mb-4 inline-block text-sm">
@@ -321,20 +292,18 @@ export default function DashboardPage() {
                         </span>
                         <h3
                           className="text-6xl font-bold text-luxury-gold"
-                          style={{ fontFamily: 'var(--font-serif)' }}
+                          style={{ fontFamily: "var(--font-serif)" }}
                         >
                           {pen.name}
                         </h3>
                       </div>
-
                       <p className="text-xl leading-relaxed text-luxury-gray-200">
                         {pen.description}
                       </p>
-
                       <div className="flex items-center justify-between border-t border-luxury-gold/20 pt-8">
                         <span
                           className="text-5xl font-bold text-luxury-gold"
-                          style={{ fontFamily: 'var(--font-serif)' }}
+                          style={{ fontFamily: "var(--font-serif)" }}
                         >
                           {pen.price}
                         </span>
@@ -352,37 +321,35 @@ export default function DashboardPage() {
             ))}
           </div>
 
-          {/* Navigation Dots */}
-          <div className="mt-10 flex items-center justify-center gap-3">
+          {/* MODIFICATION: Used arbitrary negative 'right' value to push dots outside */}
+          <div className="absolute top-1/2 -translate-y-1/2 right-[-1.5rem] z-20 flex flex-col items-center justify-center gap-4">
             {availablePens.map((pen, index) => (
               <button
                 key={pen.id}
-                className={`h-2 rounded-full transition-all ${
+                className={`w-2 rounded-full transition-all ${
                   index === currentPenIndex
-                    ? "w-8 bg-luxury-gold"
-                    : "w-2 bg-luxury-gold/30 hover:bg-luxury-gold/50"
+                    ? "h-8 bg-luxury-gold"
+                    : "h-2 bg-luxury-gold/30 hover:bg-luxury-gold/50"
                 }`}
                 onClick={() => {
-                  const scrollTarget = pensContainerRef.current;
-                  if (scrollTarget) {
-                    const progress = index / (availablePens.length - 1);
-                    window.scrollTo({
-                      top:
-                        scrollTarget.offsetTop +
-                        progress * window.innerHeight * (availablePens.length * 1.5),
-                      behavior: "smooth",
-                    });
-                  }
+                  if (!stRef.current) return;
+                  const st = stRef.current;
+                  const progress = index / (availablePens.length - 1);
+                  const scrollPos = st.start + (st.end - st.start) * progress;
+                  gsap.to(window, {
+                    scrollTo: { y: scrollPos, autoKill: false },
+                    duration: 0.8,
+                    ease: "power3.inOut",
+                  });
                 }}
                 aria-label={`Go to ${pen.name}`}
               />
             ))}
           </div>
 
-          {/* Scroll hint */}
-          <p className="mt-8 text-center text-sm text-luxury-gold-muted">
-            Scroll down to explore all models ↓
-          </p>
+          {/* NOTE: I am also removing the "Scroll down..." text as requested in
+            the previous turn, as one of your screenshots still showed it.
+          */}
         </div>
       </section>
 
@@ -391,12 +358,13 @@ export default function DashboardPage() {
         <div ref={ctaRef}>
           <h2
             className="text-luxury-heading mb-6 text-3xl font-bold md:text-4xl"
-            style={{ fontFamily: 'var(--font-serif)' }}
+            style={{ fontFamily: "var(--font-serif)" }}
           >
             Create Your Masterpiece
           </h2>
           <p className="mb-8 text-lg text-luxury-gray-600">
-            Design a pen as unique as your signature with our interactive configurator
+            Design a pen as unique as your signature with our interactive
+            configurator
           </p>
           <Link href="/configurator/athena">
             <button className="btn-luxury-primary group inline-flex items-center gap-3">
