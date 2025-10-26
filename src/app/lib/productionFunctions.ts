@@ -16,10 +16,10 @@ export async function getMaterialsBelowThreshold() {
 }
 
 
-export async function getMaterialPrice(material_id: number) {
+export async function getMaterialPriceAndVendor(material_id: number) {
     const { data, error } = await supabase
         .from("Inventory")
-        .select("material_name")
+        .select("material_name, vendor, cost_p_gram")
         .eq("id", material_id)
         .single();
     
@@ -27,7 +27,11 @@ export async function getMaterialPrice(material_id: number) {
         console.error("Error fetching material name:", error);
         return {price: 0, };
     }
-    return {price: data.material_name in prices ? prices[data.material_name as keyof typeof prices] : null, name: data.material_name};
+    return {
+        price: data.cost_p_gram,
+        name: data.material_name,
+        vendor_id: data.vendor
+    };
 }
 
 
@@ -40,8 +44,9 @@ export async function updateInventoryAfterReceipt(InventoryId: number, quantity:
     
     if(error) {
         console.error("Error:", error);
+        return false;
     }
-    return;
+    return true;
 }
 
 export async function deductMaterialFromInventory(material_wts: Record<string, number>, count: number) {
@@ -58,4 +63,18 @@ export async function deductMaterialFromInventory(material_wts: Record<string, n
     }
     }
     return true;
+}
+
+
+export async function getVendorDetails(vendor_id: number) {
+    const { data, error } = await supabase
+        .from("Vendors")
+        .select("*")
+        .eq("id", vendor_id)
+        .single();
+    if (error) {
+        console.error("Error fetching vendor details:", error);
+        return null;
+    }
+    return data;
 }

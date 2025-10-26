@@ -1,21 +1,22 @@
 import { supabase } from "@/supabase-client";
 import { updateInventoryAfterReceipt } from "@/app/lib/productionFunctions";
-import { useParams } from "next/navigation";
 
 export async function PATCH(request: Request) {
     const body = await request.json();
 
     const { data, error } = await supabase
-        .from("PurchaseOrders")
+        .from("PurchaseOrder")
         .update({ isReceived: true })
-        .eq("id", body.id)
-        .select("mateial_id, quantity")
+        .eq("id", body.order_id)  
+        .select("material, quantity")
         .single();
     
     if (error) {
         return new Response(JSON.stringify(error), { status: 400 });
     }
 
-    await updateInventoryAfterReceipt(data.mateial_id, data.quantity);
+    if(!await updateInventoryAfterReceipt(data.material, data.quantity)) {
+        return new Response(JSON.stringify("Failed to update inventory"), { status: 500 });
+    }
     return Response.json("Purchase order accepted successfully", { status: 200 });
 }

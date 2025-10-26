@@ -1,17 +1,24 @@
 import { supabase } from "@/supabase-client";
-import { getMaterialPrice } from "@/app/lib/productionFunctions";
+import { getMaterialPriceAndVendor } from "@/app/lib/productionFunctions";
 
 export async function POST(request: Request) {
     const body = await request.json();
     const insertEntry = [];
     for (const [key, value] of Object.entries(body))  {
-        const result = await getMaterialPrice(Number(key));
+        const result = await getMaterialPriceAndVendor(Number(key));
         const total = result?.price ? result?.price * Number(value) : 0;
-        insertEntry.push({ material_id: Number(key), quantity: Number(value), name: result?.name, total_cost: total, isReceived: false });
+        insertEntry.push({ 
+            material: Number(key), 
+            quantity: Number(value), 
+            name: result?.name, 
+            total_cost: total, 
+            isReceived: false,
+            vendor: result.vendor_id
+        });
     };
-    console.log(insertEntry);
+    // console.log(insertEntry);
     const { data, error } = await supabase
-        .from("Purchase_Order")
+        .from("PurchaseOrder")
         .insert(insertEntry)
         .select("*")
     
