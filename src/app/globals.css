@@ -498,3 +498,28 @@ body::before {
   pointer-events: none;
   z-index: 9999;
 }
+
+/* Custom Scrollbar for Horizontal Scroll */
+.scrollbar-luxury::-webkit-scrollbar {
+  height: 8px;
+}
+
+.scrollbar-luxury::-webkit-scrollbar-track {
+  background: var(--luxury-gray-200);
+  border-radius: 4px;
+}
+
+.scrollbar-luxury::-webkit-scrollbar-thumb {
+  background: linear-gradient(
+    90deg,
+    var(--luxury-gold-dark) 0%,
+    var(--luxury-gold) 50%,
+    var(--luxury-gold-light) 100%
+  );
+  border-radius: 4px;
+  transition: background 0.3s;
+}
+
+.scrollbar-luxury::-webkit-scrollbar-thumb:hover {
+  background: var(--luxury-gold);
+}
