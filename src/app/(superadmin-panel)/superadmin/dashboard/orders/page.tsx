@@ -173,7 +173,7 @@ export default function OrdersPage() {
             {loading ? (
               <div className="space-y-3">
                 {[...Array(5)].map((_, i) => (
-                  <Skeleton key={i} className="h-16 w-full" />
+                  <Skeleton key={`order-${i}`} className="h-16 w-full" />
                 ))}
               </div>
             ) : (

@@ -130,7 +130,7 @@ export default function OverviewPage() {
         {loading ? (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             {[...Array(8)].map((_, i) => (
-              <Skeleton key={i} className="h-32 w-full" />
+              <Skeleton key={`overview-${i}`} className="h-32 w-full" />
             ))}
           </div>
         ) : (

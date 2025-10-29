@@ -1,15 +1,7 @@
-<<<<<<<< HEAD:src/app/(auth)/auth/page.tsx
-
-"use client"
-
-import { useState } from "react";
-import { supabase } from "@/supabase-client";
-========
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation"; // Import useRouter
->>>>>>>> origin/Elhan:src/app/(auth)/login/page.tsx
+import { useRouter } from "next/navigation";
 
 export default function AuthPage() {
   const [mode, setMode] = useState<"login" | "signup">("login");
@@ -23,7 +15,7 @@ export default function AuthPage() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  const router = useRouter(); // Initialize the router
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,16 +28,14 @@ export default function AuthPage() {
     let body: any;
 
     if (mode === "login") {
-      apiRoute = "http://localhost:3000/api/login"; // Assuming a login route
+      apiRoute = "/api/login";
       body = { email, password };
     } else {
-      // Use the path to your signup route
-      apiRoute = "http://localhost:3000/api/signup"; 
+      apiRoute = "/api/signup";
       body = {
         email,
         password,
         display_name: username,
-        // Add any other fields your form collects
         firstname,
         lastname,
         phone,
@@ -53,7 +43,6 @@ export default function AuthPage() {
     }
 
     try {
-      // Use fetch to call your Route Handler
       const response = await fetch(apiRoute, {
         method: "POST",
         headers: {
@@ -65,19 +54,13 @@ export default function AuthPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        // Handle errors from the API
-        setError(data.error.message || "An unexpected error occurred.");
+        setError(data.error?.message || "An unexpected error occurred.");
       } else {
-        // Handle success
         if (mode === "login") {
           setSuccess("Logged in successfully! Redirecting...");
-          // On successful login, redirect to the dashboard or homepage
-          // router.push('/dashboard');
-          // Or just refresh the page to update server components
-          router.refresh(); 
+          router.push('/superadmin/dashboard');
         } else {
-          // On sign-up, show the success message from the API
-          setSuccess(data.message);
+          setSuccess(data.message || "Signed up successfully!");
         }
       }
     } catch (error) {
@@ -89,8 +72,6 @@ export default function AuthPage() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-background p-8">
-      {/* --- Your existing JSX remains the same --- */}
-      {/* ... (form, buttons, etc.) ... */}
       <div className="bg-card border border-border rounded-lg shadow-lg w-full max-w-md p-8">
         <div className="flex justify-center mb-6">
           <button
@@ -116,7 +97,7 @@ export default function AuthPage() {
             Signup
           </button>
         </div>
-        
+
         <div className="flex flex-col gap-4">
           <input
             type="email"
@@ -124,7 +105,7 @@ export default function AuthPage() {
             className="bg-background border border-input rounded-lg px-3 py-2 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent disabled:opacity-50"
             required
             value={email}
-            onChange={e => setEmail(e.target.value)}
+            onChange={(e) => setEmail(e.target.value)}
             disabled={loading}
           />
           <input
@@ -133,52 +114,52 @@ export default function AuthPage() {
             className="bg-background border border-input rounded-lg px-3 py-2 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent disabled:opacity-50"
             required
             value={password}
-            onChange={e => setPassword(e.target.value)}
+            onChange={(e) => setPassword(e.target.value)}
             disabled={loading}
           />
           {mode === "signup" && (
             <div className="flex flex-col gap-2">
               <input
-              type="text"
-              placeholder="Username"
-              className="bg-background border border-input rounded-lg px-3 py-2 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent disabled:opacity-50"
-              required
-              value={username}
-              onChange={e => setUsername(e.target.value)}
-              disabled={loading}
-            />
-            <input
-              type="text"
-              placeholder="First Name"
-              className="bg-background border border-input rounded-lg px-3 py-2 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent disabled:opacity-50"
-              required
-              value={firstname}
-              onChange={e => setFirstname(e.target.value)}
-              disabled={loading}
-            />
-            <input
-              type="text"
-              placeholder="Last Name"
-              className="bg-background border border-input rounded-lg px-3 py-2 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent disabled:opacity-50"
-              required
-              value={lastname}
-              onChange={e => setLastname(e.target.value)}
-              disabled={loading}
-            />
-            <input
-              type="text"
-              placeholder="Phone Number"
-              className="bg-background border border-input rounded-lg px-3 py-2 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent disabled:opacity-50"
-              required
-              value={phone}
-              onChange={e => setPhone(e.target.value)}
-              disabled={loading}
-            />
+                type="text"
+                placeholder="Username"
+                className="bg-background border border-input rounded-lg px-3 py-2 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent disabled:opacity-50"
+                required
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                disabled={loading}
+              />
+              <input
+                type="text"
+                placeholder="First Name"
+                className="bg-background border border-input rounded-lg px-3 py-2 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent disabled:opacity-50"
+                required
+                value={firstname}
+                onChange={(e) => setFirstname(e.target.value)}
+                disabled={loading}
+              />
+              <input
+                type="text"
+                placeholder="Last Name"
+                className="bg-background border border-input rounded-lg px-3 py-2 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent disabled:opacity-50"
+                required
+                value={lastname}
+                onChange={(e) => setLastname(e.target.value)}
+                disabled={loading}
+              />
+              <input
+                type="tel"
+                placeholder="Phone Number"
+                className="bg-background border border-input rounded-lg px-3 py-2 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent disabled:opacity-50"
+                required
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                disabled={loading}
+              />
             </div>
           )}
           <button
             type="submit"
-            onClick={handleSubmit} // This is correct since there's no <form> element
+            onClick={handleSubmit}
             className="bg-primary text-primary-foreground font-semibold py-2 px-4 rounded-lg hover:bg-primary/90 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
             disabled={loading}
           >
@@ -191,7 +172,7 @@ export default function AuthPage() {
               : "Signup"}
           </button>
         </div>
-        
+
         {error && (
           <div className="mt-4 text-destructive text-center text-sm font-medium bg-destructive/10 border border-destructive/20 rounded-lg p-3">
             {error}
@@ -202,7 +183,7 @@ export default function AuthPage() {
             {success}
           </div>
         )}
-        
+
         {mode === "login" && (
           <div className="mt-6 text-sm text-center text-muted-foreground">
             Don't have an account?{" "}

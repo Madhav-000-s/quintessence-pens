@@ -30,12 +30,19 @@ export async function POST(request: Request) {
 }
 
 
-export async function GET() {
-    const { data, error } = await supabase
-        .from("PurchaseOrder")
-        .select("*")
-        .eq("isReceived", false);
-    
+export async function GET(request: Request) {
+    const { searchParams } = new URL(request.url);
+    const showAll = searchParams.get("all") === "true";
+
+    let query = supabase.from("PurchaseOrder").select("*").order("created_at", { ascending: false });
+
+    // If not showing all, only show pending orders
+    if (!showAll) {
+        query = query.eq("isReceived", false);
+    }
+
+    const { data, error } = await query;
+
     if (error) {
         return new Response(JSON.stringify(error), { status: 400 });
     }
