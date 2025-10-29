@@ -1,17 +1,29 @@
+<<<<<<<< HEAD:src/app/(auth)/auth/page.tsx
 
 "use client"
 
 import { useState } from "react";
 import { supabase } from "@/supabase-client";
+========
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation"; // Import useRouter
+>>>>>>>> origin/Elhan:src/app/(auth)/login/page.tsx
 
 export default function AuthPage() {
   const [mode, setMode] = useState<"login" | "signup">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
+  const [firstname, setFirstname] = useState("");
+  const [lastname, setLastname] = useState("");
+  const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+
+  const router = useRouter(); // Initialize the router
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -19,33 +31,66 @@ export default function AuthPage() {
     setSuccess(null);
     setLoading(true);
 
+    // Define the API route and body based on the mode
+    let apiRoute = "";
+    let body: any;
+
     if (mode === "login") {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-      if (error) {
-        setError(error.message);
-      } else {
-        setSuccess("Logged in successfully!");
-      }
+      apiRoute = "http://localhost:3000/api/login"; // Assuming a login route
+      body = { email, password };
     } else {
-      const { error } = await supabase.auth.signUp({
+      // Use the path to your signup route
+      apiRoute = "http://localhost:3000/api/signup"; 
+      body = {
         email,
         password,
-        options: { data: { display_name: username } },
-      });
-      if (error) {
-        setError(error.message);
-      } else {
-        setSuccess("Signup successful! Please check your email to confirm.");
-      }
+        display_name: username,
+        // Add any other fields your form collects
+        firstname,
+        lastname,
+        phone,
+      };
     }
+
+    try {
+      // Use fetch to call your Route Handler
+      const response = await fetch(apiRoute, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        // Handle errors from the API
+        setError(data.error.message || "An unexpected error occurred.");
+      } else {
+        // Handle success
+        if (mode === "login") {
+          setSuccess("Logged in successfully! Redirecting...");
+          // On successful login, redirect to the dashboard or homepage
+          // router.push('/dashboard');
+          // Or just refresh the page to update server components
+          router.refresh(); 
+        } else {
+          // On sign-up, show the success message from the API
+          setSuccess(data.message);
+        }
+      }
+    } catch (error) {
+      setError("Failed to connect to the server. Please try again.");
+    }
+
     setLoading(false);
   };
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-background p-8">
+      {/* --- Your existing JSX remains the same --- */}
+      {/* ... (form, buttons, etc.) ... */}
       <div className="bg-card border border-border rounded-lg shadow-lg w-full max-w-md p-8">
         <div className="flex justify-center mb-6">
           <button
@@ -92,7 +137,8 @@ export default function AuthPage() {
             disabled={loading}
           />
           {mode === "signup" && (
-            <input
+            <div className="flex flex-col gap-2">
+              <input
               type="text"
               placeholder="Username"
               className="bg-background border border-input rounded-lg px-3 py-2 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent disabled:opacity-50"
@@ -101,10 +147,38 @@ export default function AuthPage() {
               onChange={e => setUsername(e.target.value)}
               disabled={loading}
             />
+            <input
+              type="text"
+              placeholder="First Name"
+              className="bg-background border border-input rounded-lg px-3 py-2 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent disabled:opacity-50"
+              required
+              value={firstname}
+              onChange={e => setFirstname(e.target.value)}
+              disabled={loading}
+            />
+            <input
+              type="text"
+              placeholder="Last Name"
+              className="bg-background border border-input rounded-lg px-3 py-2 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent disabled:opacity-50"
+              required
+              value={lastname}
+              onChange={e => setLastname(e.target.value)}
+              disabled={loading}
+            />
+            <input
+              type="text"
+              placeholder="Phone Number"
+              className="bg-background border border-input rounded-lg px-3 py-2 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent disabled:opacity-50"
+              required
+              value={phone}
+              onChange={e => setPhone(e.target.value)}
+              disabled={loading}
+            />
+            </div>
           )}
           <button
             type="submit"
-            onClick={handleSubmit}
+            onClick={handleSubmit} // This is correct since there's no <form> element
             className="bg-primary text-primary-foreground font-semibold py-2 px-4 rounded-lg hover:bg-primary/90 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
             disabled={loading}
           >
