@@ -1,20 +1,48 @@
-import { supabase } from "@/supabase-client";
+import { supabase, serverClient } from "@/supabase-client";
 import { NextRequest } from "next/server";
 
-// Create a return request
+
+// Create a return request (schema: id, customerid, penid, refundcost)
 export async function POST(request: NextRequest) {
     const body = await request.json();
-    const { order_id, reason, items, requested_at, status, notes } = body;
+    const { pen, refund_cost } = body;
+    const server_supa = await serverClient();
+    const { data: userData, error: userError } = await server_supa.auth.getUser();
+
+    if (userError) {
+        return new Response(JSON.stringify(userError), { status: 400 });
+    }
+
+    if (!server_supa || !pen || typeof refund_cost !== "number") {
+        return new Response(JSON.stringify({ message: "customerid, penid, refundcost are required" }), { status: 400 });
+    }
+    //extract customerid from server_Supa
+    const customer = await getCustomerId(userData.user.id);
+
+    // Ensure one return per pen
+    const existing = await supabase
+        .from("Return")
+        .select("pen")
+        .eq("pen", pen)
+        .limit(1);
+
+    if (existing.error) {
+        return new Response(JSON.stringify(existing.error), { status: 400 });
+    }
+
+    if (existing.data && existing.data.length > 0) {
+        return new Response(
+            JSON.stringify({ message: "A return already exists for this pen" }),
+            { status: 409, headers: { "Content-Type": "application/json" } }
+        );
+    }
 
     const { data, error } = await supabase
         .from("Return")
         .insert({
-            order_id,
-            reason,
-            items,
-            requested_at,
-            status: status ?? "requested",
-            notes
+            customer,
+            pen,
+            refund_cost
         })
         .select("*");
 
@@ -25,15 +53,16 @@ export async function POST(request: NextRequest) {
     return new Response(JSON.stringify({ message: "Return created", data }), { status: 201, headers: { "Content-Type": "application/json" } });
 }
 
-// List returns with optional filters: order_id, status
+// List returns with optional filters: customerid, penid
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
-    const orderId = searchParams.get("order_id");
-    const status = searchParams.get("status");
+    const server_supa = await serverClient();
+    const customer = server_supa.auth.getUser();
+    const pen = searchParams.get("pen");
 
     let query = supabase.from("Return").select("*");
-    if (orderId) query = query.eq("order_id", orderId);
-    if (status) query = query.eq("status", status);
+    if (customer) query = query.eq("customer", customer);
+    if (pen) query = query.eq("pen", pen);
 
     const { data, error } = await query;
     if (error) {
@@ -52,6 +81,27 @@ export async function PATCH(request: NextRequest) {
     }
 
     const body = await request.json();
+
+    // If changing penid, ensure one return per pen
+    if (Object.prototype.hasOwnProperty.call(body, "penid") && body.penid !== undefined && body.penid !== null) {
+        const existsForPen = await supabase
+            .from("Return")
+            .select("id")
+            .eq("penid", body.penid)
+            .neq("id", id)
+            .limit(1);
+
+        if (existsForPen.error) {
+            return new Response(JSON.stringify(existsForPen.error), { status: 400 });
+        }
+
+        if (existsForPen.data && existsForPen.data.length > 0) {
+            return new Response(
+                JSON.stringify({ message: "A return already exists for this pen" }),
+                { status: 409, headers: { "Content-Type": "application/json" } }
+            );
+        }
+    }
     const { data, error } = await supabase
         .from("Return")
         .update(body)
