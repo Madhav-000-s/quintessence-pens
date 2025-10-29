@@ -1,4 +1,5 @@
 import { supabase } from "@/supabase-client";
+import { use } from "react";
 
 
 export async function extractAddress(customerId: number) {
@@ -31,4 +32,19 @@ export async function expandCustomer(customerId: number) {
     }
     
     return responseData;
+}
+
+export async function getCustomerId(userid: string) {
+    const { data, error } = await supabase
+        .from("Customers")
+        .select("id")
+        .eq("user", userid)
+        .single();
+    
+    if(error) {
+        console.error(error);
+        return null;
+    }
+
+    return data.id;
 }
