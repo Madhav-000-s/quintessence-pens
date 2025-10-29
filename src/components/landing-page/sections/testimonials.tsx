@@ -458,6 +458,15 @@ export function TestimonialsWall() {
       ref={sectionRef}
       className="relative min-h-screen w-full bg-[#0a0a0a] overflow-hidden"
     >
+          <div
+            className="bg-image absolute inset-0"
+            style={{
+              backgroundImage: `url('/images/production/bg.png')`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              backgroundRepeat: "no-repeat",
+            }}
+          />
       {/* Words Container */}
       <div ref={wordsContainerRef} className="absolute inset-0">
         {state.words.map((word) => {
@@ -472,6 +481,7 @@ export function TestimonialsWall() {
               style={{
                 left: word.position.x,
                 top: word.position.y,
+                zIndex: isHovered ? 9999 : 1,
               }}
               onMouseEnter={(e) => handleWordHover(word.id, e)}
               onMouseLeave={handleWordLeave}
@@ -482,6 +492,7 @@ export function TestimonialsWall() {
                   className={cn("absolute left-1/2 transform z-1000000000 pointer-events-none", tooltipPosition === "top" ? "bottom-full mb-4" : "top-full mt-4")}
                   style={{
                     animation: 'fadeInUp 0.3s ease-out forwards',
+                    zIndex: 9999,
                   }}
                 >
                   <div className="bg-gradient-to-br from-zinc-900 to-black border border-amber-500/30 rounded-lg shadow-2xl p-6 min-w-[320px] max-w-[400px] backdrop-blur-sm">
