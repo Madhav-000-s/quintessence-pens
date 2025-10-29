@@ -6,6 +6,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Image from "next/image";
 import { Heading } from "../heading";
 import { LandingPagePenViewer } from "@/components/configurator/PenViewer";
+import { RotatingPenDisplay } from "./RotatingPenDisplay";
 
 // Register ScrollTrigger plugin
 if (typeof window !== "undefined") {
@@ -94,7 +95,7 @@ const Hero = () => {
           ref={penRef}
           className='absolute inset-0 items-center justify-center'
         >
-          <LandingPagePenViewer />
+          <RotatingPenDisplay model="zeus" cameraPosition={[0, 0, 0]} tiltedRotation/>
         </div>
 
       {/* Grid Container */}

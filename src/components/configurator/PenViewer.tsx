@@ -173,7 +173,9 @@ function LoadingFallback() {
       </div>
     </div>
   );
-}export function PenViewer() {
+}
+
+export function PenViewer() {
   return (
     <div className="relative h-full w-full bg-black">
       <Canvas
@@ -219,4 +221,3 @@ export const LandingPagePenViewer = () => (
         </Suspense>
       </Canvas>
 )
-
