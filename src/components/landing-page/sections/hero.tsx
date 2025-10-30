@@ -73,6 +73,58 @@ const Hero = () => {
         "-=0.4",
       );
 
+    // Add floating/bouncing animations after initial load
+    tlLoad.add(() => {
+      // Floating animation for "Crafting" text
+      gsap.to(craftingRef.current, {
+        y: -4,
+        duration: 2.5,
+        ease: "power1.inOut",
+        repeat: -1,
+        yoyo: true,
+      });
+
+      // Floating animation for "Excellence" text with different timing
+      gsap.to(excellenceRef.current, {
+        y: -6,
+        duration: 2.8,
+        ease: "power1.inOut",
+        repeat: -1,
+        yoyo: true,
+        delay: 0.3,
+      });
+
+      // Gentle bounce for person image
+      gsap.to(personImageRef.current, {
+        y: -8,
+        rotation: 1,
+        duration: 3,
+        ease: "sine.inOut",
+        repeat: -1,
+        yoyo: true,
+      });
+
+      // Gentle bounce for abstract image with different timing
+      gsap.to(abstractImageRef.current, {
+        y: -6,
+        rotation: -1,
+        duration: 3.2,
+        ease: "sine.inOut",
+        repeat: -1,
+        yoyo: true,
+        delay: 0.5,
+      });
+
+      // Subtle pulse for button
+      gsap.to(buttonRef.current, {
+        scale: 1.05,
+        duration: 2,
+        ease: "power1.inOut",
+        repeat: -1,
+        yoyo: true,
+      });
+    });
+
     return () => {
       tlLoad.kill();
       tlScroll.kill();
