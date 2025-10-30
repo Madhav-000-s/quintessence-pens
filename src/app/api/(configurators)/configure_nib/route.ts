@@ -1,142 +1,140 @@
-import { supabase } from "@/supabase-client";
-import jwt from 'jsonwebtoken'
-import { createMaterial, createDesign, extractNibDetails,  
- } from "@/app/lib/configuratorFunctions";
 import { NextRequest, NextResponse } from "next/server";
-import { serialize } from "cookie";
-// import { decode } from "node:querystring";
+import { supabase } from "@/supabase-client";
+import type { NibConfigRequest, NibConfigResponse, ApiErrorResponse } from "@/types/api";
 
-const JWT_SECRET = process.env.JWT_SECRET;
+export async function POST(request: NextRequest) {
+  try {
+    const body: NibConfigRequest = await request.json();
 
-export type Payload = {
-    penId: number;
+    // Step 1: Create or get Material
+    const material = await createOrGetMaterial(body.material.name);
+    if (!material) {
+      return NextResponse.json<ApiErrorResponse>(
+        { error: "Failed to create/get material" },
+        { status: 500 }
+      );
+    }
+
+    // Step 2: Create or get Design
+    const design = await createOrGetDesign(body.design);
+    if (!design) {
+      return NextResponse.json<ApiErrorResponse>(
+        { error: "Failed to create/get design" },
+        { status: 500 }
+      );
+    }
+
+    // Step 3: Calculate total nib cost
+    const nibCost = (material.cost || 0) + parseFloat(String(design.cost || 0));
+
+    // Step 4: Create NibConfig
+    const { data: nibConfigData, error: nibError } = await supabase
+      .from("NibConfig")
+      .insert({
+        description: body.description,
+        size: body.size,
+        material_id: material.id,
+        design_id: design.design_id,
+        cost: nibCost,
+      })
+      .select()
+      .single();
+
+    if (nibError || !nibConfigData) {
+      return NextResponse.json<ApiErrorResponse>(
+        { error: "Failed to create nib configuration", details: nibError },
+        { status: 500 }
+      );
+    }
+
+    // Step 5: Build response with nested objects
+    const response: NibConfigResponse = {
+      nib_id: nibConfigData.nibtype_id,
+      description: nibConfigData.description || "",
+      size: nibConfigData.size || "",
+      cost: parseFloat(String(nibConfigData.cost || 0)),
+      material: {
+        id: material.id,
+        created_at: material.created_at,
+        name: material.name || "",
+        weight: material.weight || 0,
+        cost: material.cost || 0,
+      },
+      design: {
+        design_id: design.design_id,
+        description: design.description || "",
+        font: design.font || "",
+        cost: parseFloat(String(design.cost || 0)),
+        colour: design.colour || "",
+        hex_code: design.hex_code || "",
+      },
+    };
+
+    return NextResponse.json(response, { status: 200 });
+  } catch (error) {
+    console.error("Error in configure_nib API:", error);
+    return NextResponse.json<ApiErrorResponse>(
+      { error: "Internal server error", details: error },
+      { status: 500 }
+    );
+  }
 }
 
-export async function POST(request:NextRequest) {
-    const body = await request.json();
-    if(!body) {
-        return new Response(JSON.stringify("NO DATA SENT"),{
-            headers: {"Content-Type": "application/json"},
-            status: 400
-        });
-    }
+// Helper functions
 
-    let material = null;
-    let design = null;
+async function createOrGetMaterial(name: string) {
+  const { data: existing } = await supabase
+    .from("Material")
+    .select()
+    .eq("name", name)
+    .single();
 
-    if(body.material) {
-        material = await createMaterial(body.material.name, 2);
-    }
-    if(body.design) {
-        design = await createDesign(body.design.description, body.design.font, body.design.colour, body.design.hex_code);
-    }
+  if (existing) return existing;
 
-    const { data:NibData, error:NibError} = await supabase
-        .from("NibConfig")
-        .insert({
-            description: body.description,
-            size: body.size,
-            material_id: material?.id,
-            design_id: design?.id,
-            cost: material?.cost + design?.cost
-        })
-        .select("nibtype_id, cost")
-    
-    if(NibError) {
-        return new Response(JSON.stringify(NibError));
-    }
+  const { data: newMaterial, error } = await supabase
+    .from("Material")
+    .insert({
+      name,
+      weight: 2,
+      cost: 0,
+    })
+    .select()
+    .single();
 
-    const tokenCookie = request.cookies.get("pen");
-    if(tokenCookie) {
-        const decoded = jwt.verify(tokenCookie.value, JWT_SECRET!) as Payload; 
-        if(!decoded) {
-            return new Response(JSON.stringify("Unable to decode cookie"), {status: 400});
-        }
-        const {data: penData, error: penError} = await supabase
-            .rpc('update_nib_details', {
-                new_nib_id: NibData[0].nibtype_id,
-                amount_to_add: NibData[0].cost,
-                row_id: decoded.penId
-            })
-        
-        if(penError) {
-            return new Response(JSON.stringify(penError));
-        }
+  if (error) {
+    console.error("Error creating material:", error);
+    return null;
+  }
 
-        return Response.json("Pen updated successfully");
-    }
-
-    else {
-        const result = await supabase
-        .from("Pen")
-        .insert({
-            cap_type_id: NibData[0].nibtype_id,
-            cost: NibData[0].cost,
-        })
-        .select("pen_id");
-
-        if(!result.error) {
-            const encoded = jwt.sign({penId: result.data[0].pen_id}, JWT_SECRET!, {"expiresIn": '48h'});
-            const serializedCookie = serialize("pen", encoded, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === "production",
-                path: '/',
-                maxAge: 60 * 60 * 24 * 2
-            })
-            return new NextResponse(JSON.stringify("New pen created with Nib"), {
-                headers: {
-                    "Content-Type": "application/json",
-                    "Set-Cookie": serializedCookie
-                },
-                status: 201
-            })
-        }
-        return new Response(JSON.stringify(result.error), {status: 400});
-    }
+  return newMaterial;
 }
 
+async function createOrGetDesign(design: { description: string; font: string; colour: string; hex_code: string }) {
+  const { data: existing } = await supabase
+    .from("Design")
+    .select()
+    .eq("description", design.description)
+    .eq("colour", design.colour)
+    .single();
 
-export async function GET(request: NextRequest) {
-    const { searchParams } = new URL(request.url);
-    const pen_Id = searchParams.get("pen_id");
-        
-    const tokenCookie = request.cookies.get("pen");
-    if(tokenCookie && !pen_Id) {
-        try {
-            const decoded = jwt.verify(tokenCookie.value, JWT_SECRET!) as Payload; 
-            if(!decoded) {
-                return new Response(JSON.stringify("Unable to decode cookie"), {status: 400});
-            }
-            const { data, error} = await supabase
-                .from("Pen")
-                .select("nibtype_id")
-                .eq("pen_id", decoded.penId);
-            
-            if(error) {
-                console.error(error);
-                return new Response(JSON.stringify(error), {status: 400});
-            }
+  if (existing) return existing;
 
-            const responseData = await extractNibDetails(data[0].nibtype_id);
-            return Response.json(responseData);
-        }
-        catch (e) {
-            console.error(e);
-            return Response.json("Error decoding");
-        }
-    }
+  const { data: newDesign, error } = await supabase
+    .from("Design")
+    .insert({
+      description: design.description,
+      font: design.font,
+      colour: design.colour,
+      hex_code: design.hex_code,
+      cost: 0,
+    })
+    .select()
+    .single();
 
-    const result = await supabase
-        .from("Pen")
-        .select("nibtype_id")
-        .eq("pen_id", pen_Id);
-    
-    if(result.error) {
-        console.error(result.error);
-        return new Response(JSON.stringify(result.error), {status: 400});
-    }
-    
-    const responseData = await extractNibDetails(result.data[0].nibtype_id);
-    
-    return Response.json(responseData);
+  if (error) {
+    console.error("Error creating design:", error);
+    return null;
+  }
+
+  return newDesign;
 }

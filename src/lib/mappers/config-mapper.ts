@@ -184,6 +184,7 @@ function mapModelToBarrelShape(model: string): string {
     "zeus": "Cylindrical",
     "poseidon": "Torpedo",
     "hera": "Tapered",
+    "athena": "Cigar",
   };
 
   return shapeMap[model] || "Cylindrical";

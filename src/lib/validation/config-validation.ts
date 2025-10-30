@@ -12,7 +12,7 @@ export function validateConfiguration(config: PenConfiguration): ValidationResul
   const errors: string[] = [];
 
   // Model validation
-  if (!config.model || !["zeus", "poseidon", "hera"].includes(config.model)) {
+  if (!config.model || !["zeus", "poseidon", "hera", "athena"].includes(config.model)) {
     errors.push("Please select a valid pen model");
   }
 

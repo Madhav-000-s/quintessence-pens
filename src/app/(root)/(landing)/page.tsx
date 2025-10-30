@@ -1,3 +1,4 @@
+"use client"
 import HeroSection from '@/components/landing-page/sections/hero'
 import React, { useEffect } from 'react'
 
