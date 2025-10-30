@@ -9,7 +9,6 @@ import type { WorkOrder } from '@/types/orders'
 export default function WipQualityPanel() {
   const [workOrders, setWorkOrders] = useState<WorkOrder[]>([])
   const [selectedWorkOrder, setSelectedWorkOrder] = useState<number | null>(null)
-  const [producedQty, setProducedQty] = useState("")
   const [defectiveQty, setDefectiveQty] = useState("")
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
@@ -37,8 +36,8 @@ export default function WipQualityPanel() {
       return
     }
 
-    if (!producedQty || !defectiveQty) {
-      setError("Please enter produced and defective quantities")
+    if (!defectiveQty) {
+      setError("Please enter defective quantity")
       return
     }
 
@@ -66,8 +65,7 @@ export default function WipQualityPanel() {
         throw new Error(errorText || 'Failed to finish production')
       }
 
-      setSuccess("Production completed successfully!")
-      setProducedQty("")
+      setSuccess("Production completed successfully! QA record created.")
       setDefectiveQty("")
       setSelectedWorkOrder(null)
       await fetchWorkOrders()
@@ -129,19 +127,13 @@ export default function WipQualityPanel() {
         <div className="rounded-md border border-neutral-200 dark:border-neutral-800 p-4">
           <h3 className="font-medium">Production output</h3>
           <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-1">
-            Enter the number of items successfully produced and the number which were defective.
+            Enter the number of defective items found during production. Successfully produced items will be calculated automatically.
           </p>
-          <div className="mt-3 grid grid-cols-1 md:grid-cols-3 gap-3">
-            <Input
-              placeholder="Produced quantity"
-              type="number"
-              value={producedQty}
-              onChange={(e) => setProducedQty(e.target.value)}
-              disabled={!selectedWorkOrder}
-            />
+          <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
             <Input
               placeholder="Defective quantity"
               type="number"
+              min="0"
               value={defectiveQty}
               onChange={(e) => setDefectiveQty(e.target.value)}
               disabled={!selectedWorkOrder}
@@ -150,15 +142,30 @@ export default function WipQualityPanel() {
               onClick={handleFinishProduction}
               disabled={!selectedWorkOrder || loading}
             >
-              {loading ? "Recording..." : "Record & Finish"}
+              {loading ? "Finishing..." : "Finish Production"}
             </Button>
           </div>
+          {selectedWorkOrder && (
+            <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-2">
+              {defectiveQty && !isNaN(parseInt(defectiveQty, 10)) ? (
+                <>
+                  <span className="font-medium">Successful items: </span>
+                  {workOrders.find(wo => wo.id === selectedWorkOrder)?.count! - parseInt(defectiveQty, 10)}
+                  {" / "}
+                  <span className="font-medium">Total: </span>
+                  {workOrders.find(wo => wo.id === selectedWorkOrder)?.count}
+                </>
+              ) : (
+                <>Total items ordered: {workOrders.find(wo => wo.id === selectedWorkOrder)?.count}</>
+              )}
+            </p>
+          )}
         </div>
 
         <div className="rounded-md border border-neutral-200 dark:border-neutral-800 p-4">
           <h3 className="font-medium">Quality inspection</h3>
           <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-1">
-            After recording production output, defective materials are returned to inventory and good items await quality inspection.
+            After finishing production, defective materials are returned to inventory, a QA record is created, and good items await quality inspection.
           </p>
           <div className="mt-3 flex gap-3">
             <Button variant="outline" onClick={fetchWorkOrders}>

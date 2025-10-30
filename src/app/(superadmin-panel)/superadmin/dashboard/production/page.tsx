@@ -16,12 +16,11 @@ export default function ProductionPage() {
       />
       <Separator />
 
-      <Tabs
-      >
+      <Tabs defaultValue="wip">
         <TabsList>
-          <TabsTrigger value= 'schedule'>Schedule details</TabsTrigger>
-          <TabsTrigger value=  'request'>Request resources</TabsTrigger>
-          <TabsTrigger value=  'wip'>WIP & Quality</TabsTrigger>
+          <TabsTrigger value="schedule">Schedule details</TabsTrigger>
+          <TabsTrigger value="request">Request resources</TabsTrigger>
+          <TabsTrigger value="wip">WIP & Quality</TabsTrigger>
         </TabsList>
         <TabsContent value="schedule"><SchedulePanel /></TabsContent>
         <TabsContent value="request"><RequestPanel /></TabsContent>

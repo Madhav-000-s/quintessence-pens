@@ -1,6 +1,6 @@
 // Menu items.
 import { PageItem } from "@/types/navigation";
-import { ClipboardList, Factory, FileText, FileCheck, ShieldCheck, Banknote, Boxes, Users, Building2, AlertCircle, PanelsLeftBottom, Shield } from "lucide-react";
+import { ClipboardList, Factory, FileText, FileCheck, ShieldCheck, Banknote, Boxes, Users, Building2, AlertCircle, PanelsLeftBottom, Shield, Truck } from "lucide-react";
 
 
 export const SUPERADMIN_MENU_ITEMS: PageItem[] = [
@@ -33,6 +33,11 @@ export const SUPERADMIN_MENU_ITEMS: PageItem[] = [
     title: "QA",
     url: "/superadmin/dashboard/quality-assurance",
     icon: ShieldCheck,
+  },
+  {
+    title: "Shipping",
+    url: "/superadmin/dashboard/shipping",
+    icon: Truck,
   },
   {
     title: "Accounts",
