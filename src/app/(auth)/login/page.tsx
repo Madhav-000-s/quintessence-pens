@@ -59,7 +59,7 @@ export default function AuthPage() {
       } else {
         if (mode === "login") {
           setSuccess("Logged in successfully! Redirecting...");
-          router.push('/superadmin/dashboard');
+          router.push('/orders');
         } else {
           setSuccess(data.message || "Signed up successfully!");
         }

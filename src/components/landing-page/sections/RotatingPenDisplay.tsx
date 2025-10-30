@@ -18,29 +18,31 @@ interface RotatingPenDisplayProps {
   scale?: number
 }
 
-// Default materials for catalog display
+// Enhanced luxury materials for hero display
 const defaultBodyMaterial = {
-  color: "#1a1a1a",
-  metalness: 0.8,
-  roughness: 0.2,
-  clearcoat: 0.1,
-  clearcoatRoughness: 0.1,
-  emissive: "#000000",
-  emissiveIntensity: 0,
+  color: "#0a0a0a",
+  metalness: 0.95,
+  roughness: 0.15,
+  clearcoat: 0.8,
+  clearcoatRoughness: 0.05,
+  emissive: "#1a1a1a",
+  emissiveIntensity: 0.1,
 };
 
 const defaultTrimMaterial = {
-  color: "#C0C0C0",
-  metalness: 0.9,
-  roughness: 0.1,
-  emissive: "#000000",
-  emissiveIntensity: 0,
+  color: "#d4af37",
+  metalness: 1,
+  roughness: 0.05,
+  emissive: "#d4af37",
+  emissiveIntensity: 0.2,
 };
 
 const defaultNibMaterial = {
   color: "#FFD700",
   metalness: 1,
-  roughness: 0.15,
+  roughness: 0.08,
+  emissive: "#d4af37",
+  emissiveIntensity: 0.15,
 };
 
 function RotatingPen({ model, position, tilted, scale }: { model: PenModel, position: [number, number, number], tilted: boolean, scale: number }) {
@@ -89,42 +91,62 @@ function RotatingPen({ model, position, tilted, scale }: { model: PenModel, posi
 function Scene({ model, position, tiltedRotation, scale }: { model: PenModel, position: [number, number, number], tiltedRotation: boolean, scale: number }) {
   return (
     <>
-      {/* Studio lighting for catalog display */}
+      {/* Dramatic hero lighting setup */}
+      {/* Key light - warm golden from top right */}
       <spotLight
-        position={[5, 8, 5]}
-        angle={0.4}
-        penumbra={0.8}
-        intensity={1.5}
+        position={[6, 8, 4]}
+        angle={0.3}
+        penumbra={1}
+        intensity={2.5}
         castShadow
         shadow-mapSize-width={2048}
         shadow-mapSize-height={2048}
+        color="#ffd700"
+      />
+
+      {/* Fill light - soft from left */}
+      <spotLight
+        position={[-5, 4, 3]}
+        angle={0.5}
+        penumbra={1}
+        intensity={0.8}
         color="#ffffff"
       />
 
+      {/* Rim light - golden accent from behind */}
       <spotLight
-        position={[-4, 6, 4]}
-        angle={0.5}
-        penumbra={1}
-        intensity={0.6}
-        color="#f0f0ff"
+        position={[0, 2, -4]}
+        angle={0.4}
+        penumbra={0.8}
+        intensity={1.2}
+        color="#d4af37"
       />
 
-      <ambientLight intensity={0.2} color="#fafafa" />
+      {/* Subtle ambient for depth */}
+      <ambientLight intensity={0.15} color="#1a1a1a" />
 
-      <Environment preset="studio" environmentIntensity={0.6} background={false} />
+      {/* Hemisphere light for natural feel */}
+      <hemisphereLight
+        color="#ffffff"
+        groundColor="#000000"
+        intensity={0.3}
+      />
+
+      <Environment preset="city" environmentIntensity={0.4} background={false} />
 
       <PerspectiveCamera makeDefault position={[0, -0.7, 4]} fov={40} />
 
       <RotatingPen model={model} position={position} tilted={tiltedRotation} scale={scale} />
 
+      {/* Soft contact shadows with golden tint */}
       <ContactShadows
         position={[0, -2, 0]}
-        opacity={0.3}
+        opacity={0.2}
         scale={10}
-        blur={1.5}
+        blur={2}
         far={4}
         resolution={512}
-        color="#000000"
+        color="#1a1a1a"
       />
     </>
   );
@@ -133,12 +155,22 @@ function Scene({ model, position, tiltedRotation, scale }: { model: PenModel, po
 export function RotatingPenDisplay({ model, className, cameraPosition = [0, 0, 0], tiltedRotation = false, scale = 0.20 }: RotatingPenDisplayProps) {
   return (
     <div className={`relative h-full w-full ${className}`}>
+      {/* Subtle golden glow effect behind pen */}
+      <div className="absolute inset-0 flex items-center justify-center">
+        <div 
+          className="h-[600px] w-[400px] rounded-full blur-3xl"
+          style={{
+            background: 'radial-gradient(circle, rgba(212, 175, 55, 0.08) 0%, rgba(212, 175, 55, 0.03) 50%, transparent 100%)'
+          }}
+        />
+      </div>
+      
       <Canvas
         shadows
         gl={{
           antialias: true,
           toneMapping: THREE.ACESFilmicToneMapping,
-          toneMappingExposure: 1.0,
+          toneMappingExposure: 1.2,
           outputColorSpace: THREE.SRGBColorSpace,
           alpha: true,
         }}
@@ -148,6 +180,14 @@ export function RotatingPenDisplay({ model, className, cameraPosition = [0, 0, 0
           <Scene model={model} position={cameraPosition} tiltedRotation={tiltedRotation} scale={scale} />
         </Suspense>
       </Canvas>
+      
+      {/* Vignette overlay for depth */}
+      <div 
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background: 'radial-gradient(circle at center, transparent 0%, transparent 60%, rgba(0, 0, 0, 0.3) 100%)'
+        }}
+      />
     </div>
   );
 }

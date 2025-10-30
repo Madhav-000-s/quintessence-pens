@@ -84,8 +84,8 @@ const Hero = () => {
       ref={heroRef}
       className="relative min-h-dvh w-full overflow-hidden"
     >
-      <div className="absolute inset-0">
-        {/* Video Background */}
+
+      {/* <div className="absolute inset-0">
         <video
           autoPlay
           loop
@@ -96,13 +96,23 @@ const Hero = () => {
           <source src="/videos/hero-bg.webm" type="video/mp4" />
         </video>
 
-        {/* Dark Overlay */}
         <div className="absolute inset-0 bg-black/80" />
-      </div>
+      </div> */}
+      {/* Pen Display with Luxury Effects */}
       <div
         ref={penRef}
-        className='absolute inset-0 items-center justify-center'
+        className='absolute inset-0 flex items-center justify-center'
       >
+        {/* Golden spotlight effect */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div
+            className="h-[800px] w-[600px] rounded-full blur-3xl"
+            style={{
+              background: 'radial-gradient(circle, rgba(212, 175, 55, 0.12) 0%, rgba(212, 175, 55, 0.06) 40%, transparent 70%)'
+            }}
+          />
+        </div>
+
         <RotatingPenDisplay model="zeus" cameraPosition={[0, -0.30, 0]} tiltedRotation />
       </div>
 
@@ -167,14 +177,14 @@ const Hero = () => {
         </div>
 
       </div>
-        {/* MODIFY Button - Bottom Center */}
-        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-1000 flex items-center justify-center">
-          <button
-            className="rounded-lg border-2 border-yellow-400 px-8 py-4 font-serif text-lg text-yellow-400 transition-all duration-300 hover:bg-yellow-400 hover:text-black"
-          >
-            MODIFY
-          </button>
-        </div>
+      {/* MODIFY Button - Bottom Center */}
+      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-1000 flex items-center justify-center">
+        <button
+          className="rounded-lg border-2 border-yellow-400 px-8 py-4 font-serif text-lg text-yellow-400 transition-all duration-300 hover:bg-yellow-400 hover:text-black"
+        >
+          MODIFY
+        </button>
+      </div>
     </section>
   );
 };

@@ -360,93 +360,138 @@ export function ZeusPen({
           </mesh>
         ))}
 
-        {/* Premium nib */}
+        {/* Premium nib - realistic fountain pen shape */}
         <group position={[0, -0.75, 0]}>
-          {/* Nib body (wider, more detailed) */}
-          <mesh castShadow>
-            <boxGeometry args={[0.4, nibLength, 0.06]} />
-            <meshPhysicalMaterial
-              color={nibMaterial.color}
-              metalness={nibMaterial.metalness}
-              roughness={nibMaterial.roughness}
-              envMapIntensity={2.5}
-            />
-          </mesh>
+          {/* Create nib shape using custom geometry */}
+          {(() => {
+            // Create a realistic nib shape
+            const nibShape = new THREE.Shape();
+            const nibWidth = 0.35;
+            const nibBaseWidth = 0.25;
+            
+            // Start at top center
+            nibShape.moveTo(0, nibLength / 2);
+            
+            // Top shoulders (wider)
+            nibShape.lineTo(nibWidth / 2, nibLength / 2);
+            nibShape.lineTo(nibWidth / 2, nibLength / 3);
+            
+            // Taper to narrower body
+            nibShape.lineTo(nibBaseWidth / 2, nibLength / 6);
+            nibShape.lineTo(nibBaseWidth / 2, -nibLength / 3);
+            
+            // Taper to point
+            nibShape.lineTo(nibBaseWidth / 3, -nibLength / 2);
+            nibShape.lineTo(0, -nibLength / 1.8);
+            
+            // Mirror for other side
+            nibShape.lineTo(-nibBaseWidth / 3, -nibLength / 2);
+            nibShape.lineTo(-nibBaseWidth / 2, -nibLength / 3);
+            nibShape.lineTo(-nibBaseWidth / 2, nibLength / 6);
+            nibShape.lineTo(-nibWidth / 2, nibLength / 3);
+            nibShape.lineTo(-nibWidth / 2, nibLength / 2);
+            nibShape.lineTo(0, nibLength / 2);
 
-          {/* Nib tines (split) */}
-          <group>
-            {/* Left tine */}
-            <mesh castShadow position={[-0.025, -nibLength / 4, 0.04]}>
-              <boxGeometry args={[0.17, nibLength / 2, 0.02]} />
-              <meshPhysicalMaterial
-                color={nibMaterial.color}
-                metalness={nibMaterial.metalness}
-                roughness={nibMaterial.roughness * 0.8}
-              />
-            </mesh>
+            const extrudeSettings = {
+              depth: 0.04,
+              bevelEnabled: true,
+              bevelThickness: 0.01,
+              bevelSize: 0.01,
+              bevelSegments: 3,
+            };
 
-            {/* Right tine */}
-            <mesh castShadow position={[0.025, -nibLength / 4, 0.04]}>
-              <boxGeometry args={[0.17, nibLength / 2, 0.02]} />
-              <meshPhysicalMaterial
-                color={nibMaterial.color}
-                metalness={nibMaterial.metalness}
-                roughness={nibMaterial.roughness * 0.8}
-              />
-            </mesh>
-          </group>
+            return (
+              <mesh castShadow receiveShadow rotation={[0, 0, 0]}>
+                <extrudeGeometry args={[nibShape, extrudeSettings]} />
+                <meshPhysicalMaterial
+                  color={nibMaterial.color}
+                  metalness={nibMaterial.metalness}
+                  roughness={nibMaterial.roughness}
+                  emissive={nibMaterial.emissive || nibMaterial.color}
+                  emissiveIntensity={nibMaterial.emissiveIntensity || 0}
+                  envMapIntensity={2.5}
+                  side={THREE.DoubleSide}
+                />
+              </mesh>
+            );
+          })()}
 
           {/* Center slit between tines */}
-          <mesh position={[0, -nibLength / 4, 0.05]}>
-            <boxGeometry args={[0.015, nibLength / 2 + 0.1, 0.01]} />
+          <mesh position={[0, -nibLength / 6, 0.025]}>
+            <boxGeometry args={[0.012, nibLength / 1.8, 0.05]} />
             <meshBasicMaterial color="#000000" />
           </mesh>
 
-          {/* Tipping material (iridium point) */}
-          <mesh castShadow position={[0, -nibLength / 2 - 0.05, 0.04]}>
-            <sphereGeometry args={[0.09, 16, 16]} />
+          {/* Tipping material (iridium point) - more realistic shape */}
+          <mesh castShadow position={[0, -nibLength / 1.9, 0.02]}>
+            <sphereGeometry args={[0.08, 16, 16]} />
             <meshPhysicalMaterial
-              color="#E8E8E8"
+              color="#C0C0C0"
               metalness={1}
-              roughness={0.1}
+              roughness={0.08}
               envMapIntensity={3}
             />
           </mesh>
 
-          {/* Breather hole */}
-          <mesh position={[0, nibLength / 3, 0.035]}>
-            <circleGeometry args={[0.06, 32]} />
-            <meshBasicMaterial color="#000000" />
-          </mesh>
+          {/* Breather hole - heart shaped */}
+          <group position={[0, nibLength / 4, 0.045]}>
+            <mesh>
+              <circleGeometry args={[0.05, 32]} />
+              <meshBasicMaterial color="#000000" />
+            </mesh>
+            {/* Small decorative circle above */}
+            <mesh position={[0, 0.06, 0]}>
+              <circleGeometry args={[0.025, 32]} />
+              <meshBasicMaterial color="#000000" />
+            </mesh>
+          </group>
 
-          {/* Nib engraving simulation (size marking) */}
-          <mesh position={[0, nibLength / 4, 0.032]}>
-            <planeGeometry args={[0.15, 0.08]} />
-            <meshBasicMaterial color="#1a1a1a" opacity={0.3} transparent />
-          </mesh>
+          {/* Nib engraving lines for detail */}
+          {[-0.08, 0, 0.08].map((xOffset, i) => (
+            <mesh key={`engraving-${i}`} position={[xOffset, nibLength / 3.5, 0.041]}>
+              <boxGeometry args={[0.008, 0.15, 0.002]} />
+              <meshBasicMaterial color="#1a1a1a" />
+            </mesh>
+          ))}
 
-          {/* Decorative nib shoulders */}
-          <group position={[0, nibLength / 2.5, 0]}>
-            {/* Left shoulder */}
-            <mesh position={[-0.15, 0, 0]}>
-              <boxGeometry args={[0.08, 0.15, 0.04]} />
+          {/* Decorative nib shoulders with better shape */}
+          <group position={[0, nibLength / 2.2, 0]}>
+            {/* Left shoulder - curved */}
+            <mesh castShadow position={[-0.135, -0.05, 0]}>
+              <cylinderGeometry args={[0.06, 0.05, 0.2, 16]} />
               <meshPhysicalMaterial
                 color={nibMaterial.color}
                 metalness={nibMaterial.metalness}
                 roughness={nibMaterial.roughness}
+                emissive={nibMaterial.emissive || nibMaterial.color}
+                emissiveIntensity={nibMaterial.emissiveIntensity || 0}
               />
             </mesh>
 
-            {/* Right shoulder */}
-            <mesh position={[0.15, 0, 0]}>
-              <boxGeometry args={[0.08, 0.15, 0.04]} />
+            {/* Right shoulder - curved */}
+            <mesh castShadow position={[0.135, -0.05, 0]}>
+              <cylinderGeometry args={[0.06, 0.05, 0.2, 16]} />
               <meshPhysicalMaterial
                 color={nibMaterial.color}
                 metalness={nibMaterial.metalness}
                 roughness={nibMaterial.roughness}
+                emissive={nibMaterial.emissive || nibMaterial.color}
+                emissiveIntensity={nibMaterial.emissiveIntensity || 0}
               />
             </mesh>
           </group>
+
+          {/* Nib base connector */}
+          <mesh castShadow position={[0, nibLength / 2 + 0.05, 0]}>
+            <cylinderGeometry args={[0.15, 0.12, 0.1, 32]} />
+            <meshPhysicalMaterial
+              color={nibMaterial.color}
+              metalness={nibMaterial.metalness}
+              roughness={nibMaterial.roughness}
+              emissive={nibMaterial.emissive || nibMaterial.color}
+              emissiveIntensity={nibMaterial.emissiveIntensity || 0}
+            />
+          </mesh>
         </group>
       </group>
     </group>
