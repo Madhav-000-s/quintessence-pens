@@ -26,6 +26,23 @@ export interface MaterialOption {
   materialId: number;
 }
 
+// Helper: Deduplicate materials by name (keep lowest cost)
+function deduplicateMaterials(materials: MaterialOption[]): MaterialOption[] {
+  const uniqueMap = new Map<string, MaterialOption>();
+
+  for (const material of materials) {
+    const key = material.label.toLowerCase().trim();
+    const existing = uniqueMap.get(key);
+
+    // Keep the one with lower cost, or first one if costs are equal
+    if (!existing || material.cost < existing.cost) {
+      uniqueMap.set(key, material);
+    }
+  }
+
+  return Array.from(uniqueMap.values());
+}
+
 export function adaptMaterialsToOptions(
   materials: DBMaterial[]
 ): MaterialOption[] {
@@ -70,7 +87,7 @@ export function adaptMaterialsToOptions(
     ];
   }
 
-  return materials.map((material) => ({
+  const mappedMaterials = materials.map((material) => ({
     value: `${(material.name || "unknown").toLowerCase().replace(/\s+/g, "-")}-${material.id}`,
     label: material.name || "Unknown Material",
     description: `Premium ${material.name} material`,
@@ -78,6 +95,9 @@ export function adaptMaterialsToOptions(
     weight: material.weight || undefined,
     materialId: material.id,
   }));
+
+  // Deduplicate by material name, keeping lowest cost option
+  return deduplicateMaterials(mappedMaterials);
 }
 
 // Color + Design adapter
@@ -85,6 +105,23 @@ export interface ColorDesignOption extends ColorOption {
   designId: number;
   cost: number;
   font?: string;
+}
+
+// Helper: Deduplicate colors by hex code (keep lowest cost)
+function deduplicateColors(colors: ColorDesignOption[]): ColorDesignOption[] {
+  const uniqueMap = new Map<string, ColorDesignOption>();
+
+  for (const color of colors) {
+    const key = color.hex.toLowerCase();
+    const existing = uniqueMap.get(key);
+
+    // Keep the one with lower cost, or first one if costs are equal
+    if (!existing || color.cost < existing.cost) {
+      uniqueMap.set(key, color);
+    }
+  }
+
+  return Array.from(uniqueMap.values());
 }
 
 export function adaptDesignsToColors(
@@ -117,7 +154,7 @@ export function adaptDesignsToColors(
     ];
   }
 
-  return designs.map((design) => {
+  const mappedColors = designs.map((design) => {
     // Fix hex code if needed (some have incorrect values in DB)
     let hexCode = design.hex_code || "#000000";
     if (!hexCode.startsWith("#")) {
@@ -139,6 +176,9 @@ export function adaptDesignsToColors(
       font: design.font || undefined,
     };
   });
+
+  // Deduplicate by hex code, keeping lowest cost option
+  return deduplicateColors(mappedColors);
 }
 
 // Coating adapter
@@ -228,6 +268,22 @@ export interface TrimOption {
   designId?: number;
 }
 
+// Helper: Deduplicate trim finishes by value (keep lowest cost)
+function deduplicateTrimFinishes(trims: TrimOption[]): TrimOption[] {
+  const uniqueMap = new Map<TrimFinish, TrimOption>();
+
+  for (const trim of trims) {
+    const existing = uniqueMap.get(trim.value);
+
+    // Keep the one with lower cost, or first one if costs are equal
+    if (!existing || trim.cost < existing.cost) {
+      uniqueMap.set(trim.value, trim);
+    }
+  }
+
+  return Array.from(uniqueMap.values());
+}
+
 export function adaptDesignsToTrimFinishes(
   designs: DBDesign[]
 ): TrimOption[] {
@@ -251,7 +307,7 @@ export function adaptDesignsToTrimFinishes(
     green: "rhodium",
   };
 
-  return designs
+  const mappedTrims = designs
     .filter((design) => design.colour && trimMap[design.colour.toLowerCase()])
     .map((design) => {
       const colour = design.colour?.toLowerCase() || "";
@@ -265,6 +321,9 @@ export function adaptDesignsToTrimFinishes(
         designId: design.design_id,
       };
     });
+
+  // Deduplicate by trim finish value, keeping lowest cost option
+  return deduplicateTrimFinishes(mappedTrims);
 }
 
 // Helper functions
