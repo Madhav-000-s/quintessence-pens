@@ -1,5 +1,5 @@
 import HeroSection from '@/components/landing-page/sections/hero'
-import React from 'react'
+import React, { useEffect } from 'react'
 
 const LandingPage = () => {
   return (
