@@ -1,5 +1,5 @@
 import { deductMaterialFromInventory } from "@/app/lib/productionFunctions";
-import { supabase } from "@/supabase-client";
+import { supabase, serviceClient } from "@/supabase-client";
 
 export async function POST(request: Request) {
     const body = await request.json();
@@ -20,7 +20,7 @@ export async function POST(request: Request) {
         const { data: GrievanceData, error: GrievanceError} = await supabase
             .from("Grievances")
             .insert({"message": message, defective_count: defective, customer:data.customer_id})
-        
+
         if(GrievanceError){
             return new Response(JSON.stringify(GrievanceError), {status:400});
         }
@@ -29,6 +29,23 @@ export async function POST(request: Request) {
         if (!response) {
             return new Response(JSON.stringify("Error adding defective materials back to inventory"), { status: 500 });
         }
+    }
+
+    // Automatically create QA record for this work order using service client (bypasses RLS)
+    const adminClient = serviceClient();
+    const { error: qaError } = await adminClient
+        .from("QualityAssurance")
+        .insert({
+            work_order_id: body.work_order_id,
+            inspector_name: "Awaiting Assignment",
+            inspection_date: new Date().toISOString().split('T')[0],
+            status: "pending",
+            defects_found: 0,
+            notes: "Auto-generated QA record after production completion"
+        });
+
+    if (qaError) {
+        return new Response(JSON.stringify(qaError), {status: 400});
     }
 
     return Response.json("status updated");

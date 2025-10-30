@@ -15,7 +15,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { supabase } from "@/supabase-client";
+import { supabase, serviceClient } from "@/supabase-client";
 
 interface QARecord {
   id: number;
@@ -55,12 +55,10 @@ export default function QAPage() {
   const fetchRecords = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from("QualityAssurance")
-        .select("*")
-        .order("inspection_date", { ascending: false });
+      const response = await fetch('/api/qa');
+      if (!response.ok) throw new Error('Failed to fetch QA records');
 
-      if (error) throw error;
+      const data = await response.json();
       setRecords(data || []);
       setError(null);
     } catch (err: any) {
@@ -102,19 +100,20 @@ export default function QAPage() {
 
     try {
       if (editingRecord) {
-        const { error } = await supabase
-          .from("QualityAssurance")
-          .update(formData)
-          .eq("id", editingRecord.id);
-
-        if (error) throw error;
+        const response = await fetch(`/api/qa?id=${editingRecord.id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData)
+        });
+        if (!response.ok) throw new Error('Failed to update QA record');
         setSuccess("QA record updated successfully!");
       } else {
-        const { error } = await supabase
-          .from("QualityAssurance")
-          .insert([formData]);
-
-        if (error) throw error;
+        const response = await fetch('/api/qa', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData)
+        });
+        if (!response.ok) throw new Error('Failed to create QA record');
         setSuccess("QA record created successfully!");
       }
 
@@ -132,17 +131,44 @@ export default function QAPage() {
     if (!confirm("Are you sure you want to delete this QA record?")) return;
 
     try {
-      const { error } = await supabase
-        .from("QualityAssurance")
-        .delete()
-        .eq("id", id);
+      const response = await fetch(`/api/qa?id=${id}`, {
+        method: 'DELETE'
+      });
+      if (!response.ok) throw new Error('Failed to delete QA record');
 
-      if (error) throw error;
       setSuccess("QA record deleted successfully!");
       await fetchRecords();
       setTimeout(() => setSuccess(null), 3000);
     } catch (err: any) {
       setError(err.message || "Failed to delete QA record");
+    }
+  };
+
+  const handlePassQA = async (record: QARecord) => {
+    if (!confirm("Mark this QA inspection as passed? This will create a shipping record.")) return;
+
+    try {
+      setSubmitting(true);
+
+      // Call pass QA API endpoint
+      const response = await fetch('/api/qa/pass', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ qa_id: record.id, work_order_id: record.work_order_id })
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to pass QA');
+      }
+
+      setSuccess("QA passed! Shipping record created successfully.");
+      await fetchRecords();
+      setTimeout(() => setSuccess(null), 3000);
+    } catch (err: any) {
+      setError(err.message || "Failed to pass QA and create shipping record");
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -346,6 +372,17 @@ export default function QAPage() {
                         </td>
                         <td className="p-3">
                           <div className="flex gap-2">
+                            {record.status === "pending" && (
+                              <Button
+                                size="sm"
+                                variant="default"
+                                onClick={() => handlePassQA(record)}
+                                disabled={submitting}
+                                className="bg-green-600 hover:bg-green-700"
+                              >
+                                Pass QA
+                              </Button>
+                            )}
                             <Button
                               size="sm"
                               variant="outline"
