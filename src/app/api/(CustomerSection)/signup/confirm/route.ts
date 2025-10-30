@@ -7,7 +7,7 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const token_hash = searchParams.get('token_hash');
     const type = searchParams.get('type') as EmailOtpType | null;
-    const next = searchParams.get('next') ?? '/';
+    // const next = searchParams.get('next') ?? '/';
 
     const supabase = await serverClient();
 
@@ -32,10 +32,11 @@ export async function GET(request: Request) {
                 })
             
             if (customerError) {
+                supabase.auth.admin.deleteUser(user.id);
                 return NextResponse.json({ error: customerError }, { status: 400 });
             }
 
-            return NextResponse.redirect(new URL('/'));
+            return NextResponse.redirect(new URL('/', request.url));
         }
     }
         console.log("here 3");

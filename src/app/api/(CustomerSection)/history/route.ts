@@ -11,9 +11,8 @@ export async function GET(request: Request) {
     const customer = await getCustomerId(data.user.id);
     const { data: Order, error: OrderError } = await supabase
         .from("WorkOrder")
-        .select("status, start_date, end_date, grand_total, pen, created_at, count")
+        .select("status, start_date, end_date, grand_total, pen, created_at, count, isAccepted, isFinished")
         .eq("customer_id", customer)
-        .eq("isFinished", true);
     
     if(OrderError) {
         return Response.json(OrderError, {status: 500});

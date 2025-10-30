@@ -12,7 +12,8 @@
 
 # testing
 /coverage
-
+# Python virtual environment directory
+myenv/
 # next.js
 /.next/
 /out/
