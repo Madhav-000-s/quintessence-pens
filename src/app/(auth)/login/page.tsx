@@ -1,7 +1,12 @@
+
 "use client"
 
 import { useState } from "react";
+<<<<<<<< HEAD:src/app/(auth)/login/page.tsx
 import { supabase } from "../../../supabase-client";
+========
+import { supabase } from "@/supabase-client";
+>>>>>>>> origin/main:src/app/(auth)/auth/page.tsx
 
 export default function AuthPage() {
   const [mode, setMode] = useState<"login" | "signup">("login");
