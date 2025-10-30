@@ -13,7 +13,6 @@ export async function GET(request: Request) {
         .from("WorkOrder")
         .select("status, start_date, end_date, grand_total, pen, created_at, count")
         .eq("customer_id", customer)
-        .eq("isFinished", true);
     
     if(OrderError) {
         return Response.json(OrderError, {status: 500});
