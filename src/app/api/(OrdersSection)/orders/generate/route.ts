@@ -2,28 +2,18 @@ import { calculatePayable, calculateManufacturingDuration, getPenMaterialsWeight
 import { supabase } from "@/supabase-client";
 import jwt from 'jsonwebtoken'
 import { NextRequest, NextResponse } from "next/server";
-import { Payload } from "@/app/api/(configurators)/configure_cap/route";
+// import { Payload } from "@/app/api/(configurators)/configure_cap/route";
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
 export async function POST(request: NextRequest) {
     const body = await request.json();
 
-    const tokenCookie = request.cookies.get("pen");
-    if(!tokenCookie) {
-        return new Response(JSON.stringify("Cookie not found"), {status: 400});
-    }
-
-    try {
-        const decoded = jwt.verify(tokenCookie.value, JWT_SECRET!) as Payload; 
-        if(!decoded) {
-            return new Response(JSON.stringify("Unable to decode cookie"), {status: 400});
-        }
     
     const { data: PenData, error: PenError } = await supabase
         .from("Pen")
         .select("cost")
-        .eq("pen_id", decoded.penId);
+        .eq("pen_id", body.penId);
 
     if(PenError) {
         console.error(PenError);
@@ -32,7 +22,7 @@ export async function POST(request: NextRequest) {
     console.log("1st");
     const { subtotal, taxAmount, totalWithTax } = calculatePayable(PenData[0].cost, body.count, 18);
     
-    const requiredMaterialsAndWts = await getPenMaterialsWeights(decoded.penId);
+    const requiredMaterialsAndWts = await getPenMaterialsWeights(body.penId);
     const inventoryCheckResults = await checkInventory(requiredMaterialsAndWts);
 
     // Generate dates
@@ -47,7 +37,7 @@ export async function POST(request: NextRequest) {
         .from("WorkOrder")
         .insert({
             customer_id: body.customer_id,
-            pen: decoded.penId,
+            pen: body.penId,
             isPaid: false,
             start_date: startDate,
             end_date: endDate,
@@ -73,13 +63,8 @@ export async function POST(request: NextRequest) {
         path: '/',
     }
     const response = NextResponse.json(
-        { message: "Work order created successfully.", pen_id: decoded.penId },
+        { message: "Work order created successfully.", pen_id: body.penId },
         { status: 201 }
     );
-    response.cookies.delete(cookieOptions);
     return response;
-    }
-    catch {
-        return new Response(JSON.stringify("Unable to decode"), {status: 400});
-    }
 }
