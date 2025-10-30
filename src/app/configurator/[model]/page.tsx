@@ -7,9 +7,11 @@ import { ConfigPanel } from "@/components/configurator/ConfigPanel";
 import { PriceBadge } from "@/components/configurator/PriceBadge";
 import { PricingSummary } from "@/components/configurator/PricingSummary";
 import { KeyboardShortcuts } from "@/components/configurator/KeyboardShortcuts";
+import { AIDesignButton } from "@/components/configurator/AIDesignButton";
 import { useConfiguratorStore } from "@/lib/store/configurator";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { PenModel } from "@/types/configurator";
+import { Toaster } from "@/components/ui/sonner";
 
 // Valid pen models
 const VALID_MODELS: PenModel[] = ["zeus", "poseidon", "hera", "athena"];
@@ -87,6 +89,12 @@ function ConfiguratorContent() {
 
       {/* Keyboard Shortcuts Helper */}
       <KeyboardShortcuts />
+
+      {/* AI Design Button */}
+      <AIDesignButton />
+
+      {/* Toast Notifications */}
+      <Toaster position="top-center" richColors />
     </div>
   );
 }
