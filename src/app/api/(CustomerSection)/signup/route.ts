@@ -18,7 +18,6 @@ export async function POST(request: Request) {
                 phone: body.phone || null,
                 first_name: body.firstname || null,
                 last_name: body.lastname || null,
-                isBusiness: body.isBusiness || null
             }
     }});
 

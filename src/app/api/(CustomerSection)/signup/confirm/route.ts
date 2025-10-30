@@ -28,7 +28,6 @@ export async function GET(request: Request) {
                     phone: user.user_metadata.phone || null,
                     first_name: user.user_metadata.first_name || null,
                     last_name: user.user_metadata.last_name || null,
-                    isBusiness: user.user_metadata.isBusiness || false,
                     user: user.id,
                 })
             
