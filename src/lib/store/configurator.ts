@@ -21,6 +21,7 @@ import { calculateConfigCost } from "@/lib/adapters/configurator-adapters";
 import { submitCompleteConfiguration } from "@/lib/services/configuration-service";
 import { addToCart as addToCartService } from "@/lib/services/cart-service";
 import { getCurrentCustomerId } from "@/lib/services/user-service";
+import { fetchAIDesignSuggestion, mapNibSize, mapEngravingFont } from "@/lib/services/ai-design-service";
 
 interface ConfiguratorState {
   // Current configuration
@@ -43,6 +44,11 @@ interface ConfiguratorState {
   saveError: string | null;
   saveProgress: SaveStep;
 
+  // AI Design state
+  isLoadingAI: boolean;
+  aiError: string | null;
+  aiSuggestion: string | null;
+
   // Actions
   updateConfig: <K extends keyof PenConfiguration>(
     key: K,
@@ -60,6 +66,7 @@ interface ConfiguratorState {
   exportConfig: () => string;
   importConfig: (configString: string) => void;
   saveConfiguration: () => Promise<{ penId: number; cost: number } | null>;
+  applyAIDesign: () => Promise<void>;
 }
 
 // Default configuration factory
@@ -253,10 +260,14 @@ export const useConfiguratorStore = create<ConfiguratorState>()(
       isSaving: false,
       saveError: null,
       saveProgress: null,
+      isLoadingAI: false,
+      aiError: null,
+      aiSuggestion: null,
 
       updateConfig: (key, value) => {
         set((state) => {
           const newConfig = { ...state.config, [key]: value };
+
           // Update config immediately, pricing will be updated asynchronously
           calculatePricingBreakdown(newConfig).then((pricing) => {
             set({ pricing });
@@ -404,6 +415,55 @@ export const useConfiguratorStore = create<ConfiguratorState>()(
             saveProgress: null,
           });
           return null;
+        }
+      },
+
+      applyAIDesign: async () => {
+        set({ isLoadingAI: true, aiError: null, aiSuggestion: null });
+
+        try {
+          const response = await fetchAIDesignSuggestion();
+          const { config } = get();
+
+          // Apply AI design to configuration
+          const newConfig: PenConfiguration = {
+            ...config,
+            // Apply ink color from AI
+            bodyColor: response.design.ink.hexcode || config.bodyColor,
+            // Apply nib size
+            nibSize: mapNibSize(response.design.nib.size),
+            // Apply engraving font if engraving exists
+            engraving: {
+              ...config.engraving,
+              font: mapEngravingFont(response.design.engraving.font),
+            },
+          };
+
+          // Map barrel grip type and shape if available
+          if (response.design.barrel.grip_type) {
+            // Store grip type as a reference (you may need to map this to actual material)
+            // For now, we'll just apply the shape
+          }
+
+          // Update configuration
+          calculatePricingBreakdown(newConfig).then((pricing) => {
+            set({ pricing });
+          });
+
+          set({
+            config: newConfig,
+            isLoadingAI: false,
+            aiSuggestion: response.why_suggested,
+            aiError: null,
+          });
+        } catch (error) {
+          console.error("Error fetching AI design:", error);
+          const errorMessage = error instanceof Error ? error.message : "Failed to fetch AI design suggestion";
+          set({
+            isLoadingAI: false,
+            aiError: errorMessage,
+            aiSuggestion: null,
+          });
         }
       },
     }),
