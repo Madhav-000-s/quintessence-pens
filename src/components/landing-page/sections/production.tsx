@@ -185,7 +185,7 @@ export function Production() {
               key={`content-${step.id}`}
               className="content-item absolute bottom-24 left-16 max-w-2xl"
             >
-              <div className="mb-4 font-raleway text-sm text-white/80">
+              <div className="mb-4 font-raleway text-base text-white/80">
                 {step.id.toString().padStart(2, "0")}
               </div>
 
@@ -197,7 +197,7 @@ export function Production() {
                 {step.title}
               </Heading>
 
-              <div className="font-raleway text-sm text-white/90 leading-relaxed max-w-xl">
+              <div className="font-raleway text-xl text-white/90 leading-relaxed max-w-xl">
                 {step.description}
               </div>
             </div>

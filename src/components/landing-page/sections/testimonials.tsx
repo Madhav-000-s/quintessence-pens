@@ -47,106 +47,336 @@ interface WordPlacement {
   attempts: number;
 }
 
-// Premium brand adjectives with associated testimonials
-const adjectiveWordsData: Array<{ word: string; review: TestimonialReview }> = [
-  {
-    word: "Elegant",
-    review: {
-      author: "Sarah Mitchell",
-      role: "Interior Designer",
-      content: "The elegant design of these pieces transformed my client's space into something truly extraordinary. Every detail speaks of refined craftsmanship and timeless beauty.",
-      rating: 5
-    }
-  },
-  {
-    word: "Crafted",
-    review: {
-      author: "James Chen",
-      role: "Architect",
-      content: "Meticulously crafted with attention to every detail. The level of precision and care in the construction is evident in every piece. This is true artisanship.",
-      rating: 5
-    }
-  },
-  {
-    word: "Premium",
-    review: {
-      author: "Emma Rodriguez",
-      role: "Luxury Consultant",
-      content: "Premium quality that exceeds expectations. The materials, finish, and overall execution are simply outstanding. Worth every penny for discerning clients.",
-      rating: 5
-    }
-  },
-  {
-    word: "Refined",
-    review: {
-      author: "Michael Thompson",
-      role: "Art Collector",
-      content: "A refined aesthetic that complements any sophisticated space. The subtle elegance and understated luxury make these pieces stand out in my collection.",
-      rating: 5
-    }
-  },
-  {
-    word: "Luxurious",
-    review: {
-      author: "Victoria Laurent",
-      role: "Hotel Owner",
-      content: "Luxurious beyond compare. Our guests constantly comment on the exquisite quality and beauty. These pieces have elevated our entire establishment.",
-      rating: 5
-    }
-  },
-  {
-    word: "Artisan",
-    review: {
-      author: "David Park",
-      role: "Gallery Curator",
-      content: "True artisan quality that honors traditional techniques while embracing modern design. Each piece tells a story of dedication and mastery.",
-      rating: 5
-    }
-  },
-  {
-    word: "Sophisticated",
-    review: {
-      author: "Isabella Rossi",
-      role: "Fashion Designer",
-      content: "Sophisticated design that reflects impeccable taste. The balance of form and function is perfect, creating pieces that are both beautiful and practical.",
-      rating: 5
-    }
-  },
-  {
-    word: "Timeless",
-    review: {
-      author: "Robert Anderson",
-      role: "Antique Dealer",
-      content: "Timeless pieces that will be treasured for generations. The classic design combined with superior craftsmanship ensures these will never go out of style.",
-      rating: 5
-    }
-  },
-  {
-    word: "Exquisite",
-    review: {
-      author: "Sophia Williams",
-      role: "Event Planner",
-      content: "Exquisite attention to detail in every aspect. These pieces have become the centerpiece of our most prestigious events, always drawing admiration.",
-      rating: 5
-    }
-  },
-  {
-    word: "Masterful",
-    review: {
-      author: "Alexander Kim",
-      role: "Master Craftsman",
-      content: "Masterful execution from concept to completion. As a fellow craftsman, I deeply appreciate the skill and dedication evident in every piece.",
-      rating: 5
-    }
-  }
-];
 
 // Text sizes for variety
 const textSizes: ('xl' | 'lg' | 'md')[] = ['xl', 'lg', 'md'];
+const WORDS: AdjectiveWord[] = [
+  {
+    "id": "word-0",
+    "text": "Elegant",
+    "position": {
+      "x": 946.7666215930266,
+      "y": 891.2400249549765
+    },
+    "size": "xl",
+    "animationDelay": 0,
+    "review": {
+      "author": "Sarah Mitchell",
+      "role": "Interior Designer",
+      "content": "The elegant design of these pieces transformed my client's space into something truly extraordinary. Every detail speaks of refined craftsmanship and timeless beauty.",
+      "rating": 5
+    }
+  },
+  {
+    "id": "word-1",
+    "text": "Crafted",
+    "position": {
+      "x": 1422.4642694983745,
+      "y": 236.4094490472787
+    },
+    "size": "lg",
+    "animationDelay": 200,
+    "review": {
+      "author": "James Chen",
+      "role": "Architect",
+      "content": "Meticulously crafted with attention to every detail. The level of precision and care in the construction is evident in every piece. This is true artisanship.",
+      "rating": 5
+    }
+  },
+  {
+    "id": "word-2",
+    "text": "Premium",
+    "position": {
+      "x": 1026.9707140429364,
+      "y": 760.3313918146697
+    },
+    "size": "md",
+    "animationDelay": 400,
+    "review": {
+      "author": "Emma Rodriguez",
+      "role": "Luxury Consultant",
+      "content": "Premium quality that exceeds expectations. The materials, finish, and overall execution are simply outstanding. Worth every penny for discerning clients.",
+      "rating": 5
+    }
+  },
+  {
+    "id": "word-3",
+    "text": "Refined",
+    "position": {
+      "x": 1412.4807812654942,
+      "y": 866.4819701940731
+    },
+    "size": "xl",
+    "animationDelay": 600,
+    "review": {
+      "author": "Michael Thompson",
+      "role": "Art Collector",
+      "content": "A refined aesthetic that complements any sophisticated space. The subtle elegance and understated luxury make these pieces stand out in my collection.",
+      "rating": 5
+    }
+  },
+  {
+    "id": "word-4",
+    "text": "Luxurious",
+    "position": {
+      "x": 1157.0886509353418,
+      "y": 580.8187236253563
+    },
+    "size": "lg",
+    "animationDelay": 800,
+    "review": {
+      "author": "Victoria Laurent",
+      "role": "Hotel Owner",
+      "content": "Luxurious beyond compare. Our guests constantly comment on the exquisite quality and beauty. These pieces have elevated our entire establishment.",
+      "rating": 5
+    }
+  },
+  {
+    "id": "word-5",
+    "text": "Artisan",
+    "position": {
+      "x": 751.3798785739323,
+      "y": 705.33093766449485
+    },
+    "size": "md",
+    "animationDelay": 1000,
+    "review": {
+      "author": "David Park",
+      "role": "Gallery Curator",
+      "content": "True artisan quality that honors traditional techniques while embracing modern design. Each piece tells a story of dedication and mastery.",
+      "rating": 5
+    }
+  },
+  {
+    "id": "word-6",
+    "text": "Sophisticated",
+    "position": {
+      "x": 667.2151659714767,
+      "y": 265.31538636642443
+    },
+    "size": "xl",
+    "animationDelay": 1200,
+    "review": {
+      "author": "Isabella Rossi",
+      "role": "Fashion Designer",
+      "content": "Sophisticated design that reflects impeccable taste. The balance of form and function is perfect, creating pieces that are both beautiful and practical.",
+      "rating": 5
+    }
+  },
+  {
+    "id": "word-7",
+    "text": "Timeless",
+    "position": {
+      "x": 1079.7049865228287,
+      "y": 155.30595211090585
+    },
+    "size": "lg",
+    "animationDelay": 1400,
+    "review": {
+      "author": "Robert Anderson",
+      "role": "Antique Dealer",
+      "content": "Timeless pieces that will be treasured for generations. The classic design combined with superior craftsmanship ensures these will never go out of style.",
+      "rating": 5
+    }
+  },
+  {
+    "id": "word-8",
+    "text": "Exquisite",
+    "position": {
+      "x": 316.8247822760758,
+      "y": 668.9885241489553
+    },
+    "size": "md",
+    "animationDelay": 1600,
+    "review": {
+      "author": "Sophia Williams",
+      "role": "Event Planner",
+      "content": "Exquisite attention to detail in every aspect. These pieces have become the centerpiece of our most prestigious events, always drawing admiration.",
+      "rating": 5
+    }
+  },
+  {
+    "id": "word-9",
+    "text": "Masterful",
+    "position": {
+      "x": 633.8931974750785,
+      "y": 407.20563042263221
+    },
+    "size": "xl",
+    "animationDelay": 1800,
+    "review": {
+      "author": "Alexander Kim",
+      "role": "Master Craftsman",
+      "content": "Masterful execution from concept to completion. As a fellow craftsman, I deeply appreciate the skill and dedication evident in every piece.",
+      "rating": 5
+    }
+  },
+  {
+    "id": "word-10",
+    "text": "Graceful",
+    "position": {
+      "x": 1235.9836884999154,
+      "y": 695.5791475229861
+    },
+    "size": "lg",
+    "animationDelay": 2000,
+    "review": {
+      "author": "Olivia Bennett",
+      "role": "Interior Stylist",
+      "content": "Each design element flows together with graceful harmony. The pieces feel effortlessly beautiful and bring a sense of calm sophistication.",
+      "rating": 5
+    }
+  },
+  {
+    "id": "word-11",
+    "text": "Polished",
+    "position": {
+      "x": 285.33280254156176,
+      "y": 336.9296819999467
+    },
+    "size": "md",
+    "animationDelay": 2200,
+    "review": {
+      "author": "Daniel Wright",
+      "role": "Product Designer",
+      "content": "A polished finish that reflects true professionalism and artistry. The attention to surface quality and texture is second to none.",
+      "rating": 5
+    }
+  },
+  {
+    "id": "word-12",
+    "text": "Opulent",
+    "position": {
+      "x": 720.882966881921,
+      "y": 123.0335920832769
+    },
+    "size": "xl",
+    "animationDelay": 2400,
+    "review": {
+      "author": "Clara Dubois",
+      "role": "Luxury Real Estate Agent",
+      "content": "Opulent designs that redefine luxury living. These creations effortlessly blend grandeur with modern refinement.",
+      "rating": 5
+    }
+  },
+  {
+    "id": "word-13",
+    "text": "Bespoke",
+    "position": {
+      "x": 698.7909195007155,
+      "y": 797.75869384016744
+    },
+    "size": "lg",
+    "animationDelay": 2600,
+    "review": {
+      "author": "Henry Collins",
+      "role": "Custom Furniture Maker",
+      "content": "Bespoke craftsmanship at its finest. Every piece feels made just for you — perfectly tailored and thoughtfully designed.",
+      "rating": 5
+    }
+  },
+  {
+    "id": "word-14",
+    "text": "Radiant",
+    "position": {
+      "x": 1500.646913694956,
+      "y": 344.2605206678912
+    },
+    "size": "md",
+    "animationDelay": 2800,
+    "review": {
+      "author": "Ava Kapoor",
+      "role": "Lighting Designer",
+      "content": "A radiant collection that glows with elegance. The play of materials and light adds warmth and brilliance to any environment.",
+      "rating": 5
+    }
+  },
+  {
+    "id": "word-15",
+    "text": "Impeccable",
+    "position": {
+      "x": 620.1543211938035,
+      "y": 570.4898152274927
+    },
+    "size": "xl",
+    "animationDelay": 3000,
+    "review": {
+      "author": "Charles Nguyen",
+      "role": "Luxury Brand Consultant",
+      "content": "Impeccable execution from start to finish. The precision, materials, and finish all reflect a commitment to perfection.",
+      "rating": 5
+    }
+  },
+  {
+    "id": "word-16",
+    "text": "Harmonious",
+    "position": {
+      "x": 492.6501353781303,
+      "y": 906.5298275502142
+    },
+    "size": "lg",
+    "animationDelay": 3200,
+    "review": {
+      "author": "Natalie Green",
+      "role": "Architectural Designer",
+      "content": "A harmonious balance between art and structure. Every curve and contour feels intentional and beautifully composed.",
+      "rating": 5
+    }
+  },
+  {
+    "id": "word-17",
+    "text": "Distinguished",
+    "position": {
+      "x": 1210.2850242252587,
+      "y": 441.5464783088193
+    },
+    "size": "md",
+    "animationDelay": 3400,
+    "review": {
+      "author": "Edward Brooks",
+      "role": "Fine Art Dealer",
+      "content": "A distinguished presence that commands admiration. These designs embody elegance and character in every line.",
+      "rating": 5
+    }
+  },
+  {
+    "id": "word-18",
+    "text": "Serene",
+    "position": {
+      "x": 1182.5760009169087,
+      "y": 325.26197383461124
+    },
+    "size": "xl",
+    "animationDelay": 3600,
+    "review": {
+      "author": "Lila Tanaka",
+      "role": "Spa Owner",
+      "content": "Serene and tranquil — these designs create an atmosphere of peace and luxury that our clients adore.",
+      "rating": 5
+    }
+  },
+  {
+    "id": "word-19",
+    "text": "Majestic",
+    "position": {
+      "x": 286.7726705926235,
+      "y": 802.2076404377876
+    },
+    "size": "lg",
+    "animationDelay": 3800,
+    "review": {
+      "author": "Antonio Delgado",
+      "role": "Hotel Designer",
+      "content": "Majestic in both scale and detail. These works radiate presence and power while maintaining elegance and restraint.",
+      "rating": 5
+    }
+  }
+]
+
 
 export function TestimonialsWall() {
   const [state, setState] = useState<TestimonialsState>({
-    words: [],
+    words: WORDS,
     visibleWords: new Set(),
     isAnimating: false,
     hoveredWord: null,
@@ -216,175 +446,175 @@ export function TestimonialsWall() {
   };
 
   // Word placement algorithm with collision detection and responsive sizing
-  const generateWordPositions = (): AdjectiveWord[] => {
-    if (!sectionRef.current) return [];
+  // const generateWordPositions = (): AdjectiveWord[] => {
+  //   if (!sectionRef.current) return [];
 
-    const viewport = {
-      width: sectionRef.current.clientWidth,
-      height: sectionRef.current.clientHeight,
-    };
+  //   const viewport = {
+  //     width: sectionRef.current.clientWidth,
+  //     height: sectionRef.current.clientHeight,
+  //   };
 
-    // Responsive constraints based on viewport size
-    const isMobile = viewport.width < 768;
-    const isTablet = viewport.width >= 768 && viewport.width < 1024;
+  //   // Responsive constraints based on viewport size
+  //   const isMobile = viewport.width < 768;
+  //   const isTablet = viewport.width >= 768 && viewport.width < 1024;
 
-    const constraints: PositionConstraints = {
-      minDistance: isMobile ? 60 : isTablet ? 70 : 80, // Responsive spacing
-      viewportPadding: isMobile ? 40 : isTablet ? 50 : 60, // Responsive padding
-      maxAttempts: 10, // Maximum placement attempts per word
-    };
+  //   const constraints: PositionConstraints = {
+  //     minDistance: isMobile ? 60 : isTablet ? 70 : 80, // Responsive spacing
+  //     viewportPadding: isMobile ? 40 : isTablet ? 50 : 60, // Responsive padding
+  //     maxAttempts: 10, // Maximum placement attempts per word
+  //   };
 
-    const placedWords: AdjectiveWord[] = [];
-    const placedBounds: DOMRect[] = [];
+  //   const placedWords: AdjectiveWord[] = [];
+  //   const placedBounds: DOMRect[] = [];
 
-    // Helper function to get responsive text size
-    const getResponsiveSize = (baseSize: 'xl' | 'lg' | 'md', index: number): 'xl' | 'lg' | 'md' => {
-      if (isMobile) {
-        // On mobile, use smaller sizes
-        return baseSize === 'xl' ? 'lg' : baseSize === 'lg' ? 'md' : 'md';
-      }
-      return baseSize;
-    };
+  //   // Helper function to get responsive text size
+  //   const getResponsiveSize = (baseSize: 'xl' | 'lg' | 'md', index: number): 'xl' | 'lg' | 'md' => {
+  //     if (isMobile) {
+  //       // On mobile, use smaller sizes
+  //       return baseSize === 'xl' ? 'lg' : baseSize === 'lg' ? 'md' : 'md';
+  //     }
+  //     return baseSize;
+  //   };
 
-    // Helper function to estimate text bounds with responsive sizing
-    const estimateTextBounds = (text: string, size: 'xl' | 'lg' | 'md', x: number, y: number): DOMRect => {
-      // Responsive text dimensions based on viewport size
-      const baseSizeMultipliers = {
-        xl: { width: 12, height: 80 }, // Desktop: text-4xl md:text-8xl
-        lg: { width: 10, height: 70 }, // Desktop: text-4xl md:text-7xl  
-        md: { width: 8, height: 50 },  // Desktop: text-3xl md:text-5xl
-      };
+  //   // Helper function to estimate text bounds with responsive sizing
+  //   const estimateTextBounds = (text: string, size: 'xl' | 'lg' | 'md', x: number, y: number): DOMRect => {
+  //     // Responsive text dimensions based on viewport size
+  //     const baseSizeMultipliers = {
+  //       xl: { width: 12, height: 80 }, // Desktop: text-4xl md:text-8xl
+  //       lg: { width: 10, height: 70 }, // Desktop: text-4xl md:text-7xl  
+  //       md: { width: 8, height: 50 },  // Desktop: text-3xl md:text-5xl
+  //     };
 
-      // Adjust multipliers for smaller screens
-      const responsiveMultipliers = isMobile ? {
-        xl: { width: 8, height: 50 },
-        lg: { width: 7, height: 45 },
-        md: { width: 6, height: 35 },
-      } : isTablet ? {
-        xl: { width: 10, height: 65 },
-        lg: { width: 8.5, height: 57 },
-        md: { width: 7, height: 42 },
-      } : baseSizeMultipliers;
+  //     // Adjust multipliers for smaller screens
+  //     const responsiveMultipliers = isMobile ? {
+  //       xl: { width: 8, height: 50 },
+  //       lg: { width: 7, height: 45 },
+  //       md: { width: 6, height: 35 },
+  //     } : isTablet ? {
+  //       xl: { width: 10, height: 65 },
+  //       lg: { width: 8.5, height: 57 },
+  //       md: { width: 7, height: 42 },
+  //     } : baseSizeMultipliers;
 
-      const multiplier = responsiveMultipliers[size];
-      const estimatedWidth = text.length * multiplier.width;
-      const estimatedHeight = multiplier.height;
+  //     const multiplier = responsiveMultipliers[size];
+  //     const estimatedWidth = text.length * multiplier.width;
+  //     const estimatedHeight = multiplier.height;
 
-      return new DOMRect(
-        x - estimatedWidth / 2,
-        y - estimatedHeight / 2,
-        estimatedWidth,
-        estimatedHeight
-      );
-    };
+  //     return new DOMRect(
+  //       x - estimatedWidth / 2,
+  //       y - estimatedHeight / 2,
+  //       estimatedWidth,
+  //       estimatedHeight
+  //     );
+  //   };
 
-    // Check if two rectangles overlap with minimum distance
-    const hasCollision = (rect1: DOMRect, rect2: DOMRect, minDistance: number): boolean => {
-      const expandedRect1 = new DOMRect(
-        rect1.x - minDistance / 2,
-        rect1.y - minDistance / 2,
-        rect1.width + minDistance,
-        rect1.height + minDistance
-      );
+  //   // Check if two rectangles overlap with minimum distance
+  //   const hasCollision = (rect1: DOMRect, rect2: DOMRect, minDistance: number): boolean => {
+  //     const expandedRect1 = new DOMRect(
+  //       rect1.x - minDistance / 2,
+  //       rect1.y - minDistance / 2,
+  //       rect1.width + minDistance,
+  //       rect1.height + minDistance
+  //     );
 
-      return !(
-        expandedRect1.right < rect2.left ||
-        expandedRect1.left > rect2.right ||
-        expandedRect1.bottom < rect2.top ||
-        expandedRect1.top > rect2.bottom
-      );
-    };
+  //     return !(
+  //       expandedRect1.right < rect2.left ||
+  //       expandedRect1.left > rect2.right ||
+  //       expandedRect1.bottom < rect2.top ||
+  //       expandedRect1.top > rect2.bottom
+  //     );
+  //   };
 
-    // Check if position is within viewport boundaries
-    const isWithinBounds = (bounds: DOMRect, padding: number): boolean => {
-      return (
-        bounds.left >= padding &&
-        bounds.right <= viewport.width - padding &&
-        bounds.top >= padding &&
-        bounds.bottom <= viewport.height - padding
-      );
-    };
+  //   // Check if position is within viewport boundaries
+  //   const isWithinBounds = (bounds: DOMRect, padding: number): boolean => {
+  //     return (
+  //       bounds.left >= padding &&
+  //       bounds.right <= viewport.width - padding &&
+  //       bounds.top >= padding &&
+  //       bounds.bottom <= viewport.height - padding
+  //     );
+  //   };
 
-    // Place each word with collision detection
-    adjectiveWordsData.forEach((wordData, index) => {
-      const baseSize = textSizes[index % textSizes.length];
-      const size = getResponsiveSize(baseSize, index);
-      let placed = false;
-      let attempts = 0;
+  //   // Place each word with collision detection
+  //   adjectiveWordsData.forEach((wordData, index) => {
+  //     const baseSize = textSizes[index % textSizes.length];
+  //     const size = getResponsiveSize(baseSize, index);
+  //     let placed = false;
+  //     let attempts = 0;
 
-      while (!placed && attempts < constraints.maxAttempts) {
-        // Generate random position
-        const x = Math.random() * (viewport.width - 2 * constraints.viewportPadding) + constraints.viewportPadding;
-        const y = Math.random() * (viewport.height - 2 * constraints.viewportPadding) + constraints.viewportPadding;
+  //     while (!placed && attempts < constraints.maxAttempts) {
+  //       // Generate random position
+  //       const x = Math.random() * (viewport.width - 2 * constraints.viewportPadding) + constraints.viewportPadding;
+  //       const y = Math.random() * (viewport.height - 2 * constraints.viewportPadding) + constraints.viewportPadding;
 
-        // Estimate text bounds at this position
-        const bounds = estimateTextBounds(wordData.word, size, x, y);
+  //       // Estimate text bounds at this position
+  //       const bounds = estimateTextBounds(wordData.word, size, x, y);
 
-        // Check if within viewport boundaries
-        if (!isWithinBounds(bounds, constraints.viewportPadding)) {
-          attempts++;
-          continue;
-        }
+  //       // Check if within viewport boundaries
+  //       if (!isWithinBounds(bounds, constraints.viewportPadding)) {
+  //         attempts++;
+  //         continue;
+  //       }
 
-        // Check for collisions with existing words
-        let hasCollisionWithExisting = false;
-        for (const existingBounds of placedBounds) {
-          if (hasCollision(bounds, existingBounds, constraints.minDistance)) {
-            hasCollisionWithExisting = true;
-            break;
-          }
-        }
+  //       // Check for collisions with existing words
+  //       let hasCollisionWithExisting = false;
+  //       for (const existingBounds of placedBounds) {
+  //         if (hasCollision(bounds, existingBounds, constraints.minDistance)) {
+  //           hasCollisionWithExisting = true;
+  //           break;
+  //         }
+  //       }
 
-        if (!hasCollisionWithExisting) {
-          // Successfully placed word
-          const adjectiveWord: AdjectiveWord = {
-            id: `word-${index}`,
-            text: wordData.word,
-            position: { x, y },
-            size,
-            animationDelay: index * 200, // 200ms stagger
-            review: wordData.review,
-          };
+  //       if (!hasCollisionWithExisting) {
+  //         // Successfully placed word
+  //         const adjectiveWord: AdjectiveWord = {
+  //           id: `word-${index}`,
+  //           text: wordData.word,
+  //           position: { x, y },
+  //           size,
+  //           animationDelay: index * 200, // 200ms stagger
+  //           review: wordData.review,
+  //         };
 
-          placedWords.push(adjectiveWord);
-          placedBounds.push(bounds);
-          placed = true;
-        }
+  //         placedWords.push(adjectiveWord);
+  //         placedBounds.push(bounds);
+  //         placed = true;
+  //       }
 
-        attempts++;
-      }
+  //       attempts++;
+  //     }
 
-      // If we couldn't place the word after max attempts, place it anyway with a fallback position
-      if (!placed) {
-        const fallbackX = (index % 3) * (viewport.width / 3) + viewport.width / 6;
-        const fallbackY = Math.floor(index / 3) * (viewport.height / 4) + viewport.height / 4;
+  //     // If we couldn't place the word after max attempts, place it anyway with a fallback position
+  //     if (!placed) {
+  //       const fallbackX = (index % 3) * (viewport.width / 3) + viewport.width / 6;
+  //       const fallbackY = Math.floor(index / 3) * (viewport.height / 4) + viewport.height / 4;
 
-        const adjectiveWord: AdjectiveWord = {
-          id: `word-${index}`,
-          text: wordData.word,
-          position: { x: fallbackX, y: fallbackY },
-          size,
-          animationDelay: index * 200,
-          review: wordData.review,
-        };
+  //       const adjectiveWord: AdjectiveWord = {
+  //         id: `word-${index}`,
+  //         text: wordData.word,
+  //         position: { x: fallbackX, y: fallbackY },
+  //         size,
+  //         animationDelay: index * 200,
+  //         review: wordData.review,
+  //       };
 
-        placedWords.push(adjectiveWord);
-      }
-    });
+  //       placedWords.push(adjectiveWord);
+  //     }
+  //   });
 
-    return placedWords;
-  };
+  //   return placedWords;
+  // };
 
   // Initialize word positions on mount and resize
   useEffect(() => {
-    const initializeWords = () => {
-      const words = generateWordPositions();
-      setState(prev => ({ ...prev, words }));
-    };
+    // const initializeWords = () => {
+    //   const words = generateWordPositions();
+    //   setState(prev => ({ ...prev, words }));
+    // };
 
     // Initialize on mount
     if (sectionRef.current) {
-      initializeWords();
+      // initializeWords();
     }
 
     // Handle resize with debouncing and responsive repositioning
@@ -399,7 +629,7 @@ export function TestimonialsWall() {
         }
 
         // Regenerate positions with new viewport dimensions
-        initializeWords();
+        // initializeWords();
       }, 300);
     };
 
@@ -458,15 +688,21 @@ export function TestimonialsWall() {
       ref={sectionRef}
       className="relative min-h-screen w-full bg-[#0a0a0a] overflow-hidden"
     >
-          <div
-            className="bg-image absolute inset-0"
-            style={{
-              backgroundImage: `url('/images/production/bg.png')`,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-              backgroundRepeat: "no-repeat",
-            }}
-          />
+      <div className="absolute inset-0">
+        {/* Video Background */}
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover"
+        >
+          <source src="/videos/quint_output.mp4" type="video/mp4" />
+        </video>
+
+        {/* Dark Overlay */}
+        <div className="absolute inset-0 bg-black/60" />
+      </div>
       {/* Words Container */}
       <div ref={wordsContainerRef} className="absolute inset-0">
         {state.words.map((word) => {
@@ -525,9 +761,9 @@ export function TestimonialsWall() {
                     </div>
 
                     {/* Tooltip Arrow */}
-                      <div className={cn("absolute left-1/2 transform -translate-x-1/2 -mt-px", tooltipPosition === "top" ? "top-full" : "bottom-full rotate-180")}>
-                        <div className="border-8 border-transparent border-t-amber-500/30" />
-                      </div>
+                    <div className={cn("absolute left-1/2 transform -translate-x-1/2 -mt-px", tooltipPosition === "top" ? "top-full" : "bottom-full rotate-180")}>
+                      <div className="border-8 border-transparent border-t-amber-500/30" />
+                    </div>
                   </div>
                 </div>
               )}

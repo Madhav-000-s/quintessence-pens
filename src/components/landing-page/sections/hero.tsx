@@ -1,4 +1,4 @@
-"use client";
+"use client"
 
 import React, { useEffect, useRef } from "react";
 import { gsap } from "gsap";
@@ -7,6 +7,7 @@ import Image from "next/image";
 import { Heading } from "../heading";
 import { LandingPagePenViewer } from "@/components/configurator/PenViewer";
 import { RotatingPenDisplay } from "./RotatingPenDisplay";
+import { LandingHeader } from "../landing-header";
 
 // Register ScrollTrigger plugin
 if (typeof window !== "undefined") {
@@ -83,20 +84,29 @@ const Hero = () => {
       ref={heroRef}
       className="relative min-h-dvh w-full overflow-hidden"
     >
-      {/* Background Image */}
-      <Image
-        src="/images/hero/hero-bg.png"
-        alt="Hero background"
-        fill
-        className="absolute inset-0 -z-10 object-cover"
-        priority
-      />
-        <div 
-          ref={penRef}
-          className='absolute inset-0 items-center justify-center'
+      <div className="absolute inset-0">
+        {/* Video Background */}
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover"
         >
-          <RotatingPenDisplay model="zeus" cameraPosition={[0, 0, 0]} tiltedRotation/>
-        </div>
+          <source src="/videos/hero-bg.webm" type="video/mp4" />
+        </video>
+
+        {/* Dark Overlay */}
+        <div className="absolute inset-0 bg-black/80" />
+      </div>
+      <div
+        ref={penRef}
+        className='absolute inset-0 items-center justify-center'
+      >
+        <RotatingPenDisplay model="zeus" cameraPosition={[0, -0.30, 0]} tiltedRotation />
+      </div>
+
+      <LandingHeader />
 
       {/* Grid Container */}
       <div className="relative z-10 grid min-h-screen grid-cols-12 grid-rows-12 gap-4 p-8">
@@ -115,7 +125,7 @@ const Hero = () => {
           ref={personImageRef}
           className="absolute col-start-2 row-start-8 flex items-center justify-start"
         >
-          <div className="relative h-40 w-32 md:h-48 md:w-109">
+          <div className="relative h-40 w-32 md:h-58 md:w-109">
             <Image
               src="/images/hero/img2.png"
               alt="Person portrait"
@@ -124,8 +134,6 @@ const Hero = () => {
             />
           </div>
         </div>
-
-        {/* Pen Image - Center */}
 
         {/* Abstract Image - Above Excellence */}
         <div
@@ -147,27 +155,26 @@ const Hero = () => {
           ref={excellenceRef}
           className="absolute col-start-9 col-span-3 row-start-9 flex items-center justify-end"
         >
-            <Heading
-              className="bg-cover bg-clip-text bg-center tracking-wide text-transparent"
-              size="xl"
-              style={{
-                backgroundImage: "url('/images/hero/text-mask.png')",
-              }}
-            >
-              Excellence
-            </Heading>
+          <Heading
+            className="bg-cover bg-clip-text bg-center tracking-wide text-transparent"
+            size="xl"
+            style={{
+              backgroundImage: "url('/images/hero/text-mask.png')",
+            }}
+          >
+            Excellence
+          </Heading>
         </div>
 
+      </div>
         {/* MODIFY Button - Bottom Center */}
-        <div className="absolute col-span-12 row-span-2 flex items-center justify-center">
+        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-1000 flex items-center justify-center">
           <button
-            ref={buttonRef}
             className="rounded-lg border-2 border-yellow-400 px-8 py-4 font-serif text-lg text-yellow-400 transition-all duration-300 hover:bg-yellow-400 hover:text-black"
           >
             MODIFY
           </button>
         </div>
-      </div>
     </section>
   );
 };

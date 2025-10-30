@@ -45,13 +45,17 @@ const defaultNibMaterial = {
 
 function RotatingPen({ model, position, tilted, scale }: { model: PenModel, position: [number, number, number], tilted: boolean, scale: number }) {
   const groupRef = useRef<THREE.Group>(null);
+  const penGroupRef = useRef<THREE.Group>(null);
 
   useEffect(() => {
-    if (groupRef.current) {
-      // Set initial rotation with slight tilt
-      if (tilted) groupRef.current.rotation.z = Math.PI / 16; // Slight tilt
-      
-      // Create GSAP rotation animation
+    if (groupRef.current && penGroupRef.current) {
+      // Set initial rotation with slight tilt on the pen group
+      if (tilted) {
+        penGroupRef.current.rotation.z = Math.PI / 16; // Slight tilt
+      }
+
+      // Create GSAP rotation animation on the outer group
+      // This rotates around the world Y-axis, which passes through the pen's center
       gsap.to(groupRef.current.rotation, {
         y: Math.PI * 2, // Full 360 degree rotation
         duration: 8, // 8 seconds for full rotation
@@ -59,7 +63,7 @@ function RotatingPen({ model, position, tilted, scale }: { model: PenModel, posi
         repeat: -1, // Infinite repeat
       });
     }
-  }, []);
+  }, [tilted]);
 
   const PenComponent = {
     zeus: ZeusPen,
@@ -69,13 +73,15 @@ function RotatingPen({ model, position, tilted, scale }: { model: PenModel, posi
 
   return (
     <group ref={groupRef}>
-      <PenComponent
-        bodyMaterial={defaultBodyMaterial}
-        trimMaterial={defaultTrimMaterial}
-        nibMaterial={defaultNibMaterial}
-        scale={scale}
-        position={position}
-      />
+      <group ref={penGroupRef}>
+        <PenComponent
+          bodyMaterial={defaultBodyMaterial}
+          trimMaterial={defaultTrimMaterial}
+          nibMaterial={defaultNibMaterial}
+          scale={scale}
+          position={position}
+        />
+      </group>
     </group>
   );
 }
@@ -109,7 +115,7 @@ function Scene({ model, position, tiltedRotation, scale }: { model: PenModel, po
 
       <PerspectiveCamera makeDefault position={[0, -0.7, 4]} fov={40} />
 
-      <RotatingPen model={model} position={position} tilted={tiltedRotation} scale={scale}/>
+      <RotatingPen model={model} position={position} tilted={tiltedRotation} scale={scale} />
 
       <ContactShadows
         position={[0, -2, 0]}
@@ -139,7 +145,7 @@ export function RotatingPenDisplay({ model, className, cameraPosition = [0, 0, 0
         dpr={[1, 2]}
       >
         <Suspense fallback={null}>
-          <Scene model={model} position={cameraPosition} tiltedRotation={tiltedRotation} scale={scale}/>
+          <Scene model={model} position={cameraPosition} tiltedRotation={tiltedRotation} scale={scale} />
         </Suspense>
       </Canvas>
     </div>
