@@ -10,6 +10,7 @@ export async function GET(request: Request) {
         .from("WorkOrder")
         .select("*")
         .eq("id", work_id)
+        .eq("isAccepted", true)
         .single();
         
     if(error) {
