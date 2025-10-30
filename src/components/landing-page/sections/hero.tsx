@@ -1,130 +1,182 @@
 "use client"
 
-import React, { useEffect, useRef } from 'react'
-import gsap from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { useGSAP } from '@gsap/react'
-import heroVideoUrl from '@/assets/hero-bg.mp4'
-import { useMediaQuery } from 'react-responsive'
+import React, { useEffect, useRef } from "react";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import Image from "next/image";
+import { Heading } from "../heading";
+import { LandingPagePenViewer } from "@/components/configurator/PenViewer";
+import { RotatingPenDisplay } from "./RotatingPenDisplay";
+import { LandingHeader } from "../landing-header";
 
-const HeroSection = () => {
-  const containerRef = useRef<HTMLElement | null>(null)
-  const videoRef = useRef<HTMLVideoElement | null>(null)
-  const isMobile = useMediaQuery({ maxWidth: 767 });
-
-  useGSAP(
-    () => {
-      if (!containerRef.current || !videoRef.current) return
-
-      gsap.registerPlugin(ScrollTrigger)
-
-      const videoElement = videoRef.current
-      const containerElement = containerRef.current
-
-      const startValue = isMobile ? "top 50%" : "center 60%";
-      const endValue = isMobile ? "120% top" : "bottom top";
-      
-      let tl = gsap.timeline({
-      scrollTrigger: {
-        trigger: "video",
-        start: startValue,
-        end: endValue,
-        scrub: true,
-        pin: true,
-      },
-      });
-      
-      videoRef.current.onloadedmetadata = () => {
-      tl.to(videoRef.current, {
-        currentTime: videoRef.current?.duration,
-      });
-      };
-      // // Ensure initial state
-      // videoElement.pause()
-      // videoElement.currentTime = 0
-
-      // const setupScrollScrub = () => {
-      //   const videoDuration = Number.isFinite(videoElement.duration) && videoElement.duration > 0 ? videoElement.duration : 1
-
-      //   // Kill any existing triggers for idempotency
-      //   ScrollTrigger.getAll().forEach((t) => {
-      //     if ((t as any).vars?.id === 'hero-video-scrub') t.kill()
-      //   })
-
-      //   gsap.to(videoElement, {
-      //     currentTime: videoDuration,
-      //     ease: 'none',
-      //     scrollTrigger: {
-      //       id: 'hero-video-scrub',
-      //       trigger: containerElement,
-      //       start: 'top top',
-      //       end: '+=2000',
-      //       scrub: true,
-      //       pin: true,
-      //       anticipatePin: 1,
-      //     },
-      //   })
-      // }
-
-      // if (Number.isFinite(videoElement.duration) && videoElement.duration > 0) {
-      //   setupScrollScrub()
-      // } else {
-      //   const onLoaded = () => {
-      //     setupScrollScrub()
-      //   }
-      //   videoElement.addEventListener('loadedmetadata', onLoaded, { once: true })
-      // }
-    },
-    { scope: containerRef }
-  )
-
-  // Prevent autoplay on mount in some browsers when scrubbing
-  useEffect(() => {
-    if (videoRef.current) {
-      try {
-        videoRef.current.pause()
-        videoRef.current.currentTime = 0
-      } catch {}
-    }
-  }, [])
-
-  return (
-    <section ref={containerRef} style={{ position: 'relative', width: '100%', minHeight: '100vh', backgroundColor: '#000' }}>
-      <video
-        ref={videoRef}
-        src={"/videos/hero-bg.mp4"}
-        muted
-        playsInline
-        preload="auto"
-        style={{ width: '100%', height: '100vh', objectFit: 'cover', display: 'block' }}
-      />
-
-      <div
-        style={{
-          position: 'absolute',
-          inset: 0,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          color: 'white',
-          textAlign: 'center',
-          pointerEvents: 'none',
-          padding: '0 1rem',
-          background: 'linear-gradient(to bottom, rgba(0,0,0,0.35), rgba(0,0,0,0.35))',
-        }}
-      >
-        <div>
-          <h1 style={{ fontSize: 'clamp(2rem, 6vw, 5rem)', fontWeight: 700, letterSpacing: '-0.02em', margin: 0 }}>Experience the Flow</h1>
-          <p style={{ fontSize: 'clamp(1rem, 2.5vw, 1.5rem)', opacity: 0.85, marginTop: '0.75rem' }}>
-            Scroll to scrub through the moment.
-          </p>
-        </div>
-      </div>
-
-      {/* Spacer after the pinned section for continued scroll */}
-      <div style={{ height: '120vh' }} />
-    </section>
-  )
+// Register ScrollTrigger plugin
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger);
 }
 
-export default HeroSection
+const Hero = () => {
+  const heroRef = useRef<HTMLElement>(null);
+  const craftingRef = useRef<HTMLDivElement>(null);
+  const penRef = useRef<HTMLDivElement>(null);
+  const excellenceRef = useRef<HTMLDivElement>(null);
+  const personImageRef = useRef<HTMLDivElement>(null);
+  const abstractImageRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (!heroRef.current) return;
+
+    // create normal timeline
+    const tlLoad = gsap.timeline({});
+    // Create scrolltriggertimeline for animations
+    const tlScroll = gsap.timeline({
+      scrollTrigger: {
+        trigger: heroRef.current,
+        start: "top top",
+        end: "bottom+=100%",
+        scrub: 1,
+        pin: true,
+      },
+    });
+
+    tlLoad
+      .fromTo(
+        craftingRef.current,
+        { y: 100, opacity: 0 },
+        { y: 0, opacity: 1, duration: 1 },
+      )
+      .fromTo(
+        excellenceRef.current,
+        { y: 100, opacity: 0 },
+        { y: 0, opacity: 1, duration: 1 },
+        "-=0.8",
+      );
+
+    // Animate elements from bottom with opacity
+    tlScroll
+      .fromTo(
+        personImageRef.current,
+        { y: 100, opacity: 0 },
+        { y: 0, opacity: 1, duration: 1 },
+        "-=0.6",
+      )
+      .fromTo(
+        abstractImageRef.current,
+        { y: 100, opacity: 0 },
+        { y: 0, opacity: 1, duration: 1 },
+        "-=0.6",
+      )
+      .fromTo(
+        buttonRef.current,
+        { y: 100, opacity: 0 },
+        { y: 0, opacity: 1, duration: 1 },
+        "-=0.4",
+      );
+
+    return () => {
+      tlLoad.kill();
+      tlScroll.kill();
+    };
+  }, []);
+
+  return (
+    <section
+      ref={heroRef}
+      className="relative min-h-dvh w-full overflow-hidden"
+    >
+      <div className="absolute inset-0">
+        {/* Video Background */}
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover"
+        >
+          <source src="/videos/hero-bg.webm" type="video/mp4" />
+        </video>
+
+        {/* Dark Overlay */}
+        <div className="absolute inset-0 bg-black/80" />
+      </div>
+      <div
+        ref={penRef}
+        className='absolute inset-0 items-center justify-center'
+      >
+        <RotatingPenDisplay model="zeus" cameraPosition={[0, -0.30, 0]} tiltedRotation />
+      </div>
+
+      <LandingHeader />
+
+      {/* Grid Container */}
+      <div className="relative z-10 grid min-h-screen grid-cols-12 grid-rows-12 gap-4 p-8">
+        {/* Crafting Text - Left Side */}
+        <div
+          ref={craftingRef}
+          className="absolute col-start-2 row-start-4 flex items-center justify-start"
+        >
+          <Heading className="tracking-wide text-white" size="xl">
+            Crafting
+          </Heading>
+        </div>
+
+        {/* Person Image - Below Crafting */}
+        <div
+          ref={personImageRef}
+          className="absolute col-start-2 row-start-8 flex items-center justify-start"
+        >
+          <div className="relative h-40 w-32 md:h-58 md:w-109">
+            <Image
+              src="/images/hero/img2.png"
+              alt="Person portrait"
+              fill
+              className="rounded-lg object-cover"
+            />
+          </div>
+        </div>
+
+        {/* Abstract Image - Above Excellence */}
+        <div
+          ref={abstractImageRef}
+          className="absolute col-start-9 col-span-3 row-start-3 flex items-center justify-end"
+        >
+          <div className="relative h-32 w-32 md:h-84 md:w-57">
+            <Image
+              src="/images/hero/img1.png"
+              alt="Abstract image"
+              fill
+              className="rounded-lg object-cover"
+            />
+          </div>
+        </div>
+
+        {/* Excellence Text - Right Side with Mask */}
+        <div
+          ref={excellenceRef}
+          className="absolute col-start-9 col-span-3 row-start-9 flex items-center justify-end"
+        >
+          <Heading
+            className="bg-cover bg-clip-text bg-center tracking-wide text-transparent"
+            size="xl"
+            style={{
+              backgroundImage: "url('/images/hero/text-mask.png')",
+            }}
+          >
+            Excellence
+          </Heading>
+        </div>
+
+      </div>
+        {/* MODIFY Button - Bottom Center */}
+        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-1000 flex items-center justify-center">
+          <button
+            className="rounded-lg border-2 border-yellow-400 px-8 py-4 font-serif text-lg text-yellow-400 transition-all duration-300 hover:bg-yellow-400 hover:text-black"
+          >
+            MODIFY
+          </button>
+        </div>
+    </section>
+  );
+};
+
+export default Hero;

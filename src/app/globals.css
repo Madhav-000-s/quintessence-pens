@@ -213,6 +213,8 @@
   --font-sans: var(--font-sans);
   --font-mono: var(--font-mono);
   --font-serif: var(--font-serif);
+  --font-abril: var(--font-abril-fatface);
+  --font-raleway: var(--font-raleway);
 
   /* Radius */
   --radius-sm: calc(var(--radius) - 4px);
