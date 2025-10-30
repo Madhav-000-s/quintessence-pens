@@ -1,0 +1,19 @@
+{
+  "currency": "INR",
+  "minimumProductionAmount": 50000,
+  "labourCharges": {
+    "manufacture": 1500,
+    "assembly": 500,
+    "finishing": 250,
+    "total": 2250
+  },
+  "tax": 18,
+  "packagingCostPerUnit": 100,
+  "shipping": {
+    "baseCost": 7500,
+    "perUnitCost": 500,
+    "total": 12500
+  },
+  "updatedAt": "2025-10-07T00:00:00.000Z"
+}
+
