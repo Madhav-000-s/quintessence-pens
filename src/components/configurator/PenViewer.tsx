@@ -1,7 +1,7 @@
 "use client";
 
-import { Suspense } from "react";
-import { Canvas } from "@react-three/fiber";
+import { Suspense, useRef } from "react";
+import { Canvas, useFrame } from "@react-three/fiber";
 import {
   OrbitControls,
   Environment,
@@ -13,6 +13,7 @@ import { EffectComposer, Bloom, SSAO } from "@react-three/postprocessing";
 import { ZeusPen } from "./models/ZeusPen";
 import { PoseidonPen } from "./models/PoseidonPen";
 import { HeraPen } from "./models/HeraPen";
+import { AthenaPen } from "./models/AthenaPen";
 import { AnimatedScene } from "./AnimatedScene";
 import { useConfiguratorStore } from "@/lib/store/configurator";
 import {
@@ -26,6 +27,14 @@ import type { PenModel } from "@/types/configurator";
 function Scene() {
   const config = useConfiguratorStore((state) => state.config);
   const currentModel = useConfiguratorStore((state) => state.currentModel);
+  const penGroupRef = useRef<THREE.Group>(null);
+
+  // Continuous rotation animation around vertical axis
+  useFrame((state, delta) => {
+    if (penGroupRef.current) {
+      penGroupRef.current.rotation.y += delta * 0.3; // Slow rotation speed around vertical axis
+    }
+  });
 
   // Get material properties based on configuration
   const bodyMaterial = getMaterialProperties(
@@ -48,6 +57,7 @@ function Scene() {
     zeus: ZeusPen,
     poseidon: PoseidonPen,
     hera: HeraPen,
+    athena: AthenaPen,
   };
 
   const PenComponent = PenModelComponents[currentModel] || ZeusPen;
@@ -57,54 +67,67 @@ function Scene() {
       {/* Camera animations */}
       <AnimatedScene />
 
-      {/* Studio Photography Lighting - Dramatic & Moody */}
+      {/* Museum-Quality Product Lighting - Soft & Elegant */}
 
-      {/* Key light - main dramatic light */}
-      <spotLight
-        position={[8, 8, 8]}
-        angle={0.4}
-        penumbra={0.8}
-        intensity={1.8}
+      {/* Main directional light - soft and warm */}
+      <directionalLight
+        position={[8, 12, 8]}
+        intensity={0.5}
+        color="#fff8e7"
         castShadow
-        shadow-mapSize-width={4096}
-        shadow-mapSize-height={4096}
+        shadow-mapSize-width={2048}
+        shadow-mapSize-height={2048}
         shadow-bias={-0.0001}
+      />
+
+      {/* Fill light - cool and gentle */}
+      <directionalLight
+        position={[-10, 8, 8]}
+        intensity={0.35}
+        color="#f5f5ff"
+      />
+
+      {/* Back accent light - subtle golden rim */}
+      <directionalLight
+        position={[0, 10, -10]}
+        intensity={0.4}
+        color="#fff9e6"
+      />
+
+      {/* Soft point lights for gentle fill */}
+      <pointLight
+        position={[4, 6, 10]}
+        intensity={0.3}
+        color="#ffe8d0"
+        distance={20}
+        decay={2}
+      />
+
+      <pointLight
+        position={[-4, 6, 10]}
+        intensity={0.25}
         color="#ffffff"
+        distance={20}
+        decay={2}
       />
 
-      {/* Fill light - subtle shadow softening */}
-      <spotLight
-        position={[-6, 5, 6]}
-        angle={0.5}
-        penumbra={1}
-        intensity={0.7}
-        color="#f0f0ff"
+      {/* Hemisphere ambient - natural sky/ground lighting */}
+      <hemisphereLight
+        intensity={0.25}
+        color="#ffffff"
+        groundColor="#444444"
       />
 
-      {/* Rim/Back light - edge highlights */}
-      <spotLight
-        position={[0, 6, -8]}
-        angle={0.3}
-        penumbra={0.7}
-        intensity={1.2}
-        color="#fffaf0"
-      />
-
-      {/* Minimal ambient - only lights pen, not background */}
-      <ambientLight intensity={0.15} color="#fafafa" />
-
-      {/* Environment map for reflections only - not background */}
-      <Environment preset="studio" environmentIntensity={0.8} background={false} />
+      {/* Environment map for reflections - very subtle */}
+      <Environment preset="studio" environmentIntensity={0.3} background={false} />
 
       {/* Camera - dramatic product photography angle */}
-      <PerspectiveCamera makeDefault position={[6, 4, 6]} fov={28} />
+      <PerspectiveCamera makeDefault position={[9.6, 6, 9.6]} fov={28} />
 
       {/* Orbit controls - full 3D rotation freedom with useful limits */}
       <OrbitControls
         enablePan={false}
-        enableZoom={true}
-        minDistance={6}
-        maxDistance={15}
+        enableZoom={false}
         enableDamping={true}
         dampingFactor={0.08}
         rotateSpeed={0.6}
@@ -114,21 +137,24 @@ function Scene() {
         autoRotate={false}
       />
 
-      {/* The pen with subtle float - angled at 45 degrees */}
-      <Float
-        speed={2}
-        rotationIntensity={0.2}
-        floatIntensity={0.3}
-        floatingRange={[-0.1, 0.1]}
-      >
-        <PenComponent
-          bodyMaterial={bodyMaterial}
-          trimMaterial={trimMaterial}
-          nibMaterial={nibMaterial}
-          scale={0.5}
-          rotation={[Math.PI / 2.5, 0, Math.PI / 8]}
-        />
-      </Float>
+      {/* Rotating group for continuous pen rotation */}
+      <group ref={penGroupRef}>
+        {/* The pen standing upright */}
+        <Float
+          speed={2}
+          rotationIntensity={0}
+          floatIntensity={0}
+          floatingRange={[-0.1, 0.1]}
+        >
+          <PenComponent
+            bodyMaterial={bodyMaterial}
+            trimMaterial={trimMaterial}
+            nibMaterial={nibMaterial}
+            scale={0.5}
+            rotation={[-Math.PI / 2, -5*Math.PI/6, 0]}
+          />
+        </Float>
+      </group>
 
       {/* Dramatic shadow - crisp and defined */}
       <ContactShadows
@@ -194,10 +220,19 @@ export function PenViewer() {
         </Suspense>
       </Canvas>
 
-      {/* Instructions overlay */}
-      <div className="pointer-events-none absolute bottom-4 left-1/2 -translate-x-1/2 transform rounded-lg bg-white/10 px-4 py-2 text-center backdrop-blur-sm border border-white/20">
-        <p className="text-xs text-white/90 font-medium">
-          Drag to rotate 360° • Scroll to zoom • Tilt to view from any angle
+      {/* Golden Center Glow */}
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background: 'radial-gradient(circle at center, rgba(212, 175, 55, 0.25) 0%, rgba(212, 175, 55, 0.1) 30%, transparent 60%)',
+          mixBlendMode: 'screen'
+        }}
+      />
+
+      {/* 3D Model Visualization Label */}
+      <div className="pointer-events-none absolute bottom-4 left-1/2 -translate-x-1/2 transform">
+        <p className="text-sm font-medium" style={{ color: 'var(--luxury-gold)', opacity: 0.7 }}>
+          3D Model Visualization
         </p>
       </div>
     </div>

@@ -7,8 +7,8 @@ export default function ConfiguratorPage() {
   const router = useRouter();
 
   useEffect(() => {
-    // Redirect to Zeus configurator by default
-    router.replace("/configurator/zeus");
+    // Redirect to Athena configurator by default
+    router.replace("/configurator/athena");
   }, [router]);
 
   return (

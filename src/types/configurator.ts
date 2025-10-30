@@ -1,7 +1,7 @@
 import { LucideIcon } from "lucide-react";
 
 // Pen Model Types
-export type PenModel = "zeus" | "poseidon" | "hera";
+export type PenModel = "zeus" | "poseidon" | "hera" | "athena";
 
 // Material Types
 export type BodyMaterial =

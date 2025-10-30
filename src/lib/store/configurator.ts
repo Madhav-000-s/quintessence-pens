@@ -102,6 +102,7 @@ const MODEL_BASE_PRICES: Record<PenModel, number> = {
   zeus: 1499,     // Premium executive
   poseidon: 1299, // Mid-range luxury
   hera: 999,      // Elegant entry
+  athena: 1199,   // Classic distinguished
 };
 
 // Cache for database data
@@ -214,16 +215,16 @@ function getNibMaterialCost(nibMaterial: string): number {
 }
 
 // Initial pricing calculation (synchronous fallback)
-const initialConfig = createDefaultConfig("zeus");
+const initialConfig = createDefaultConfig("athena");
 let initialPricing: PricingBreakdown = {
-  basePrice: MODEL_BASE_PRICES["zeus"],
+  basePrice: MODEL_BASE_PRICES["athena"],
   bodyMaterialCost: 0,
   nibMaterialCost: 0,
   engravingCost: 0,
   trimCost: 0,
   designCost: 0,
   coatingCost: 0,
-  total: MODEL_BASE_PRICES["zeus"],
+  total: MODEL_BASE_PRICES["athena"],
 };
 
 // Update initial pricing asynchronously
@@ -243,7 +244,7 @@ export const useConfiguratorStore = create<ConfiguratorState>()(
   persist(
     (set, get) => ({
       config: initialConfig,
-      currentModel: "zeus",
+      currentModel: "athena",
       currentSection: "body",
       isAnimating: false,
       isPricingDrawerOpen: false,

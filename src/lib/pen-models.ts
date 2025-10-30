@@ -65,6 +65,24 @@ export const PEN_MODELS: Record<PenModel, PenModelMetadata> = {
     ],
     targetAudience: "Professionals, writers, those appreciating refined aesthetics",
   },
+
+  athena: {
+    id: "athena",
+    name: "Athena",
+    tagline: "Timeless Elegance",
+    description:
+      "Classic and distinguished, the Athena pen exemplifies traditional executive design. With its signature triple gold bands and emblem clip, this pen represents enduring sophistication.",
+    personality: "Classic, traditional, distinguished, timeless",
+    basePrice: 1199,
+    features: [
+      "Classic cigar-shaped proportions",
+      "Signature triple decorative bands",
+      "Emblem clip with circular insignia",
+      "Glossy premium finish",
+      "Traditional executive styling",
+    ],
+    targetAudience: "Executives, collectors, traditionalists, professionals valuing heritage",
+  },
 };
 
 export const getModelMetadata = (model: PenModel): PenModelMetadata => {

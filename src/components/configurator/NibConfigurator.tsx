@@ -64,28 +64,51 @@ export function NibConfigurator() {
         </div>
 
         <div className="flex gap-2">
-          {nibSizes.map((size) => (
-            <TooltipProvider key={size}>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <button
-                    onClick={() => updateConfig("nibSize", size)}
-                    className={cn(
-                      "flex-1 rounded-lg border-2 px-3 py-2 text-center font-medium transition-all hover:border-primary/50",
-                      config.nibSize === size
-                        ? "border-primary bg-primary text-primary-foreground"
-                        : "border-border hover:bg-accent"
-                    )}
-                  >
-                    {size}
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p className="text-sm">{nibSizeDescriptions[size]}</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          ))}
+          {nibSizes.map((size) => {
+            const isSelected = config.nibSize === size;
+            return (
+              <TooltipProvider key={size}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      onClick={() => updateConfig("nibSize", size)}
+                      style={{
+                        flex: 1,
+                        borderRadius: '0.5rem',
+                        border: isSelected ? '2px solid var(--luxury-gold)' : '1px solid rgba(212, 175, 55, 0.3)',
+                        padding: '0.5rem 0.75rem',
+                        textAlign: 'center',
+                        fontSize: '0.875rem',
+                        fontWeight: isSelected ? 600 : 500,
+                        transition: 'all 0.3s',
+                        background: isSelected ? 'var(--luxury-gold)' : '#ffffff',
+                        color: 'var(--luxury-black)',
+                        cursor: 'pointer',
+                        boxShadow: isSelected ? '0 2px 8px rgba(212, 175, 55, 0.25)' : 'none'
+                      }}
+                      onMouseEnter={(e) => {
+                        if (!isSelected) {
+                          e.currentTarget.style.borderColor = 'var(--luxury-gold)';
+                          e.currentTarget.style.background = 'rgba(212, 175, 55, 0.1)';
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (!isSelected) {
+                          e.currentTarget.style.borderColor = 'rgba(212, 175, 55, 0.3)';
+                          e.currentTarget.style.background = '#ffffff';
+                        }
+                      }}
+                    >
+                      {size}
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="text-sm">{nibSizeDescriptions[size]}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            );
+          })}
         </div>
       </div>
 
@@ -93,39 +116,66 @@ export function NibConfigurator() {
       <div className="space-y-3">
         <h4 className="text-sm font-medium">Nib Material</h4>
         <div className="space-y-2">
-          {nibMaterials.map((material) => (
-            <button
-              key={material.value}
-              onClick={() => updateConfig("nibMaterial", material.value)}
-              className={cn(
-                "group relative w-full rounded-lg border-2 p-3 text-left transition-all hover:border-primary/50",
-                config.nibMaterial === material.value
-                  ? "border-primary bg-primary/5"
-                  : "border-border"
-              )}
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium">{material.label}</span>
-                      {material.premium && (
-                        <span className="rounded-full bg-amber-500/10 px-2 py-0.5 text-xs font-medium text-amber-600">
-                          Premium
-                        </span>
-                      )}
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      {nibMaterialDescriptions[material.value]}
+          {nibMaterials.map((material) => {
+            const isSelected = config.nibMaterial === material.value;
+            return (
+              <button
+                key={material.value}
+                onClick={() => updateConfig("nibMaterial", material.value)}
+                style={{
+                  width: '100%',
+                  borderRadius: '0.5rem',
+                  border: isSelected ? '2px solid var(--luxury-gold)' : '1px solid rgba(212, 175, 55, 0.3)',
+                  padding: '0.75rem',
+                  textAlign: 'left',
+                  transition: 'all 0.3s',
+                  background: '#ffffff',
+                  cursor: 'pointer',
+                  boxShadow: isSelected ? '0 0 20px rgba(212, 175, 55, 0.25)' : 'none'
+                }}
+                onMouseEnter={(e) => {
+                  if (!isSelected) {
+                    e.currentTarget.style.borderColor = 'var(--luxury-gold)';
+                    e.currentTarget.style.boxShadow = '0 0 15px rgba(212, 175, 55, 0.2)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!isSelected) {
+                    e.currentTarget.style.borderColor = 'rgba(212, 175, 55, 0.3)';
+                    e.currentTarget.style.boxShadow = 'none';
+                  }
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <span style={{ fontWeight: 600, color: 'var(--luxury-black)' }}>{material.label}</span>
+                        {material.premium && (
+                          <span style={{
+                            borderRadius: '9999px',
+                            background: 'rgba(212, 175, 55, 0.1)',
+                            padding: '0.125rem 0.5rem',
+                            fontSize: '0.75rem',
+                            fontWeight: 600,
+                            color: 'var(--luxury-gold-dark)'
+                          }}>
+                            Premium
+                          </span>
+                        )}
+                      </div>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--luxury-black)', opacity: 0.6, marginTop: '0.25rem' }}>
+                        {nibMaterialDescriptions[material.value]}
+                      </div>
                     </div>
                   </div>
+                  {isSelected && (
+                    <Check style={{ width: '20px', height: '20px', stroke: 'var(--luxury-gold)' }} />
+                  )}
                 </div>
-                {config.nibMaterial === material.value && (
-                  <Check className="h-5 w-5 text-primary" />
-                )}
-              </div>
-            </button>
-          ))}
+              </button>
+            );
+          })}
         </div>
       </div>
 
@@ -133,20 +183,42 @@ export function NibConfigurator() {
       <div className="space-y-3">
         <h4 className="text-sm font-medium">Nib Style</h4>
         <div className="grid grid-cols-2 gap-2">
-          {nibStyles.map((style) => (
-            <button
-              key={style.value}
-              onClick={() => updateConfig("nibStyle", style.value)}
-              className={cn(
-                "rounded-lg border-2 px-4 py-3 text-center text-sm font-medium transition-all hover:border-primary/50",
-                config.nibStyle === style.value
-                  ? "border-primary bg-primary text-primary-foreground"
-                  : "border-border hover:bg-accent"
-              )}
-            >
-              {style.label}
-            </button>
-          ))}
+          {nibStyles.map((style) => {
+            const isSelected = config.nibStyle === style.value;
+            return (
+              <button
+                key={style.value}
+                onClick={() => updateConfig("nibStyle", style.value)}
+                style={{
+                  borderRadius: '0.5rem',
+                  border: isSelected ? '2px solid var(--luxury-gold)' : '1px solid rgba(212, 175, 55, 0.3)',
+                  padding: '0.75rem 1rem',
+                  textAlign: 'center',
+                  fontSize: '0.875rem',
+                  fontWeight: isSelected ? 600 : 500,
+                  transition: 'all 0.3s',
+                  background: isSelected ? 'var(--luxury-gold)' : '#ffffff',
+                  color: 'var(--luxury-black)',
+                  cursor: 'pointer',
+                  boxShadow: isSelected ? '0 2px 8px rgba(212, 175, 55, 0.25)' : 'none'
+                }}
+                onMouseEnter={(e) => {
+                  if (!isSelected) {
+                    e.currentTarget.style.borderColor = 'var(--luxury-gold)';
+                    e.currentTarget.style.background = 'rgba(212, 175, 55, 0.1)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!isSelected) {
+                    e.currentTarget.style.borderColor = 'rgba(212, 175, 55, 0.3)';
+                    e.currentTarget.style.background = '#ffffff';
+                  }
+                }}
+              >
+                {style.label}
+              </button>
+            );
+          })}
         </div>
       </div>
     </div>

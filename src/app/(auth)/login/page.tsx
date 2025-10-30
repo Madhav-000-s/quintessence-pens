@@ -1,17 +1,22 @@
-
-"use client"
+"use client";
 
 import { useState } from "react";
 import { supabase } from "@/supabase-client";
+import { useRouter } from "next/navigation";
 
 export default function AuthPage() {
   const [mode, setMode] = useState<"login" | "signup">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
+  const [firstname, setFirstname] = useState("");
+  const [lastname, setLastname] = useState("");
+  const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -19,28 +24,50 @@ export default function AuthPage() {
     setSuccess(null);
     setLoading(true);
 
+    // Define the API route and body based on the mode
+    let apiRoute = "";
+    let body: any;
+
     if (mode === "login") {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-      if (error) {
-        setError(error.message);
-      } else {
-        setSuccess("Logged in successfully!");
-      }
+      apiRoute = "/api/login";
+      body = { email, password };
     } else {
-      const { error } = await supabase.auth.signUp({
+      apiRoute = "/api/signup";
+      body = {
         email,
         password,
-        options: { data: { display_name: username } },
-      });
-      if (error) {
-        setError(error.message);
-      } else {
-        setSuccess("Signup successful! Please check your email to confirm.");
-      }
+        display_name: username,
+        firstname,
+        lastname,
+        phone,
+      };
     }
+
+    try {
+      const response = await fetch(apiRoute, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.error?.message || "An unexpected error occurred.");
+      } else {
+        if (mode === "login") {
+          setSuccess("Logged in successfully! Redirecting...");
+          router.push('/superadmin/dashboard');
+        } else {
+          setSuccess(data.message || "Signed up successfully!");
+        }
+      }
+    } catch (error) {
+      setError("Failed to connect to the server. Please try again.");
+    }
+
     setLoading(false);
   };
 
@@ -71,7 +98,7 @@ export default function AuthPage() {
             Signup
           </button>
         </div>
-        
+
         <div className="flex flex-col gap-4">
           <input
             type="email"
@@ -79,7 +106,7 @@ export default function AuthPage() {
             className="bg-background border border-input rounded-lg px-3 py-2 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent disabled:opacity-50"
             required
             value={email}
-            onChange={e => setEmail(e.target.value)}
+            onChange={(e) => setEmail(e.target.value)}
             disabled={loading}
           />
           <input
@@ -88,19 +115,48 @@ export default function AuthPage() {
             className="bg-background border border-input rounded-lg px-3 py-2 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent disabled:opacity-50"
             required
             value={password}
-            onChange={e => setPassword(e.target.value)}
+            onChange={(e) => setPassword(e.target.value)}
             disabled={loading}
           />
           {mode === "signup" && (
-            <input
-              type="text"
-              placeholder="Username"
-              className="bg-background border border-input rounded-lg px-3 py-2 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent disabled:opacity-50"
-              required
-              value={username}
-              onChange={e => setUsername(e.target.value)}
-              disabled={loading}
-            />
+            <div className="flex flex-col gap-2">
+              <input
+                type="text"
+                placeholder="Username"
+                className="bg-background border border-input rounded-lg px-3 py-2 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent disabled:opacity-50"
+                required
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                disabled={loading}
+              />
+              <input
+                type="text"
+                placeholder="First Name"
+                className="bg-background border border-input rounded-lg px-3 py-2 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent disabled:opacity-50"
+                required
+                value={firstname}
+                onChange={(e) => setFirstname(e.target.value)}
+                disabled={loading}
+              />
+              <input
+                type="text"
+                placeholder="Last Name"
+                className="bg-background border border-input rounded-lg px-3 py-2 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent disabled:opacity-50"
+                required
+                value={lastname}
+                onChange={(e) => setLastname(e.target.value)}
+                disabled={loading}
+              />
+              <input
+                type="tel"
+                placeholder="Phone Number"
+                className="bg-background border border-input rounded-lg px-3 py-2 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent disabled:opacity-50"
+                required
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                disabled={loading}
+              />
+            </div>
           )}
           <button
             type="submit"
@@ -117,7 +173,7 @@ export default function AuthPage() {
               : "Signup"}
           </button>
         </div>
-        
+
         {error && (
           <div className="mt-4 text-destructive text-center text-sm font-medium bg-destructive/10 border border-destructive/20 rounded-lg p-3">
             {error}
@@ -128,7 +184,7 @@ export default function AuthPage() {
             {success}
           </div>
         )}
-        
+
         {mode === "login" && (
           <div className="mt-6 text-sm text-center text-muted-foreground">
             Don't have an account?{" "}

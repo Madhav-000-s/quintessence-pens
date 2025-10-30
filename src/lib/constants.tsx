@@ -1,6 +1,6 @@
 // Menu items.
 import { PageItem } from "@/types/navigation";
-import { ClipboardList, Factory, FileText, FileCheck, ShieldCheck, Banknote, Boxes, Users, Building2, AlertCircle, PanelsLeftBottom } from "lucide-react";
+import { ClipboardList, Factory, FileText, FileCheck, ShieldCheck, Banknote, Boxes, Users, Building2, AlertCircle, PanelsLeftBottom, Shield } from "lucide-react";
 
 
 export const SUPERADMIN_MENU_ITEMS: PageItem[] = [
@@ -58,5 +58,10 @@ export const SUPERADMIN_MENU_ITEMS: PageItem[] = [
     title: "Customer Greivance",
     url: "/superadmin/dashboard/grievances",
     icon: AlertCircle,
+  },
+  {
+    title: "Manage Admins",
+    url: "/superadmin/dashboard/manage-admins",
+    icon: Shield,
   },
 ]

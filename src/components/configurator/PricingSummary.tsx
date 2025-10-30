@@ -76,23 +76,17 @@ export function PricingSummary() {
       <div
         ref={drawerRef}
         className={cn(
-          "fixed bottom-0 left-0 right-0 z-50 mx-auto max-w-2xl transition-transform duration-300 ease-out",
-          "rounded-t-2xl border-t bg-card shadow-2xl",
-          "lg:bottom-24 lg:left-8 lg:right-auto lg:rounded-2xl lg:border",
+          "fixed left-0 top-0 bottom-0 z-50 w-full max-w-md transition-transform duration-300 ease-out",
+          "border-r bg-card shadow-2xl overflow-y-auto",
           isPricingDrawerOpen
-            ? "translate-y-0"
-            : "translate-y-full lg:translate-y-[120%]"
+            ? "translate-x-0"
+            : "-translate-x-full"
         )}
         role="dialog"
         aria-modal="true"
         aria-labelledby="pricing-drawer-title"
       >
-        {/* Drawer Handle (mobile only) */}
-        <div className="flex justify-center pt-3 lg:hidden">
-          <div className="h-1 w-12 rounded-full bg-muted" />
-        </div>
-
-        <div className="space-y-4 p-6">
+        <div className="space-y-4 p-6 h-full">
           {/* Header */}
           <div className="flex items-start justify-between">
             <div className="space-y-1">

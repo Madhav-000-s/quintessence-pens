@@ -65,33 +65,86 @@ export function ColorPicker() {
                   {category}
                 </h4>
                 <div className="grid grid-cols-5 gap-2">
-                  {categoryColors.map((color) => (
-                    <button
-                      key={color.hex}
-                      onClick={() => handleColorSelect(color)}
-                      className={cn(
-                        "group relative aspect-square overflow-hidden rounded-lg border-2 transition-all hover:scale-105",
-                        config.bodyColor === color.hex
-                          ? "border-primary ring-2 ring-primary ring-offset-2"
-                          : "border-transparent hover:border-primary/50"
-                      )}
-                      title={`${color.name}${color.cost > 0 ? ` (+$${color.cost})` : ""}`}
-                    >
-                      <div
-                        className="h-full w-full"
-                        style={{ backgroundColor: color.hex }}
-                      />
-                      {config.bodyColor === color.hex && (
-                        <div className="absolute inset-0 flex items-center justify-center bg-black/20">
-                          <Check className="h-5 w-5 text-white drop-shadow-lg" />
+                  {categoryColors.map((color) => {
+                    const isSelected = config.bodyColor === color.hex;
+                    return (
+                      <button
+                        key={color.hex}
+                        onClick={() => handleColorSelect(color)}
+                        style={{
+                          position: 'relative',
+                          aspectRatio: '1',
+                          overflow: 'hidden',
+                          borderRadius: '0.5rem',
+                          border: isSelected ? '2px solid var(--luxury-gold)' : '1px solid rgba(212, 175, 55, 0.3)',
+                          transition: 'all 0.3s',
+                          cursor: 'pointer',
+                          boxShadow: isSelected ? '0 0 20px rgba(212, 175, 55, 0.25)' : 'none'
+                        }}
+                        title={`${color.name}${color.cost > 0 ? ` (+$${color.cost})` : ""}`}
+                        onMouseEnter={(e) => {
+                          if (!isSelected) {
+                            e.currentTarget.style.borderColor = 'var(--luxury-gold)';
+                            e.currentTarget.style.transform = 'scale(1.05)';
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (!isSelected) {
+                            e.currentTarget.style.borderColor = 'rgba(212, 175, 55, 0.3)';
+                            e.currentTarget.style.transform = 'scale(1)';
+                          }
+                        }}
+                      >
+                        <div
+                          style={{
+                            height: '100%',
+                            width: '100%',
+                            backgroundColor: color.hex
+                          }}
+                        />
+                        {isSelected && (
+                          <div style={{
+                            position: 'absolute',
+                            inset: 0,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            background: 'rgba(0, 0, 0, 0.2)'
+                          }}>
+                            <Check style={{
+                              width: '20px',
+                              height: '20px',
+                              stroke: '#ffffff',
+                              filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5))'
+                            }} />
+                          </div>
+                        )}
+                        <div
+                          className="group-hover:translate-y-0"
+                          style={{
+                            position: 'absolute',
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            transform: 'translateY(100%)',
+                            background: 'rgba(0, 0, 0, 0.8)',
+                            backdropFilter: 'blur(4px)',
+                            padding: '0.25rem',
+                            textAlign: 'center',
+                            fontSize: '0.75rem',
+                            color: '#ffffff',
+                            transition: 'transform 0.3s'
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.transform = 'translateY(0)';
+                          }}
+                        >
+                          {color.name}
+                          {color.cost > 0 && <span style={{ display: 'block', fontSize: '0.625rem' }}>+${color.cost}</span>}
                         </div>
-                      )}
-                      <div className="absolute inset-x-0 bottom-0 translate-y-full bg-black/80 px-1 py-1 text-center text-xs text-white backdrop-blur-sm transition-transform group-hover:translate-y-0">
-                        {color.name}
-                        {color.cost > 0 && <span className="block text-[10px]">+${color.cost}</span>}
-                      </div>
-                    </button>
-                  ))}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             );

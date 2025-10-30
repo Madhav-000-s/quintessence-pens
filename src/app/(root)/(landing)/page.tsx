@@ -1,3 +1,4 @@
+"use client"
 import HeroSection from '@/components/landing-page/sections/hero'
 import { Catalog } from '@/components/landing-page/sections/catalog'
 import { Production } from '@/components/landing-page/sections/production'

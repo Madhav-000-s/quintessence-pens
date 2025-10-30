@@ -101,20 +101,42 @@ export function EngravingEditor() {
       <div className="space-y-3">
         <Label>Engraving Location</Label>
         <div className="grid grid-cols-2 gap-2">
-          {locations.map((location) => (
-            <button
-              key={location.value}
-              onClick={() => handleLocationChange(location.value)}
-              className={cn(
-                "rounded-lg border-2 px-4 py-3 text-center text-sm font-medium transition-all hover:border-primary/50",
-                config.engraving.location === location.value
-                  ? "border-primary bg-primary text-primary-foreground"
-                  : "border-border hover:bg-accent"
-              )}
-            >
-              {location.label}
-            </button>
-          ))}
+          {locations.map((location) => {
+            const isSelected = config.engraving.location === location.value;
+            return (
+              <button
+                key={location.value}
+                onClick={() => handleLocationChange(location.value)}
+                style={{
+                  borderRadius: '0.5rem',
+                  border: isSelected ? '2px solid var(--luxury-gold)' : '1.5px solid var(--luxury-gray-200)',
+                  padding: '0.75rem 1rem',
+                  textAlign: 'center',
+                  fontSize: '0.875rem',
+                  fontWeight: isSelected ? 600 : 500,
+                  transition: 'all 0.3s',
+                  background: isSelected ? 'var(--luxury-gold)' : '#ffffff',
+                  color: isSelected ? 'var(--luxury-black)' : 'var(--luxury-gray-700)',
+                  cursor: 'pointer',
+                  boxShadow: isSelected ? '0 2px 8px rgba(212, 175, 55, 0.25)' : 'none'
+                }}
+                onMouseEnter={(e) => {
+                  if (!isSelected) {
+                    e.currentTarget.style.borderColor = 'var(--luxury-gold)';
+                    e.currentTarget.style.background = 'var(--luxury-gray-50)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!isSelected) {
+                    e.currentTarget.style.borderColor = 'var(--luxury-gray-200)';
+                    e.currentTarget.style.background = '#ffffff';
+                  }
+                }}
+              >
+                {location.label}
+              </button>
+            );
+          })}
         </div>
       </div>
 
@@ -129,37 +151,57 @@ export function EngravingEditor() {
               </div>
             ) : (
               <div className="space-y-2">
-                {engravingOptions.map((option) => (
-                  <button
-                    key={option.engravingId}
-                    onClick={() => handleEngravingTypeChange(option)}
-                    className={cn(
-                      "w-full rounded-lg border-2 p-3 text-left transition-all hover:border-primary/50",
-                      selectedEngravingId === option.engravingId
-                        ? "border-primary bg-primary/5"
-                        : "border-border"
-                    )}
-                  >
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium">{option.typeName}</span>
-                          {option.cost > 0 && (
-                            <span className="text-xs text-muted-foreground">
-                              +${option.cost}
-                            </span>
-                          )}
+                {engravingOptions.map((option) => {
+                  const isSelected = selectedEngravingId === option.engravingId;
+                  return (
+                    <button
+                      key={option.engravingId}
+                      onClick={() => handleEngravingTypeChange(option)}
+                      style={{
+                        width: '100%',
+                        borderRadius: '0.5rem',
+                        border: isSelected ? '2px solid var(--luxury-gold)' : '1.5px solid var(--luxury-gray-200)',
+                        padding: '0.75rem',
+                        textAlign: 'left',
+                        transition: 'all 0.3s',
+                        background: isSelected ? 'var(--luxury-gray-50)' : '#ffffff',
+                        cursor: 'pointer',
+                        boxShadow: isSelected ? '0 0 20px rgba(212, 175, 55, 0.25)' : '0 2px 4px rgba(10, 10, 15, 0.05)'
+                      }}
+                      onMouseEnter={(e) => {
+                        if (!isSelected) {
+                          e.currentTarget.style.borderColor = 'var(--luxury-gold-muted)';
+                          e.currentTarget.style.boxShadow = '0 4px 12px rgba(212, 175, 55, 0.15)';
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (!isSelected) {
+                          e.currentTarget.style.borderColor = 'var(--luxury-gray-200)';
+                          e.currentTarget.style.boxShadow = '0 2px 4px rgba(10, 10, 15, 0.05)';
+                        }
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                            <span style={{ fontWeight: 600, color: 'var(--luxury-black)' }}>{option.typeName}</span>
+                            {option.cost > 0 && (
+                              <span style={{ fontSize: '0.75rem', color: 'var(--luxury-gold)', fontWeight: 600 }}>
+                                +${option.cost}
+                              </span>
+                            )}
+                          </div>
+                          <div style={{ fontSize: '0.75rem', color: 'var(--luxury-gray-600)', marginTop: '0.25rem' }}>
+                            {option.description} • {option.font} font
+                          </div>
                         </div>
-                        <div className="text-xs text-muted-foreground">
-                          {option.description} • {option.font} font
-                        </div>
+                        {isSelected && (
+                          <Check style={{ width: '20px', height: '20px', stroke: 'var(--luxury-gold)', flexShrink: 0 }} />
+                        )}
                       </div>
-                      {selectedEngravingId === option.engravingId && (
-                        <Check className="h-5 w-5 text-primary" />
-                      )}
-                    </div>
-                  </button>
-                ))}
+                    </button>
+                  );
+                })}
               </div>
             )}
           </div>
