@@ -5,6 +5,22 @@ import { gsap } from "gsap";
 import { Heading } from "@/components/landing-page/heading";
 import Image from "next/image";
 import { Package, Clock, CheckCircle, XCircle, Calendar, DollarSign } from "lucide-react";
+import { PenPreview } from "@/components/configurator/PenPreview";
+import type { PenModel } from "@/types/configurator";
+
+interface PenConfiguration {
+  model: PenModel;
+  bodyColor: string;
+  bodyMaterial: string;
+  bodyFinish: string;
+  trimFinish: string;
+  nibMaterial: string;
+  engraving?: {
+    text: string;
+    font: string;
+    location: string;
+  };
+}
 
 interface Order {
   status: string;
@@ -14,6 +30,10 @@ interface Order {
   pen: string;
   created_at: string;
   count: number;
+}
+
+interface OrderWithConfig extends Order {
+  penConfig?: PenConfiguration;
 }
 
 const statusConfig = {
@@ -48,10 +68,11 @@ const statusConfig = {
 };
 
 export default function OrdersPage() {
-  const [orders, setOrders] = useState<Order[]>([]);
+  const [orders, setOrders] = useState<OrderWithConfig[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedFilter, setSelectedFilter] = useState<string>("all");
+  const [loadingPenConfigs, setLoadingPenConfigs] = useState<Set<string>>(new Set());
   
   const headerRef = useRef<HTMLDivElement>(null);
   const ordersRef = useRef<HTMLDivElement>(null);
@@ -90,12 +111,48 @@ export default function OrdersPage() {
         throw new Error("Failed to fetch orders");
       }
 
-      const data = await response.json();
+      const data: Order[] = await response.json();
       setOrders(data);
+      
+      // Fetch pen configurations for each order
+      data.forEach(order => {
+        fetchPenConfig(order.pen);
+      });
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchPenConfig = async (penId: string) => {
+    // Avoid duplicate fetches
+    if (loadingPenConfigs.has(penId)) return;
+    
+    setLoadingPenConfigs(prev => new Set(prev).add(penId));
+
+    try {
+      const response = await fetch(`/api/pen-details?pen_id=${penId}`);
+      
+      if (response.ok) {
+        const config: PenConfiguration = await response.json();
+        
+        setOrders(prevOrders => 
+          prevOrders.map(order => 
+            order.pen === penId 
+              ? { ...order, penConfig: config }
+              : order
+          )
+        );
+      }
+    } catch (err) {
+      console.error(`Failed to fetch pen config for ${penId}:`, err);
+    } finally {
+      setLoadingPenConfigs(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(penId);
+        return newSet;
+      });
     }
   };
 
@@ -231,8 +288,23 @@ export default function OrdersPage() {
                     <div className="absolute right-0 top-0 h-12 w-12 border-r-2 border-t-2 border-amber-400/20 transition-all group-hover:border-amber-400/40" />
 
                     <div className="p-6 sm:p-8">
-                      <div className="grid gap-6 lg:grid-cols-3">
-                        {/* Left: Order Details */}
+                      <div className="grid gap-6 lg:grid-cols-4">
+                        {/* Left: Pen Preview */}
+                        <div className="flex items-center justify-center lg:col-span-1">
+                          {order.penConfig ? (
+                            <PenPreview 
+                              config={order.penConfig} 
+                              size="md"
+                              className="rounded-lg border border-amber-400/20 bg-black/60"
+                            />
+                          ) : (
+                            <div className="flex h-48 w-48 items-center justify-center rounded-lg border border-amber-400/20 bg-black/60">
+                              <div className="h-8 w-8 animate-spin rounded-full border-4 border-amber-400/30 border-t-amber-400" />
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Middle: Order Details */}
                         <div className="lg:col-span-2">
                           <div className="mb-4 flex items-start justify-between">
                             <div>

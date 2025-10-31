@@ -2,8 +2,15 @@
 
 import { useRef, useMemo } from "react";
 import { useFrame } from "@react-three/fiber";
+import { Text3D, Center } from "@react-three/drei";
 import * as THREE from "three";
 import type { MaterialProperties } from "@/types/configurator";
+
+interface EngravingConfig {
+  text: string;
+  font: string;
+  location: string;
+}
 
 interface ProceduralPenProps {
   bodyMaterial: MaterialProperties;
@@ -12,6 +19,7 @@ interface ProceduralPenProps {
   scale?: number;
   rotation?: [number, number, number];
   position?: [number, number, number];
+  engraving?: EngravingConfig;
 }
 
 export function ZeusPen({
@@ -21,6 +29,7 @@ export function ZeusPen({
   scale = 1,
   rotation = [0, 0, 0],
   position = [0, 0, 0],
+  engraving,
 }: ProceduralPenProps) {
   const penGroupRef = useRef<THREE.Group>(null);
 
@@ -103,6 +112,8 @@ export function ZeusPen({
             emissiveIntensity={bodyMaterial.emissiveIntensity || 0}
             envMapIntensity={1.5}
             reflectivity={0.8}
+            map={bodyMaterial.map}
+            normalMap={bodyMaterial.normalMap}
           />
         </mesh>
 
@@ -228,8 +239,42 @@ export function ZeusPen({
             emissiveIntensity={bodyMaterial.emissiveIntensity || 0}
             envMapIntensity={1.5}
             reflectivity={0.8}
+            map={bodyMaterial.map}
+            normalMap={bodyMaterial.normalMap}
           />
         </mesh>
+
+        {/* Engraving on barrel - etched into surface */}
+        {engraving && engraving.text && engraving.location !== "none" && (
+          <group position={[0, barrelLength / 24, barrelMaxRadius + 0.003]} rotation={[0, 0, Math.PI / 2]}>
+            <Center>
+              <Text3D
+                font="https://threejs.org/examples/fonts/helvetiker_regular.typeface.json"
+                size={0.35}
+                height={0.006}
+                curveSegments={8}
+                bevelEnabled={true}
+                bevelThickness={0.001}
+                bevelSize={0.0005}
+                bevelSegments={2}
+              >
+                {engraving.text}
+                <meshPhysicalMaterial
+                  color={trimMaterial.color}
+                  metalness={0.9}
+                  roughness={0.3}
+                  emissive={trimMaterial.color}
+                  emissiveIntensity={0.2}
+                  envMapIntensity={1.5}
+                  clearcoat={0.2}
+                  clearcoatRoughness={0.3}
+                  transparent={true}
+                  opacity={0.8}
+                />
+              </Text3D>
+            </Center>
+          </group>
+        )}
 
         {/* Center decorative band */}
         <mesh castShadow position={[0, barrelLength / 2 - 0.2, 0]}>
@@ -368,22 +413,22 @@ export function ZeusPen({
             const nibShape = new THREE.Shape();
             const nibWidth = 0.35;
             const nibBaseWidth = 0.25;
-            
+
             // Start at top center
             nibShape.moveTo(0, nibLength / 2);
-            
+
             // Top shoulders (wider)
             nibShape.lineTo(nibWidth / 2, nibLength / 2);
             nibShape.lineTo(nibWidth / 2, nibLength / 3);
-            
+
             // Taper to narrower body
             nibShape.lineTo(nibBaseWidth / 2, nibLength / 6);
             nibShape.lineTo(nibBaseWidth / 2, -nibLength / 3);
-            
+
             // Taper to point
             nibShape.lineTo(nibBaseWidth / 3, -nibLength / 2);
             nibShape.lineTo(0, -nibLength / 1.8);
-            
+
             // Mirror for other side
             nibShape.lineTo(-nibBaseWidth / 3, -nibLength / 2);
             nibShape.lineTo(-nibBaseWidth / 2, -nibLength / 3);

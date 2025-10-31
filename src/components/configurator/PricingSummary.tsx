@@ -6,7 +6,8 @@ import { Separator } from "@/components/ui/separator";
 import { ShoppingCart, Check, X, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { CheckoutDialog } from "./CheckoutDialog";
 
 export function PricingSummary() {
   const pricing = useConfiguratorStore((state) => state.pricing);
@@ -18,6 +19,8 @@ export function PricingSummary() {
     (state) => state.setPricingDrawerOpen
   );
   const drawerRef = useRef<HTMLDivElement>(null);
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+  const [cartItems, setCartItems] = useState<any[]>([]);
 
   const items = [
     { label: "Base Pen", amount: pricing.basePrice },
@@ -169,8 +172,53 @@ export function PricingSummary() {
             <Check className="h-3 w-3" />
             <span>Handcrafted to order • 4-6 weeks delivery</span>
           </div>
+
+          {/* Checkout Button */}
+          <div className="pt-4 space-y-3">
+            <Button
+              onClick={() => {
+                // TODO: Fetch actual cart items from API
+                setCartItems([
+                  {
+                    id: 1,
+                    pen_id: 1,
+                    count: quantity,
+                    total_price: pricing.total * quantity,
+                    penConfig: {
+                      model: "zeus",
+                      bodyColor: "#1a1a1a",
+                      bodyMaterial: "resin",
+                      bodyFinish: "polished",
+                      trimFinish: "gold",
+                      nibMaterial: "gold",
+                    }
+                  }
+                ]);
+                setIsCheckoutOpen(true);
+              }}
+              className="w-full bg-gradient-to-r from-amber-400 to-amber-500 text-black hover:shadow-lg hover:shadow-amber-400/50 font-semibold"
+              size="lg"
+            >
+              <ShoppingCart className="mr-2 h-5 w-5" />
+              Proceed to Checkout
+            </Button>
+            <p className="text-center text-xs text-muted-foreground">
+              Secure payment • Free shipping on orders over $500
+            </p>
+          </div>
         </div>
       </div>
+
+      {/* Checkout Dialog */}
+      <CheckoutDialog
+        isOpen={isCheckoutOpen}
+        onClose={() => setIsCheckoutOpen(false)}
+        cartItems={cartItems}
+        onCheckoutComplete={() => {
+          // Handle successful checkout
+          console.log("Checkout completed!");
+        }}
+      />
     </>
   );
 }

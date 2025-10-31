@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useRef } from "react";
+import { Suspense, useRef, useState, useEffect } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import {
   OrbitControls,
@@ -36,12 +36,64 @@ function Scene() {
     }
   });
 
+  // Load texture if selected
+  const [bodyTexture, setBodyTexture] = useState<THREE.Texture | null>(null);
+  const [textureLoadFailed, setTextureLoadFailed] = useState(false);
+
+  useEffect(() => {
+    if (config.bodyTexture) {
+      const textureLoader = new THREE.TextureLoader();
+      setTextureLoadFailed(false);
+
+      textureLoader.load(
+        config.bodyTexture,
+        (texture) => {
+          texture.wrapS = THREE.RepeatWrapping;
+          texture.wrapT = THREE.RepeatWrapping;
+          texture.repeat.set(2, 2); // Adjust tiling
+          setBodyTexture(texture);
+          setTextureLoadFailed(false);
+          console.log('✓ Texture loaded:', config.bodyTexture);
+        },
+        undefined,
+        (error) => {
+          console.warn('✗ Texture file not found:', config.bodyTexture);
+          console.warn('→ Download textures from sources in TEXTURE_SOURCES.md');
+          console.warn('→ Place files in /public/textures/ directory');
+          setBodyTexture(null);
+          setTextureLoadFailed(true);
+        }
+      );
+    } else {
+      setBodyTexture(null);
+      setTextureLoadFailed(false);
+    }
+  }, [config.bodyTexture]);
+
   // Get material properties based on configuration
-  const bodyMaterial = getMaterialProperties(
+  let bodyMaterial = getMaterialProperties(
     config.bodyMaterial,
     config.bodyColor,
     config.bodyFinish
   );
+
+  // Override material properties when texture is loaded
+  if (bodyTexture && !textureLoadFailed) {
+    bodyMaterial = {
+      ...bodyMaterial,
+      color: "#ffffff", // White so texture shows through without tint
+      map: bodyTexture,
+      normalMap: bodyTexture,
+      metalness: 0.3,
+      roughness: 0.6,
+    };
+  } else if (textureLoadFailed && config.bodyTexture) {
+    // Fallback to brown if texture failed to load
+    bodyMaterial = {
+      ...bodyMaterial,
+      color: "#8B4513",
+    };
+  }
 
   const trimMaterial = getTrimProperties(config.trimFinish);
 
@@ -151,7 +203,8 @@ function Scene() {
             trimMaterial={trimMaterial}
             nibMaterial={nibMaterial}
             scale={0.5}
-            rotation={[-Math.PI / 2, -5*Math.PI/6, 0]}
+            rotation={[-Math.PI / 2, -5 * Math.PI / 6, 0]}
+            engraving={config.engraving}
           />
         </Float>
       </group>
@@ -240,19 +293,19 @@ export function PenViewer() {
 }
 
 export const LandingPagePenViewer = () => (
-      <Canvas
-        shadows
-        gl={{
-          antialias: true,
-          toneMapping: THREE.ACESFilmicToneMapping,
-          toneMappingExposure: 0.95,
-          outputColorSpace: THREE.SRGBColorSpace,
-          alpha: false,
-        }}
-        dpr={[1, 2]}
-      >
-        <Suspense fallback={null}>
-          <Scene />
-        </Suspense>
-      </Canvas>
+  <Canvas
+    shadows
+    gl={{
+      antialias: true,
+      toneMapping: THREE.ACESFilmicToneMapping,
+      toneMappingExposure: 0.95,
+      outputColorSpace: THREE.SRGBColorSpace,
+      alpha: false,
+    }}
+    dpr={[1, 2]}
+  >
+    <Suspense fallback={null}>
+      <Scene />
+    </Suspense>
+  </Canvas>
 )

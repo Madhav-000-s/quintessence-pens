@@ -153,6 +153,7 @@ export function adaptDesignsToColors(
       },
     ];
   }
+  
 
   const mappedColors = designs.map((design) => {
     // Fix hex code if needed (some have incorrect values in DB)
@@ -177,6 +178,7 @@ export function adaptDesignsToColors(
     };
   });
 
+  console.log(deduplicateColors(mappedColors))
   // Deduplicate by hex code, keeping lowest cost option
   return deduplicateColors(mappedColors);
 }

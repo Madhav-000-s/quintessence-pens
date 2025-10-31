@@ -8,7 +8,8 @@ export async function addToCart(
   penId: number,
   customerId: number,
   count: number,
-  totalPrice: number
+  totalPrice: number,
+  isBusiness: boolean = false
 ): Promise<CartItemResponse> {
   const requestBody: AddToCartRequest = {
     customer: customerId,
@@ -28,11 +29,8 @@ export async function addToCart(
     const error = await response.json();
     throw new Error(error.error || "Failed to add item to cart");
   }
-  const response2 = await fetch("/api/generate", {
-    method: "POST",
-    headers: { "Content-Type": "application/json"},
-    body: JSON.stringify(penId)
-  });
+
+
   return response.json();
 }
 

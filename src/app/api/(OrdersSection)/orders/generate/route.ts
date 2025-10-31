@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
             subtotal: subtotal,
             tax_amt: taxAmount,
             grand_total: totalWithTax,
-            isBusnies: body.isBusines,
+            isBusiness: body.isBusines,
             status: "awaiting confirmation",
             material_wts: requiredMaterialsAndWts
         });

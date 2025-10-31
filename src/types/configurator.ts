@@ -86,6 +86,7 @@ export interface PenConfiguration {
   bodyColor: string; // Hex color
   bodyPattern: BodyPattern;
   bodyFinish: BodyFinish;
+  bodyTexture?: string; // Optional texture URL
 
   // Nib
   nibSize: NibSize;
@@ -140,6 +141,8 @@ export interface MaterialProperties {
   emissiveIntensity?: number;
   clearcoat?: number;
   clearcoatRoughness?: number;
+  map?: any; // Texture map
+  normalMap?: any; // Normal map for depth
 }
 
 // Configuration Section
