@@ -29,6 +29,14 @@ interface ExtendedShippingRecord extends ShippingRecord {
     pentype: string;
     cost: number;
   };
+  work_order?: {
+    id: number;
+    count: number;
+    defective: number;
+    status: string;
+    grand_total: number;
+    unit_cost: number;
+  };
 }
 
 export default function ShippingPage() {
@@ -154,6 +162,7 @@ export default function ShippingPage() {
                 <thead className="border-b bg-muted/50">
                   <tr>
                     <th className="p-3 text-left text-sm font-medium">ID</th>
+                    <th className="p-3 text-left text-sm font-medium">Work Order</th>
                     <th className="p-3 text-left text-sm font-medium">Customer</th>
                     <th className="p-3 text-left text-sm font-medium">Pen Type</th>
                     <th className="p-3 text-right text-sm font-medium">Total</th>
@@ -168,7 +177,7 @@ export default function ShippingPage() {
                 <tbody>
                   {records.length === 0 ? (
                     <tr>
-                      <td colSpan={8} className="p-8 text-center text-muted-foreground">
+                      <td colSpan={9} className="p-8 text-center text-muted-foreground">
                         No shipping records found
                       </td>
                     </tr>
@@ -179,6 +188,20 @@ export default function ShippingPage() {
                         className="border-b last:border-0 hover:bg-muted/50"
                       >
                         <td className="p-3 text-sm font-medium">#{record.id}</td>
+                        <td className="p-3 text-sm">
+                          {record.work_order ? (
+                            <div className="flex flex-col gap-0.5">
+                              <span className="font-semibold text-blue-600 dark:text-blue-400">
+                                WO #{record.work_order.id}
+                              </span>
+                              <span className="text-xs text-muted-foreground">
+                                ${record.work_order.grand_total?.toFixed(2) || '0.00'}
+                              </span>
+                            </div>
+                          ) : (
+                            <span className="text-muted-foreground">-</span>
+                          )}
+                        </td>
                         <td className="p-3 text-sm">
                           {record.customer_details
                             ? `${record.customer_details.first_name} ${record.customer_details.last_name}`

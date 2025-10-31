@@ -1,20 +1,69 @@
 import { serviceClient } from "@/supabase-client";
 import { NextRequest } from "next/server";
 
-// Get all QA records (bypasses RLS for superadmin access)
+// Get all QA records with work order, customer, and pen details (bypasses RLS for superadmin access)
 export async function GET(request: NextRequest) {
     const adminClient = serviceClient();
 
-    const { data, error } = await adminClient
+    // First get QA records
+    const { data: qaData, error: qaError } = await adminClient
         .from("QualityAssurance")
         .select("*")
         .order("inspection_date", { ascending: false });
 
-    if (error) {
-        return new Response(JSON.stringify(error), { status: 400 });
+    if (qaError) {
+        return new Response(JSON.stringify(qaError), { status: 400 });
     }
 
-    return new Response(JSON.stringify(data), {
+    // Enrich with work order details
+    const enrichedData = await Promise.all(
+        (qaData || []).map(async (qa) => {
+            if (!qa.work_order_id) return qa;
+
+            // Fetch work order with customer and pen details
+            const { data: woData } = await adminClient
+                .from("WorkOrder")
+                .select(`
+                    id,
+                    count,
+                    defective,
+                    status,
+                    start_date,
+                    end_date,
+                    customer_id,
+                    pen
+                `)
+                .eq("id", qa.work_order_id)
+                .single();
+
+            if (!woData) return qa;
+
+            // Fetch customer details
+            const { data: customerData } = await adminClient
+                .from("Customers")
+                .select("first_name, last_name, email")
+                .eq("id", woData.customer_id)
+                .single();
+
+            // Fetch pen details
+            const { data: penData } = await adminClient
+                .from("Pen")
+                .select("pentype, cost")
+                .eq("id", woData.pen)
+                .single();
+
+            return {
+                ...qa,
+                work_order: {
+                    ...woData,
+                    customer: customerData,
+                    pen_details: penData
+                }
+            };
+        })
+    );
+
+    return new Response(JSON.stringify(enrichedData), {
         status: 200,
         headers: { "Content-Type": "application/json" }
     });

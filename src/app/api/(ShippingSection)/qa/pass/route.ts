@@ -36,10 +36,11 @@ export async function POST(request: NextRequest) {
         const arrivalDate = new Date();
         arrivalDate.setDate(arrivalDate.getDate() + 7);
 
-        // Create shipping record
+        // Create shipping record with work order reference
         const { error: shippingError } = await adminClient
             .from("Shipping")
             .insert({
+                work_order_id: work_order_id,
                 customer: workOrder.customer_id,
                 pen: workOrder.pen,
                 total_count: workOrder.count,
