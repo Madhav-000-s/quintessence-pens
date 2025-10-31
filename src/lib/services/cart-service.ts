@@ -28,10 +28,10 @@ export async function addToCart(
     const error = await response.json();
     throw new Error(error.error || "Failed to add item to cart");
   }
-  const response2 = await fetch("/api/generate", {
+  const response2 = await fetch("/api/orders/generate", {
     method: "POST",
     headers: { "Content-Type": "application/json"},
-    body: JSON.stringify(penId)
+    body: JSON.stringify({penId, count})
   });
   return response.json();
 }

@@ -1,15 +1,18 @@
+import { getCustomerId } from "@/app/lib/customerFunctions";
 import { calculatePayable, calculateManufacturingDuration, getPenMaterialsWeights, checkInventory } from "@/app/lib/orderFunction";
-import { supabase } from "@/supabase-client";
-import jwt from 'jsonwebtoken'
+import { supabase, serverClient } from "@/supabase-client";
+
 import { NextRequest, NextResponse } from "next/server";
 // import { Payload } from "@/app/api/(configurators)/configure_cap/route";
 
-const JWT_SECRET = process.env.JWT_SECRET;
-
 export async function POST(request: NextRequest) {
     const body = await request.json();
-
-    
+    const serverSupa = await serverClient();
+    const { data: authData, error:authError} = await serverSupa.auth.getUser();
+    if(authError){
+        return Response.json(authError, {status: 401});
+    }
+    const customer = await getCustomerId(authData.user.id);
     const { data: PenData, error: PenError } = await supabase
         .from("Pen")
         .select("cost")
@@ -36,7 +39,7 @@ export async function POST(request: NextRequest) {
     const { data, error } = await supabase
         .from("WorkOrder")
         .insert({
-            customer_id: body.customer_id,
+            customer_id: customer,
             pen: body.penId,
             isPaid: false,
             start_date: startDate,
@@ -46,7 +49,7 @@ export async function POST(request: NextRequest) {
             subtotal: subtotal,
             tax_amt: taxAmount,
             grand_total: totalWithTax,
-            isBusnies: body.isBusines,
+            isBusiness: false,
             status: "awaiting confirmation",
             material_wts: requiredMaterialsAndWts
         });
@@ -56,12 +59,7 @@ export async function POST(request: NextRequest) {
         console.error(error);
         return new Response(JSON.stringify(error), {status: 400});
     }
-    const cookieOptions = {
-        name: 'pen',
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        path: '/',
-    }
+
     const response = NextResponse.json(
         { message: "Work order created successfully.", pen_id: body.penId },
         { status: 201 }
