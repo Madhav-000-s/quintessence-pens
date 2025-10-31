@@ -27,6 +27,21 @@ interface QARecord {
   defects_found: number;
   defect_description: string | null;
   notes: string | null;
+  work_order?: {
+    id: number;
+    count: number;
+    defective: number;
+    status: string;
+    customer?: {
+      first_name: string;
+      last_name: string;
+      email: string;
+    };
+    pen_details?: {
+      pentype: string;
+      cost: number;
+    };
+  };
 }
 
 export default function QAPage() {
@@ -325,6 +340,7 @@ export default function QAPage() {
                 <thead className="border-b bg-muted/50">
                   <tr>
                     <th className="p-3 text-left text-sm font-medium">ID</th>
+                    <th className="p-3 text-left text-sm font-medium">Work Order Details</th>
                     <th className="p-3 text-left text-sm font-medium">Inspector</th>
                     <th className="p-3 text-left text-sm font-medium">
                       Inspection Date
@@ -332,9 +348,6 @@ export default function QAPage() {
                     <th className="p-3 text-left text-sm font-medium">Status</th>
                     <th className="p-3 text-right text-sm font-medium">
                       Defects Found
-                    </th>
-                    <th className="p-3 text-left text-sm font-medium">
-                      Defect Description
                     </th>
                     <th className="p-3 text-left text-sm font-medium">Actions</th>
                   </tr>
@@ -353,6 +366,25 @@ export default function QAPage() {
                         className="border-b last:border-0 hover:bg-muted/50"
                       >
                         <td className="p-3 text-sm font-medium">#{record.id}</td>
+                        <td className="p-3 text-sm">
+                          <div className="flex flex-col gap-1">
+                            <span className="font-semibold text-blue-600 dark:text-blue-400">
+                              WO #{record.work_order_id || 'N/A'}
+                            </span>
+                            {record.work_order && (
+                              <>
+                                <span className="text-xs text-muted-foreground">
+                                  {record.work_order.count} pens ({record.work_order.pen_details?.pentype || 'Unknown Type'})
+                                </span>
+                                {record.work_order.customer && (
+                                  <span className="text-xs text-muted-foreground">
+                                    Customer: {record.work_order.customer.first_name} {record.work_order.customer.last_name}
+                                  </span>
+                                )}
+                              </>
+                            )}
+                          </div>
+                        </td>
                         <td className="p-3 text-sm">{record.inspector_name}</td>
                         <td className="p-3 text-sm">
                           {new Date(record.inspection_date).toLocaleDateString()}
@@ -366,9 +398,6 @@ export default function QAPage() {
                         </td>
                         <td className="p-3 text-right text-sm font-semibold">
                           {record.defects_found}
-                        </td>
-                        <td className="p-3 text-sm">
-                          {record.defect_description || "-"}
                         </td>
                         <td className="p-3">
                           <div className="flex gap-2">
@@ -461,9 +490,11 @@ export default function QAPage() {
                     className="w-full rounded border p-2"
                   >
                     <option value="pending">Pending</option>
-                    <option value="passed">Passed</option>
                     <option value="failed">Failed</option>
                   </select>
+                  <p className="text-xs text-muted-foreground">
+                    Note: Use the "Pass QA" button to mark as passed (this creates a shipping record)
+                  </p>
                 </div>
 
                 <div className="space-y-2">
