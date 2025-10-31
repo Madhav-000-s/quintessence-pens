@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
     const { data, error } = await supabase
         .from("WorkOrder")
         .insert({
-            customer_id: customer,
+            customer_id: 7,
             pen: body.penId,
             isPaid: false,
             start_date: startDate,
